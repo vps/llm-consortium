@@ -1,0 +1,15 @@
+Stdout/Stderr: /home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/arbiter_prompt.xml
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/iteration_prompt.txt
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/cli.cpython-312.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/ConsortiumOrchestrator.cpython-312.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/context_management.cpython-312.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/__init__.cpython-311.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/__init__.cpython-312.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/__init__.cpython-313.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/orchestrator.cpython-312.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/protocol.cpython-311.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/protocol.cpython-312.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__pycache__/protocol.cpython-313.pyc
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/system_prompt.txt
+Exit Code: 0

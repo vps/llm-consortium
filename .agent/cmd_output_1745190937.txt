@@ -1,0 +1,228 @@
+Stdout/Stderr:             conversation_id = matches[0]["id"]
+        else:
+            return None
+    try:
+        row = cast(sqlite_utils.db.Table, db["conversations"]).get(conversation_id)
+    except sqlite_utils.db.NotFoundError:
+        raise click.ClickException(
+            "No conversation found with id={}".format(conversation_id)
+        )
+    # Inflate that conversation
+    conversation_class = AsyncConversation if async_ else Conversation
+    response_class = AsyncResponse if async_ else Response
+    conversation = conversation_class.from_row(row)
+    for response in db["responses"].rows_where(
+        "conversation_id = ?", [conversation_id]
+    ):
+        conversation.responses.append(response_class.from_row(db, response))
+    return conversation
+
+
+@cli.group(
+    cls=DefaultGroup,
+    default="list",
+    default_if_no_args=True,
+)
+def keys():
+    "Manage stored API keys for different models"
+
+
+@keys.command(name="list")
+def keys_list():
+    "List names of all stored keys"
+    path = user_dir() / "keys.json"
+    if not path.exists():
+        click.echo("No keys found")
+        return
+    keys = json.loads(path.read_text())
+    for key in sorted(keys.keys()):
+        if key != "// Note":
+            click.echo(key)
+
+
+@keys.command(name="path")
+def keys_path_command():
+    "Output the path to the keys.json file"
+    click.echo(user_dir() / "keys.json")
+
+
+@keys.command(name="get")
+@click.argument("name")
+def keys_get(name):
+    """
+    Return the value of a stored key
+
+    Example usage:
+
+    
+        export OPENAI_API_KEY=$(llm keys get openai)
+    """
+    path = user_dir() / "keys.json"
+    if not path.exists():
+        raise click.ClickException("No keys found")
+    keys = json.loads(path.read_text())
+    try:
+        click.echo(keys[name])
+--
+left join conversations on responses.conversation_id = conversations.id{extra_where}
+order by responses.id desc{limit}
+"""
+LOGS_SQL_SEARCH = """
+select
+{columns}
+from
+    responses
+left join schemas on responses.schema_id = schemas.id
+left join conversations on responses.conversation_id = conversations.id
+join responses_fts on responses_fts.rowid = responses.rowid
+where responses_fts match :query{extra_where}
+order by responses_fts.rank desc{limit}
+"""
+
+ATTACHMENTS_SQL = """
+select
+    response_id,
+    attachments.id,
+    attachments.type,
+    attachments.path,
+    attachments.url,
+    length(attachments.content) as content_length
+from attachments
+join prompt_attachments
+    on attachments.id = prompt_attachments.attachment_id
+where prompt_attachments.response_id in ({})
+order by prompt_attachments."order"
+"""
+
+
+@logs.command(name="list")
+@click.option(
+    "-n",
+    "--count",
+    type=int,
+    default=None,
+    help="Number of entries to show - defaults to 3, use 0 for all",
+)
+@click.option(
+    "-p",
+    "--path",
+    type=click.Path(readable=True, exists=True, dir_okay=False),
+    help="Path to log database",
+    hidden=True,
+)
+@click.option(
+    "-d",
+    "--database",
+    type=click.Path(readable=True, exists=True, dir_okay=False),
+    help="Path to log database",
+)
+@click.option("-m", "--model", help="Filter by model or model alias")
+@click.option("-q", "--query", help="Search for logs matching this string")
+@click.option(
+    "fragments",
+    "--fragment",
+    "-f",
+    help="Filter for prompts using these fragments",
+    multiple=True,
+--
+            conversation_id = next(
+                db.query(
+                    "select conversation_id from responses order by id desc limit 1"
+                )
+            )["conversation_id"]
+        except StopIteration:
+            # No conversations yet
+            raise click.ClickException("No conversations found")
+
+    # For --conversation set limit 0, if not explicitly set
+    if count is None:
+        if conversation_id:
+            count = 0
+        else:
+            count = 3
+
+    model_id = None
+    if model:
+        # Resolve alias, if any
+        try:
+            model_id = get_model(model).model_id
+        except UnknownModelError:
+            # Maybe they uninstalled a model, use the -m option as-is
+            model_id = model
+
+    sql = LOGS_SQL
+    if query:
+        sql = LOGS_SQL_SEARCH
+
+    limit = ""
+    if count is not None and count > 0:
+        limit = " limit {}".format(count)
+
+    sql_format = {
+        "limit": limit,
+        "columns": LOGS_COLUMNS,
+        "extra_where": "",
+    }
+    where_bits = []
+    sql_params = {
+        "model": model_id,
+        "query": query,
+        "conversation_id": conversation_id,
+        "id_gt": id_gt,
+        "id_gte": id_gte,
+    }
+    if model_id:
+        where_bits.append("responses.model = :model")
+    if conversation_id:
+        where_bits.append("responses.conversation_id = :conversation_id")
+    if id_gt:
+        where_bits.append("responses.id > :id_gt")
+    if id_gte:
+        where_bits.append("responses.id >= :id_gte")
+    if fragments:
+        # Resolve the fragments to their hashes
+        fragment_hashes = [
+            fragment.id() for fragment in resolve_fragments(db, fragments)
+        ]
+        exists_clauses = []
+
+        for i, fragment_hash in enumerate(fragment_hashes):
+            exists_clause = f"""
+            exists (
+                select 1 from prompt_fragments
+                where prompt_fragments.response_id = responses.id
+                and prompt_fragments.fragment_id in (
+                    select fragments.id from fragments
+                    where hash = :f{i}
+                )
+                union
+                select 1 from system_fragments
+                where system_fragments.response_id = responses.id
+                and system_fragments.fragment_id in (
+                    select fragments.id from fragments
+                    where hash = :f{i}
+                )
+            )
+            """
+            exists_clauses.append(exists_clause)
+            sql_params["f{}".format(i)] = fragment_hash
+
+        where_bits.append(" AND ".join(exists_clauses))
+    schema_id = None
+    if schema:
+        schema_id = make_schema_id(schema)[0]
+        where_bits.append("responses.schema_id = :schema_id")
+        sql_params["schema_id"] = schema_id
+
+    if where_bits:
+        where_ = " and " if query else " where "
+        sql_format["extra_where"] = where_ + " and ".join(where_bits)
+
+    final_sql = sql.format(**sql_format)
+    rows = list(db.query(final_sql, sql_params))
+
+    # Reverse the order - we do this because we 'order by id desc limit 3' to get the
+    # 3 most recent results, but we still want to display them in chronological order
+    # ... except for searches where we don't do this
+    if not query and not data:
+Exit Code: 0

@@ -1,0 +1,17 @@
+Stdout/Stderr: def log_response(response, model):
+    """Log model response to database and log file."""
+    try:
+        db = DatabaseConnection.get_connection()
+        response.log_to_db(db)
+        logger.debug(f"Response from {model} logged to database")
+
+        # Check for truncation in various formats
+        if response.response_json:
+            finish_reason = _get_finish_reason(response.response_json)
+            truncation_indicators = ['length', 'max_tokens', 'max_token']
+
+            if finish_reason and any(indicator in finish_reason for indicator in truncation_indicators):
+                logger.warning(f"Response from {model} truncated. Reason: {finish_reason}")
+
+    except Exception as e:
+Exit Code: 0

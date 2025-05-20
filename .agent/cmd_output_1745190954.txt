@@ -1,0 +1,34 @@
+Stdout/Stderr: 627-
+628-    conversation = None
+629-    if conversation_id or _continue:
+630-        # Load the conversation - loads most recent if no ID provided
+631-        try:
+632:            conversation = load_conversation(conversation_id, async_=async_)
+633-        except UnknownModelError as ex:
+634-            raise click.ClickException(str(ex))
+635-
+636-    # Figure out which model we are using
+637-    if model_id is None:
+638-        if conversation:
+639-            model_id = conversation.model.model_id
+640-        else:
+641-            model_id = get_default_model()
+642-
+--
+844-
+845-    conversation = None
+846-    if conversation_id or _continue:
+847-        # Load the conversation - loads most recent if no ID provided
+848-        try:
+849:            conversation = load_conversation(conversation_id)
+850-        except UnknownModelError as ex:
+851-            raise click.ClickException(str(ex))
+852-
+853-    template_obj = None
+854-    if template:
+855-        params = dict(param)
+856-        # Cannot be used with system
+857-        if system:
+858-            raise click.ClickException("Cannot use -t/--template and --system together")
+859-        try:
+Exit Code: 0

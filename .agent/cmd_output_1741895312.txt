@@ -1,0 +1,101 @@
+Stdout/Stderr: import click
+import json
+import llm
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+import logging
+import sys
+import re
+import os
+import pathlib
+import sqlite_utils
+from pydantic import BaseModel
+import time  # added import for time
+import concurrent.futures  # Add concurrent.futures for parallel processing
+import threading  # Add threading for thread-local storage
+
+# Todo:
+# "finish_reason": "length"
+# "finish_reason": "max_tokens"
+# "stop_reason": "max_tokens",
+# "finishReason": "MAX_TOKENS"
+# "finishReason": "length"
+# response.response_json
+# Todo: setup continuation models: claude, deepseek etc.
+
+# Read system prompt from file
+def _read_system_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "system_prompt.txt"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading system prompt file: {e}")
+        return ""
+
+def _read_arbiter_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "arbiter_prompt.xml"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading arbiter prompt file: {e}")
+        return ""
+
+def _read_iteration_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "iteration_prompt.txt"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading iteration prompt file: {e}")
+        return ""
+
+DEFAULT_SYSTEM_PROMPT = _read_system_prompt()
+
+def user_dir() -> pathlib.Path:
+    """Get or create user directory for storing application data."""
+    llm_user_path = os.environ.get("LLM_USER_PATH")
+    if llm_user_path:
+        path = pathlib.Path(llm_user_path)
+    else:
+        path = pathlib.Path(click.get_app_dir("io.datasette.llm"))
+    path.mkdir(exist_ok=True, parents=True)
+    return path
+
+def logs_db_path() -> pathlib.Path:
+    """Get path to logs database."""
+    return user_dir() / "logs.db"
+
+def setup_logging() -> None:
+    """Configure logging to write to both file and console."""
+    log_path = user_dir() / "consortium.log"
+
+    # Create a formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # Console handler with ERROR level
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.ERROR)
+    console_handler.setFormatter(formatter)
+
+    file_handler = logging.FileHandler(str(log_path))
+    file_handler.setLevel(logging.ERROR)
+    file_handler.setFormatter(formatter)
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.ERROR)
+    root_logger.addHandler(console_handler)
+    root_logger.addHandler(file_handler)
+
+# Replace existing logging setup with new setup
+setup_logging()
+logger = logging.getLogger(__name__)
+logger.debug("llm_karpathy_consortium module is being imported")
+
+class DatabaseConnection:
+    _thread_local = threading.local()
+
+    @classmethod
+Exit Code: 0

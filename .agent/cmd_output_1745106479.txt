@@ -1,0 +1,80 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+id|model|SUBSTR(prompt, 1, 200)
+01jjwyqjvnsh7xqdf1a2akrzr0|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt>What is the status of this task?</original_prompt>
+    <model_responses>
+        <model_response>
+            <model>deepseek-chat</model>
+            <instance>1
+01jjwyvps14ys9sstn413bn7ga|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt><task># 2025-01-31T00:55:53    conversation: 01jjwxpy8zt190w31zpwr7t3ph
+
+Model: **anthropic/claude-3-5-sonnet-latest**
+
+## Prompt:
+
+-p=total 1.8G
+-rw-r--r-- 1 tho
+01jjwzpdzgb5d12v3t9cgfxr23|gemini-2.0-flash-exp|<arbiter_prompt>
+    <original_prompt><agent_log># 2025-01-31T00:55:53    conversation: 01jjwxpy8zt190w31zpwr7t3ph
+
+Model: **anthropic/claude-3-5-sonnet-latest**
+
+## Prompt:
+
+-p=total 1.8G
+-rw-r--r-- 
+01jjx3yhqy9dg2hx49cfse47jx|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt><task>on kde arch linux X11, write a shell script or other program which allows me to pick a window and record that window always, even when minimized or unmaped.
+01jjx7w5zvyp8tr6x46kwnwn7h|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt><documents>
+<document index="1">
+<source>/home/thomas/Projects/fewshot.txt</source>
+<document_content>
+<documents>
+<document index="1">
+<source>pyproject.toml</so
+01jjx91e1xs7pag85t2rrt00mt|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt><documents>
+<document index="1">
+<source>/home/thomas/Projects/claude.sh/agent.sh</source>
+<document_content>
+#!/bin/zsh
+
+search_terms_generator () {
+    usage="s
+01jjyd53sgy9ebmf942anwdcc4|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt>  *   * Quick Start
+  * Your First API Call
+
+On this page
+
+# Your First API Call
+
+The DeepSeek API uses an API format compatible with OpenAI. By modifying the
+con
+01jjydppgwnmr4q5g950ebp544|gemini-2.0-flash-exp|<arbiter_prompt>
+    <original_prompt><documents>
+<document index="1">
+<source>llm_anthropic.py</source>
+<document_content>
+from anthropic import Anthropic, AsyncAnthropic
+import llm
+from pydantic imp
+01jjye4zpx5nn4k27jmydg05bd|openrouter/minimax/minimax-01|<arbiter_prompt>
+    <original_prompt><documents>
+<document index="1">
+<source>llm_anthropic.py</source>
+<document_content>
+from anthropic import Anthropic, AsyncAnthropic
+import llm
+from pydantic imp
+01jjyf2mq8pv6c652bs3e2csj9|gemini-2.0-flash-exp|<arbiter_prompt>
+    <original_prompt><documents>
+<document index="1">
+<source>llm_anthropic.py</source>
+<document_content>
+from anthropic import Anthropic, AsyncAnthropic
+import llm
+from pydantic imp
+Exit Code: 0

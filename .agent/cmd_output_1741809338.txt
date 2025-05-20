@@ -1,0 +1,110 @@
+Stdout/Stderr: 2025-03-12 19:55:37,934 - llm_consortium - ERROR - Error getting response from gemini-2.0-flash-thinking-exp-01-21 instance 1
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 214, in get_model
+    return aliases[name]
+           ~~~~~~~^^^^^^
+KeyError: 'gemini-2.0-flash-thinking-exp-01-21'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 229, in _get_model_response
+    response = llm.get_model(model).prompt(xml_prompt, system=self.system_prompt)
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 227, in get_model
+    raise UnknownModelError("Unknown model: " + name)
+llm.UnknownModelError: 'Unknown model: gemini-2.0-flash-thinking-exp-01-21'
+2025-03-12 19:55:37,934 - llm_consortium - ERROR - Error getting response from gemini-2.0-flash-thinking-exp-01-21 instance 1
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 214, in get_model
+    return aliases[name]
+           ~~~~~~~^^^^^^
+KeyError: 'gemini-2.0-flash-thinking-exp-01-21'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 229, in _get_model_response
+    response = llm.get_model(model).prompt(xml_prompt, system=self.system_prompt)
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 227, in get_model
+    raise UnknownModelError("Unknown model: " + name)
+llm.UnknownModelError: 'Unknown model: gemini-2.0-flash-thinking-exp-01-21'
+2025-03-12 19:55:37,940 - llm_consortium - ERROR - Error getting response from gemini-2.0-flash-exp instance 1
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 214, in get_model
+    return aliases[name]
+           ~~~~~~~^^^^^^
+KeyError: 'gemini-2.0-flash-exp'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 229, in _get_model_response
+    response = llm.get_model(model).prompt(xml_prompt, system=self.system_prompt)
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 227, in get_model
+    raise UnknownModelError("Unknown model: " + name)
+llm.UnknownModelError: 'Unknown model: gemini-2.0-flash-exp'
+2025-03-12 19:55:37,940 - llm_consortium - ERROR - Error getting response from gemini-2.0-flash-exp instance 1
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 214, in get_model
+    return aliases[name]
+           ~~~~~~~^^^^^^
+KeyError: 'gemini-2.0-flash-exp'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 229, in _get_model_response
+    response = llm.get_model(model).prompt(xml_prompt, system=self.system_prompt)
+               ^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 227, in get_model
+    raise UnknownModelError("Unknown model: " + name)
+llm.UnknownModelError: 'Unknown model: gemini-2.0-flash-exp'
+2025-03-12 19:55:37,946 - llm_consortium - ERROR - Error in consortium command
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 214, in get_model
+    return aliases[name]
+           ~~~~~~~^^^^^^
+KeyError: 'gemini-2.0-flash-thinking-exp-01-21'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 615, in run_command
+    result = orchestrator.orchestrate(prompt)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 189, in orchestrate
+    synthesis = self._synthesize_responses(original_prompt, model_responses)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 326, in _synthesize_responses
+    arbiter = llm.get_model(self.arbiter)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 227, in get_model
+    raise UnknownModelError("Unknown model: " + name)
+llm.UnknownModelError: 'Unknown model: gemini-2.0-flash-thinking-exp-01-21'
+2025-03-12 19:55:37,946 - llm_consortium - ERROR - Error in consortium command
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 214, in get_model
+    return aliases[name]
+           ~~~~~~~^^^^^^
+KeyError: 'gemini-2.0-flash-thinking-exp-01-21'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 615, in run_command
+    result = orchestrator.orchestrate(prompt)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 189, in orchestrate
+    synthesis = self._synthesize_responses(original_prompt, model_responses)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 326, in _synthesize_responses
+    arbiter = llm.get_model(self.arbiter)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/__init__.py", line 227, in get_model
+    raise UnknownModelError("Unknown model: " + name)
+llm.UnknownModelError: 'Unknown model: gemini-2.0-flash-thinking-exp-01-21'
+Error: 'Unknown model: gemini-2.0-flash-thinking-exp-01-21'
+Exit Code: 0

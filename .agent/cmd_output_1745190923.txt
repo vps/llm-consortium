@@ -1,0 +1,51 @@
+Stdout/Stderr: 
+    if save:
+        # We are saving their prompt/system/etc to a new template
+        # Fields to save: prompt, system, model - and more in the future
+        disallowed_options = []
+        for option, var in (
+            ("--template", template),
+            ("--continue", _continue),
+            ("--cid", conversation_id),
+        ):
+            if var:
+                disallowed_options.append(option)
+        if disallowed_options:
+            raise click.ClickException(
+                "--save cannot be used with {}".format(", ".join(disallowed_options))
+            )
+        path = template_dir() / f"{save}.yaml"
+        to_save = {}
+        if model_id:
+            try:
+                to_save["model"] = model_aliases[model_id].model_id
+            except KeyError:
+                raise click.ClickException("'{}' is not a known model".format(model_id))
+        prompt = read_prompt()
+        if prompt:
+            to_save["prompt"] = prompt
+        if system:
+            to_save["system"] = system
+        if param:
+            to_save["defaults"] = dict(param)
+        if extract:
+            to_save["extract"] = True
+        if extract_last:
+            to_save["extract_last"] = True
+        if schema:
+            to_save["schema_object"] = schema
+        if fragments:
+            to_save["fragments"] = list(fragments)
+        if system_fragments:
+            to_save["system_fragments"] = list(system_fragments)
+        if attachments:
+            # Only works for attachments with a path or url
+            to_save["attachments"] = [
+                (a.path or a.url) for a in attachments if (a.path or a.url)
+            ]
+        if attachment_types:
+            to_save["attachment_types"] = [
+                {"type": a.type, "value": a.path or a.url}
+                for a in attachment_types
+                if (a.path or a.url)
+Exit Code: 0

@@ -1,0 +1,69 @@
+# Analysis of GitHub Issue Monitoring Task
+
+## Key Requirements and Constraints
+1. View GitHub Issue #10 from the repository irthomasthomas/llm-consortium
+2. Monitor Issue #10 for new comments by user 'irthomasthomas' only
+3. Use GitHub account associated with 'shelllm'
+4. Execute operations in the correct sequence: retrieve content first, then monitor
+5. Run the monitoring script in background
+6. Follow specific output formatting with reasoning, plan and command tags
+
+## Task Breakdown
+1. Retrieve Issue #10 content and all existing comments
+   - Use `gh issue view` with appropriate parameters
+   - Specify the repository explicitly
+
+2. Set up background monitoring
+   - Use `/home/thomas/Projects/claude.sh/monitor_issue.sh`
+   - Configure parameters for issue-comments mode, repository, issue number, and user filter
+   - Run in background with &
+
+## Promising Approach
+Using the GitHub CLI tool with explicit repository specification, followed by the monitor script with all required parameters in background mode.
+
+## Potential Obstacles and Solutions
+- Permission issues: Ensure the script has execution permissions
+- Script availability: Verify the monitor_issue.sh path
+- Background process management: Use proper syntax for background execution
+
+## Implementation Guidance
+
+<REASONING>
+First, I need to retrieve the full content of Issue #10 including all comments. The gh CLI tool allows this with the "issue view" command. I'll need to specify the repository explicitly as required.
+
+After retrieving the issue content, I'll need to set up monitoring for new comments on this issue, but only those authored by 'irthomasthomas'. The monitor_issue.sh script appears to have the functionality needed for this, and I should configure it with the right parameters and run it in the background.
+</REASONING>
+
+<PLAN>
+1. Use `gh issue view` with issue number 10 and repository specification to retrieve the full issue content
+2. Execute the monitor_issue.sh script with appropriate parameters:
+   - Set mode to issue-comments
+   - Specify the repository as irthomasthomas/llm-consortium
+   - Set issue number to 10
+   - Filter for user irthomasthomas
+   - Run in background with &
+3. Provide confirmation that monitoring has started
+</PLAN>
+
+<COMMAND>
+gh issue view 10 --repo irthomasthomas/llm-consortium --comments
+</COMMAND>
+
+<REASONING>
+Now that I've retrieved the issue content, I need to set up the background monitoring process. The monitor_issue.sh script requires several parameters to function correctly:
+- The mode should be 'issue-comments' since we're monitoring comments on an issue
+- The repository needs to be explicitly specified as 'irthomasthomas/llm-consortium'
+- The issue number is 10
+- We want to filter for the user 'irthomasthomas' only
+- The script should run in the background so I'll append & to the command
+</REASONING>
+
+<PLAN>
+Execute the monitor_issue.sh script with all required parameters in background mode, then confirm monitoring has started.
+</PLAN>
+
+<COMMAND>
+/home/thomas/Projects/claude.sh/monitor_issue.sh --mode issue-comments --repo irthomasthomas/llm-consortium --issue 10 --user irthomasthomas &
+</COMMAND>
+
+Monitoring initiated for new comments by 'irthomasthomas' on Issue #10 in the repository 'irthomasthomas/llm-consortium'. The process is running in the background, and the system will detect any new comments as they're posted.

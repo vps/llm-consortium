@@ -1,0 +1,105 @@
+Stdout/Stderr: ╭───────────────────────────────────────── Analysis Started ──────────────────────────────────────────╮
+│ 🔍 Scanning directory: /home/thomas/Projects/llm/plugins/Utilities/llm-consortium                   │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────╯
+  Analyzing 82/82 files ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 82/82
+# llm-consortium Navigation Map
+
+
+## KEY FILES
+
+- `CHANGELOG.md` (Markdown) - Imports: 0, Imported by: 0
+- `requirements.txt` (Unknown (.txt)) - Imports: 0, Imported by: 0
+- `examples/README.md` (Markdown) - Imports: 0, Imported by: 0
+- `.gitignore` (Unknown ()) - Imports: 0, Imported by: 0
+- `README.md` (Markdown) - Imports: 0, Imported by: 0
+- `pyproject.toml` (TOML) - Imports: 0, Imported by: 0
+- `llm_consortium/__init__.py` (Python) - Imports: 0, Imported by: 3
+
+## ENTRY POINTS
+
+- `tests/test_cli.py` - Matches entry point pattern cli\.py$
+
+## FUNCTION INDEX
+
+- `llm_consortium/__init__.py:run_command(prompt, models, count, arbiter, confidence_threshold, max_iterations, min_iterations, system, output, stdin, raw)` - L702
+- `llm_consortium/__init__.py:create_consortium(models, confidence_threshold, max_iterations, min_iterations, arbiter, system_prompt, default_count, raw)` - L607
+- `llm_consortium/__init__.py:save_command(name, models, count, arbiter, confidence_threshold, max_iterations, min_iterations, system)` - L809
+- `llm_consortium/__init__.py:execute(self, prompt, stream, response, conversation)` - L529
+- `llm_consortium/__init__.py:_get_model_response(self, model, prompt, instance)` - L241
+- `tests/test_llm_consortium.py:test_get_model_response(self, mock_db_connection, mock_get_model)` - L17
+- `tests/test_llm_consortium.py:test_synthesize_responses(self, mock_db_connection, mock_get_model)` - L37
+- `tests/test_llm_consortium.py:test_orchestrate(self, mock_synthesize, mock_get_responses)` - L73
+- `llm_consortium/__init__.py:_parse_confidence_value(self, text, default)` - L292
+- `llm_consortium/__init__.py:_construct_iteration_prompt(self, original_prompt, last_synthesis)` - L319
+- `llm_consortium/__init__.py:_synthesize_responses(self, original_prompt, responses)` - L418
+- `llm_consortium/__init__.py:_parse_arbiter_response(self, text, is_final_iteration)` - L453
+- `llm_consortium/__init__.py:get_command(self, ctx, cmd_name)` - L591
+- `llm_consortium/__init__.py:resolve_command(self, ctx, args)` - L601
+- `tests/test_llm_consortium.py:test_get_connection(self, mock_database)` - L102
+- `tests/test_cli.py:log_to_db(self, db)` - L31
+- `tests/test_cli.py:prompt(self, xml_prompt)` - L35
+- `llm_consortium/__init__.py:log_response(response, model)` - L125
+- `llm_consortium/__init__.py:parse_models(models, count)` - L490
+- `llm_consortium/__init__.py:_save_consortium_config(name, config)` - L569
+- `llm_consortium/__init__.py:from_dict(cls, data)` - L160
+- `llm_consortium/__init__.py:orchestrate(self, prompt)` - L176
+- `llm_consortium/__init__.py:_get_model_responses(self, prompt)` - L225
+- `llm_consortium/__init__.py:_extract_confidence(self, text)` - L316
+- `llm_consortium/__init__.py:_format_refinement_areas(self, areas)` - L404
+- `llm_consortium/__init__.py:_format_responses(self, responses)` - L407
+- `tests/test_llm_consortium.py:setUp(self)` - L7
+- `tests/test_llm_consortium.py:test_parse_confidence_value(self)` - L30
+- `tests/test_cli.py:dummy_orchestrate(prompt)` - L17
+- `tests/test_cli.py:dummy_get_model(model_id)` - L38
+- `tests/test_cli.py:patch_llm(monkeypatch)` - L42
+- `tests/test_cli.py:text(self)` - L26
+- `tests/test_cli.py:response_json(self)` - L29
+- `llm_consortium/__init__.py:_get_finish_reason(response_json)` - L107
+- `llm_consortium/__init__.py:register_commands(cli)` - L897
+- `llm_consortium/__init__.py:register_models(register)` - L882
+- `llm_consortium/__init__.py:get_connection(cls)` - L101
+- `llm_consortium/__init__.py:__init__(self)` - L585
+- `llm_consortium/__init__.py:to_dict(self)` - L156
+- `llm_consortium/__init__.py:_format_iteration_history(self)` - L383
+- `llm_consortium/__init__.py:__str__(self)` - L518
+- `llm_consortium/__init__.py:get_orchestrator(self)` - L521
+- `llm_consortium/__init__.py:consortium(ctx)` - L639
+- `llm_consortium/__init__.py:remove_command(name)` - L865
+- `tests/test_cli.py:cli()` - L12
+- `tests/test_cli.py:test_run_command_min_iterations()` - L47
+- `tests/test_cli.py:test_save_command()` - L58
+- `llm_consortium/__init__.py:_read_system_prompt()` - L27
+- `llm_consortium/__init__.py:_read_arbiter_prompt()` - L36
+- `llm_consortium/__init__.py:_read_iteration_prompt()` - L45
+
+## CLASS INDEX
+
+- `llm_consortium/__init__.py:ConsortiumOrchestrator` - 12 methods
+- `tests/test_llm_consortium.py:TestConsortiumOrchestrator` extends unittest.TestCase - 5 methods
+- `llm_consortium/__init__.py:ConsortiumModel` extends llm.Model - 4 methods
+- `tests/test_cli.py:DummyResponse` - 3 methods
+- `llm_consortium/__init__.py:DefaultToRunGroup` extends DefaultGroup - 3 methods
+- `llm_consortium/__init__.py:ConsortiumConfig` extends BaseModel - 2 methods
+- `tests/test_llm_consortium.py:TestDatabaseConnection` extends unittest.TestCase - 1 methods
+- `tests/test_cli.py:DummyModel` - 1 methods
+- `llm_consortium/__init__.py:DatabaseConnection` - 1 methods
+- `llm_consortium/__init__.py:IterationContext` - 1 methods
+- `llm_consortium/__init__.py:KarpathyConsortiumPlugin` - 1 methods
+- `llm_consortium/__init__.py:Options` extends llm.Options - 0 methods
+
+## MODULE DEPENDENCIES
+
+- `llm_consortium/__init__.py` is imported by 3 modules
+  - `examples/demo.py`
+  - `tests/test_cli.py`
+  - `tests/test_llm_consortium.py`
+
+## IMPORT RELATIONSHIPS
+
+- `examples/demo.py` imports 1 modules:
+  - `llm_consortium/__init__.py`
+- `tests/test_llm_consortium.py` imports 1 modules:
+  - `llm_consortium/__init__.py`
+- `tests/test_cli.py` imports 1 modules:
+  - `llm_consortium/__init__.py`
+Exit Code: 0

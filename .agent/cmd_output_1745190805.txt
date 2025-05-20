@@ -1,0 +1,100 @@
+Stdout/Stderr: from .hookspecs import hookimpl
+from .errors import (
+    ModelError,
+    NeedsKeyException,
+)
+from .models import (
+    AsyncConversation,
+    AsyncKeyModel,
+    AsyncModel,
+    AsyncResponse,
+    Attachment,
+    Conversation,
+    EmbeddingModel,
+    EmbeddingModelWithAliases,
+    KeyModel,
+    Model,
+    ModelWithAliases,
+    Options,
+    Prompt,
+    Response,
+)
+from .utils import schema_dsl, Fragment
+from .embeddings import Collection
+from .templates import Template
+from .plugins import pm, load_plugins
+import click
+from typing import Dict, List, Optional, Callable, Union
+import json
+import os
+import pathlib
+import struct
+
+__all__ = [
+    "AsyncConversation",
+    "AsyncKeyModel",
+    "AsyncResponse",
+    "Attachment",
+    "Collection",
+    "Conversation",
+    "Fragment",
+    "get_async_model",
+    "get_key",
+    "get_model",
+    "hookimpl",
+    "KeyModel",
+    "Model",
+    "ModelError",
+    "NeedsKeyException",
+    "Options",
+    "Prompt",
+    "Response",
+    "Template",
+    "user_dir",
+    "schema_dsl",
+]
+DEFAULT_MODEL = "gpt-4o-mini"
+
+
+def get_plugins(all=False):
+    plugins = []
+    plugin_to_distinfo = dict(pm.list_plugin_distinfo())
+    for plugin in pm.get_plugins():
+        if not all and plugin.__name__.startswith("llm.default_plugins."):
+            continue
+        plugin_info = {
+            "name": plugin.__name__,
+            "hooks": [h.name for h in pm.get_hookcallers(plugin)],
+        }
+        distinfo = plugin_to_distinfo.get(plugin)
+        if distinfo:
+            plugin_info["version"] = distinfo.version
+            plugin_info["name"] = (
+                getattr(distinfo, "name", None) or distinfo.project_name
+            )
+        plugins.append(plugin_info)
+    return plugins
+
+
+def get_models_with_aliases() -> List["ModelWithAliases"]:
+    model_aliases = []
+
+    # Include aliases from aliases.json
+    aliases_path = user_dir() / "aliases.json"
+    extra_model_aliases: Dict[str, list] = {}
+    if aliases_path.exists():
+        configured_aliases = json.loads(aliases_path.read_text())
+        for alias, model_id in configured_aliases.items():
+            extra_model_aliases.setdefault(model_id, []).append(alias)
+
+    def register(model, async_model=None, aliases=None):
+        alias_list = list(aliases or [])
+        if model.model_id in extra_model_aliases:
+            alias_list.extend(extra_model_aliases[model.model_id])
+        model_aliases.append(ModelWithAliases(model, async_model, alias_list))
+
+    load_plugins()
+    pm.hook.register_models(register=register)
+
+    return model_aliases
+Exit Code: 0

@@ -1,0 +1,51 @@
+Stdout/Stderr:             ]
+        if options:
+            # Need to validate and convert their types first
+            model = get_model(model_id or get_default_model())
+            try:
+                to_save["options"] = dict(
+                    (key, value)
+                    for key, value in model.Options(**dict(options))
+                    if value is not None
+                )
+            except pydantic.ValidationError as ex:
+                raise click.ClickException(render_errors(ex.errors()))
+        path.write_text(
+            yaml.dump(
+                to_save,
+                indent=4,
+                default_flow_style=False,
+                sort_keys=False,
+            ),
+            "utf-8",
+        )
+        return
+
+    if template:
+        params = dict(param)
+        # Cannot be used with system
+        if system:
+            raise click.ClickException("Cannot use -t/--template and --system together")
+        try:
+            template_obj = load_template(template)
+        except LoadTemplateError as ex:
+            raise click.ClickException(str(ex))
+        extract = template_obj.extract
+        extract_last = template_obj.extract_last
+        # Combine with template fragments/system_fragments
+        if template_obj.fragments:
+            fragments = [*template_obj.fragments, *fragments]
+        if template_obj.system_fragments:
+            system_fragments = [*template_obj.system_fragments, *system_fragments]
+        if template_obj.schema_object:
+            schema = template_obj.schema_object
+        input_ = ""
+        if template_obj.options:
+            # Make options mutable (they start as a tuple)
+            options = list(options)
+            # Load any options, provided they were not set using -o already
+            specified_options = dict(options)
+            for option_name, option_value in template_obj.options.items():
+                if option_name not in specified_options:
+                    options.append((option_name, option_value))
+Exit Code: 0

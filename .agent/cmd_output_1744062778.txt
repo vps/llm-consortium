@@ -1,0 +1,35 @@
+Stdout/Stderr: - [] Save consortium prompts to a seperate table in llm logs db than the rest of the logs.
+- [] The final prompt which uses the consortium name for the model should continue to be saved in the llm logs table.
+- [] Extract evals from consortium responses. Figure out a way reliably find old consortium prompts in the logs and label or organize them.
+- [] We can get the list of consortium model names and search the logs for them. 
+- [] For iteration, I am considering changing the approach to take advantage of conversation prompt caching in models which support it. I think it might be best to record the conversation_id for each instance, and then reply to that conversation id with feedback. This way we would not need to explicitly construct iteration history as it would be handled by the llm python library. What do you think? Pros and cons etc?
+- llm logs list --help              ✔  .artefacts  
+Usage: llm logs list [OPTIONS]
+
+  Show recent logged prompts and their responses
+
+Options:
+  -n, --count INTEGER         Number of entries to show - defaults to 3, use 0
+                              for all
+  -p, --path FILE             Path to log database
+  -m, --model TEXT            Filter by model or model alias
+  -q, --query TEXT            Search for logs matching this string
+  --schema TEXT               JSON schema, filepath or ID
+  --schema-multi TEXT         JSON schema used for multiple results
+  --data                      Output newline-delimited JSON data for schema
+  --data-array                Output JSON array of data for schema
+  --data-key TEXT             Return JSON objects from array in this key
+  --data-ids                  Attach corresponding IDs to JSON objects
+  -t, --truncate              Truncate long strings in output
+  -s, --short                 Shorter YAML output with truncated prompts
+  -u, --usage                 Include token usage
+  -r, --response              Just output the last response
+  -x, --extract               Extract first fenced code block
+  --xl, --extract-last        Extract last fenced code block
+  -c, --current               Show logs from the current conversation
+  --cid, --conversation TEXT  Show logs for this conversation ID
+  --id-gt TEXT                Return responses with ID > this
+  --id-gte TEXT               Return responses with ID >= this
+  --json                      Output logs as JSON
+  --help                      Show this message and exit.
+Exit Code: 0

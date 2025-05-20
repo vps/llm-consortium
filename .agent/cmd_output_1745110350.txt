@@ -1,0 +1,61 @@
+Stdout/Stderr: 2025-04-20T01:52:08.685347	DEBUG	Searched 0 candidates for group 1491f72782dbb27bed5e5e433a439ac0e568e505
+2025-04-20T01:52:08.685388	DEBUG	Processing consortium run 1491f727e8879e66a70a9eba4114c1a93e3974f5 (Arbiter: 01js4de6cn3anme6hpjsba9r26)
+2025-04-20T01:52:08.713619	DEBUG	Searched 0 candidates for group 1491f727e8879e66a70a9eba4114c1a93e3974f5
+2025-04-20T01:52:08.713661	DEBUG	Processing consortium run 1491f72707164420e2bd8369300e16e600831096 (Arbiter: 01js4e1we469tkgrmmhpq43547)
+2025-04-20T01:52:08.742764	DEBUG	Searched 0 candidates for group 1491f72707164420e2bd8369300e16e600831096
+2025-04-20T01:52:08.742844	DEBUG	Processing consortium run 1491f727161116fd1f2b03d26f132aa41c974759 (Arbiter: 01js4e25v3smz3ma5mbb3ezjvq)
+2025-04-20T01:52:08.771106	DEBUG	Searched 0 candidates for group 1491f727161116fd1f2b03d26f132aa41c974759
+2025-04-20T01:52:08.771147	DEBUG	Processing consortium run 1491f7272814bcdbec7f5d4936cc2bbcb7f7a1f6 (Arbiter: 01js4e55nf704nr6k7z0nkstbb)
+2025-04-20T01:52:08.771235	WARN	No response snippets extracted from arbiter 01js4e55nf704nr6k7z0nkstbb
+2025-04-20T01:52:08.799193	DEBUG	Searched 0 candidates for group 1491f7272814bcdbec7f5d4936cc2bbcb7f7a1f6
+2025-04-20T01:52:08.799232	DEBUG	Processing consortium run 1491f727288d1617a6ee13e5c14c511b9a2daed4 (Arbiter: 01js4e5z8z4s49etwecn90zebz)
+2025-04-20T01:52:08.799317	WARN	No response snippets extracted from arbiter 01js4e5z8z4s49etwecn90zebz
+2025-04-20T01:52:08.827145	DEBUG	Searched 0 candidates for group 1491f727288d1617a6ee13e5c14c511b9a2daed4
+2025-04-20T01:52:08.827185	DEBUG	Processing consortium run 1491f727257de515cb1df817b8e315ac825d1ede (Arbiter: 01js4e6jmtwx4pf2y969n0fbkh)
+2025-04-20T01:52:08.856405	DEBUG	Searched 0 candidates for group 1491f727257de515cb1df817b8e315ac825d1ede
+2025-04-20T01:52:08.856497	DEBUG	Processing consortium run 1491f727a4efc328d9e8086f2e3511a23802c0d3 (Arbiter: 01js5t2eehh2svwwnnd89agent)
+2025-04-20T01:52:08.856577	WARN	No response snippets extracted from arbiter 01js5t2eehh2svwwnnd89agent
+2025-04-20T01:52:08.884850	DEBUG	Searched 0 candidates for group 1491f727a4efc328d9e8086f2e3511a23802c0d3
+2025-04-20T01:52:08.884893	DEBUG	Processing consortium run 1491f727a73d3a717f16bfd1168f922e4d228193 (Arbiter: 01js771b3w1ad5b7w3gznt8w45)
+2025-04-20T01:52:08.913017	DEBUG	Searched 0 candidates for group 1491f727a73d3a717f16bfd1168f922e4d228193
+2025-04-20T01:52:08.913055	DEBUG	Processing consortium run 1491f727c3425198ebceb198f32b4e548299feca (Arbiter: 01js7970qpd5h8nyqn181nhw8d)
+2025-04-20T01:52:08.942639	DEBUG	  Found Intermediate Arbiter: 01js78tbfd5gbjpf1yqr8qvv6x
+2025-04-20T01:52:08.942948	DEBUG	Searched 101 candidates for group 1491f727c3425198ebceb198f32b4e548299feca
+2025-04-20T01:52:08.942977	DEBUG	Processing consortium run 1491f727d3865e7067f96e6be3352238f1e46bc7 (Arbiter: 01js79hc1z68y500b7qc3p2070)
+2025-04-20T01:52:08.971894	DEBUG	  Found Member by exact match: 01js79gq155d4nf0hz5jz9m3wt
+2025-04-20T01:52:08.972605	DEBUG	Searched 119 candidates for group 1491f727d3865e7067f96e6be3352238f1e46bc7
+2025-04-20T01:52:08.972633	DEBUG	Processing consortium run 1491f72768e1cf76d6c305b8a6deab8d706ddc7d (Arbiter: 01js79js8vx3az4gd0sg0xabyt)
+2025-04-20T01:52:08.972910	ERROR	XML Parse Error in arbiter 01js79js8vx3az4gd0sg0xabyt prompt: not well-formed (invalid token): line 76, column 9
+2025-04-20T01:52:08.972943	WARN	No response snippets extracted from arbiter 01js79js8vx3az4gd0sg0xabyt
+2025-04-20T01:52:09.002403	DEBUG	Searched 120 candidates for group 1491f72768e1cf76d6c305b8a6deab8d706ddc7d
+2025-04-20T01:52:09.002478	DEBUG	Processing consortium run 1491f727ac47ffcaff344b50aa75584470cf9b4c (Arbiter: 01js7b5hmhatkenh2t2cqtempq)
+2025-04-20T01:52:09.002576	ERROR	XML Parse Error in arbiter 01js7b5hmhatkenh2t2cqtempq prompt: not well-formed (invalid token): line 46, column 9
+2025-04-20T01:52:09.002606	WARN	No response snippets extracted from arbiter 01js7b5hmhatkenh2t2cqtempq
+2025-04-20T01:52:09.032156	DEBUG	Searched 91 candidates for group 1491f727ac47ffcaff344b50aa75584470cf9b4c
+2025-04-20T01:52:09.032202	DEBUG	Processing consortium run 1491f727a4c6fdc10754c354bcb36b04927aa441 (Arbiter: 01js7bq879d6pzm92r2stpbw1w)
+2025-04-20T01:52:09.032300	ERROR	XML Parse Error in arbiter 01js7bq879d6pzm92r2stpbw1w prompt: not well-formed (invalid token): line 63, column 9
+2025-04-20T01:52:09.032328	WARN	No response snippets extracted from arbiter 01js7bq879d6pzm92r2stpbw1w
+2025-04-20T01:52:09.062884	DEBUG	Searched 84 candidates for group 1491f727a4c6fdc10754c354bcb36b04927aa441
+2025-04-20T01:52:09.062972	DEBUG	Processing consortium run 1491f7272839efa628da7bf9b345e58f9c8dcdc9 (Arbiter: 01js7c83ye40xghcfra1eqmr7a)
+2025-04-20T01:52:09.063122	ERROR	XML Parse Error in arbiter 01js7c83ye40xghcfra1eqmr7a prompt: not well-formed (invalid token): line 9, column 37
+2025-04-20T01:52:09.063154	WARN	No response snippets extracted from arbiter 01js7c83ye40xghcfra1eqmr7a
+2025-04-20T01:52:09.093558	DEBUG	Searched 72 candidates for group 1491f7272839efa628da7bf9b345e58f9c8dcdc9
+2025-04-20T01:52:09.093646	DEBUG	Processing consortium run 1491f7273348aeded84d5b921980990832cc6544 (Arbiter: 01js7pcakpyphyvv4tpvgfb7d8)
+2025-04-20T01:52:09.093783	ERROR	XML Parse Error in arbiter 01js7pcakpyphyvv4tpvgfb7d8 prompt: not well-formed (invalid token): line 76, column 15
+2025-04-20T01:52:09.093817	WARN	No response snippets extracted from arbiter 01js7pcakpyphyvv4tpvgfb7d8
+2025-04-20T01:52:09.122334	DEBUG	Searched 23 candidates for group 1491f7273348aeded84d5b921980990832cc6544
+2025-04-20T01:52:09.122377	DEBUG	Processing consortium run 1491f7277d9478b319b03968a0bce529610bf354 (Arbiter: 01js7rge9qyz6s7g6aa9w50vfq)
+2025-04-20T01:52:09.122462	ERROR	XML Parse Error in arbiter 01js7rge9qyz6s7g6aa9w50vfq prompt: not well-formed (invalid token): line 58, column 55
+2025-04-20T01:52:09.122490	WARN	No response snippets extracted from arbiter 01js7rge9qyz6s7g6aa9w50vfq
+2025-04-20T01:52:09.151998	DEBUG	Searched 40 candidates for group 1491f7277d9478b319b03968a0bce529610bf354
+2025-04-20T01:52:09.152084	INFO	Phase 2 Complete: Processed 4030 candidate records across all groups. Prepared 46 member/intermediate updates. Found 0 errors.
+2025-04-20T01:52:09.152106	INFO	Phase 3: Preparing and executing database updates...
+2025-04-20T01:52:09.152483	INFO	Prepared updates for 1236 records.
+2025-04-20T01:52:09.152504	INFO	Starting database transaction...
+2025-04-20T01:52:09.152522	INFO	Updating consortium_id for 1236 records...
+2025-04-20T01:52:12.985898	INFO	Updating is_arbiter_response for 1236 records...
+2025-04-20T01:52:16.653109	INFO	Transaction committed successfully.
+2025-04-20T01:52:16.674068	INFO	Database connection closed.
+2025-04-20T01:52:16.674128	INFO	=== Consortium Log Analyzer Finished ===
+2025-04-20T01:52:16.674152	WARN	Completed with 13 errors logged. Please review '/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/analyze_consortium_logs.log'.
+Exit Code: 0

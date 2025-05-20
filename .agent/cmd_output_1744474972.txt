@@ -1,0 +1,84 @@
+Stdout/Stderr: bing: Processing URL: https://arxiv.org/abs/2305.02469
+bing: Retrieved content from https://arxiv.org/abs/2305.02469
+bing: Converted content to text
+bing: Processing URL: https://arxiv.org/abs/2411.02662
+bing: Retrieved content from https://arxiv.org/abs/2411.02662
+bing: Converted content to text
+bing: Processing URL: https://arxiv.org/abs/2306.16513
+bing: Retrieved content from https://arxiv.org/abs/2306.16513
+bing: Converted content to text
+bing: Processing URL: https://github.com/dashboarddesignpatterns/dashboarddesignpatterns.github.io
+bing: Retrieved content from https://github.com/dashboarddesignpatterns/dashboarddesignpatterns.github.io
+bing: Converted content to text
+bing: Processing URL: https://github.com/microsoft/ai-agents-for-beginners/blob/main/03-agentic-design-patterns/README.md
+bing: Retrieved content from https://github.com/microsoft/ai-agents-for-beginners/blob/main/03-agentic-design-patterns/README.md
+bing: Converted content to text
+bing: Processing URL: https://github.com/dashboarddesignpatterns/dashboarddesignpatterns.github.io/blob/main/patterns.md
+bing: Retrieved content from https://github.com/dashboarddesignpatterns/dashboarddesignpatterns.github.io/blob/main/patterns.md
+bing: Converted content to text
+bing: Processing URL: https://arxiv.org/abs/2205.00757v2
+bing: Retrieved content from https://arxiv.org/abs/2205.00757v2
+bing: Converted content to text
+URL: https://arxiv.org/abs/2305.02469
+Relevant Quotes:
+This page is an arXiv entry for a paper titled "The System Model and the User Model: Exploring AI Dashboard Design" by Fernanda Viégas and Martin Wattenberg. The paper discusses the importance of dashboards, containing System and User Models, for sophisticated AI systems, particularly dialogue-based ones, to improve usability and safety.
+
+There is no passage on this page referencing specific design patterns for AI interaction dashboards.
+--------------------------------------------------
+
+URL: https://arxiv.org/abs/2411.02662
+Relevant Quotes:
+This arXiv page presents a paper titled "Interaction Design with Generative AI: An Empirical Study of Emerging Strategies Across the Four Phases of Design," exploring how Generative AI can aid human-centered design activities like requirements elicitation, conceptual design, physical design, and evaluation. The paper identifies successful strategies, prompting patterns, and challenges in using Generative AI throughout the design process.
+
+There is no mention of "design patterns for AI interaction dashboards" in this page.
+--------------------------------------------------
+
+URL: https://arxiv.org/abs/2306.16513
+Relevant Quotes:
+This page is an arXiv entry for a paper titled "Toward a Scalable Census of Dashboard Designs in the Wild: A Case Study with Tableau Public" which explores dashboard design patterns through analysis of a large dataset of Tableau Public dashboards. The paper proposes a schematic representation of dashboard designs as node-link graphs to understand their spatial and interactive structures.
+
+*   ...derive common dashboard design patterns.
+*   ...its application toward the development of dashboard design tools.
+--------------------------------------------------
+
+URL: https://github.com/dashboarddesignpatterns/dashboarddesignpatterns.github.io
+Relevant Quotes:
+This page describes a collection of dashboard design patterns developed to support dashboard design and creative exploration, originating from research published in a 2023 IEEE VIS Conference publication. In March 2022, the team ran a dedicated workshop to help people apply and discuss these design patterns.
+
+There are no direct text passages or code sections on this page directly referring to "design patterns for AI interaction dashboards". However, the page's content centers around dashboard design patterns in general, which could be applicable to dashboards involving AI interaction.
+--------------------------------------------------
+
+URL: https://github.com/microsoft/ai-agents-for-beginners/blob/main/03-agentic-design-patterns/README.md
+Relevant Quotes:
+This document outlines AI agentic design principles, focusing on user-centric design to build agentic systems. It covers agent (space), agent (time), and agent (core) considerations, along with implementation guidelines for transparency, control, and consistency.
+
+(There were no matches found regarding design patterns for AI interaction dashboards.)
+--------------------------------------------------
+
+URL: https://github.com/dashboarddesignpatterns/dashboarddesignpatterns.github.io/blob/main/patterns.md
+Relevant Quotes:
+This page details design patterns for dashboards, covering component design, composition, and layout. It categorizes patterns based on data information, meta information, visual representations, interactivity, screenspace, structure, page layout, and color schemes.
+
+There are no explicit design patterns mentioned for "AI interaction dashboards" in the document. However, the Interaction section outlines general patterns that could be relevant:
+
+**Interactions**
+
+This group describes common interaction approaches found within the dashboards.
+
+Exploration interactions allow users to explore data elements and the relations between them.
+
+Navigation interactions enable designers to direct users through facets of information in a particular order.
+
+Personalization interactions allow users to redefine and reconfigure the information shown within a dashboard.
+
+Filter and Focus interactions allow users to find or focus on specific data, e.g., by searching for particular data values or applying filter criteria so that only relevant information remains.
+--------------------------------------------------
+
+URL: https://arxiv.org/abs/2205.00757v2
+Relevant Quotes:
+This arXiv page displays information about a computer science paper titled "Dashboard Design Patterns" by Benjamin Bach and others, submitted on May 2, 2022, and revised on August 24, 2022. The paper introduces design patterns for dashboards aimed at informing dashboard design processes based on a systematic review of 144 dashboards and insights from a design workshop.
+
+> Abstract:This paper introduces design patterns for dashboards to inform dashboard design processes. Despite a growing number of public examples, case studies, and general guidelines there is surprisingly little design guidance for dashboards. Such guidance is necessary to inspire designs and discuss tradeoffs in, e.g., screenspace, interaction, or information shown. Based on a systematic review of 144 dashboards, we report on eight groups of design patterns that provide common solutions in dashboard design. We discuss combinations of these patterns in dashboard genres such as narrative, analytical, or embedded dashboard. We ran a 2-week dashboard design workshop with 23 participants of varying expertise working on their own data and dashboards. We discuss the application of patterns for the dashboard design processes, as well as general design tradeoffs and common challenges. Our work complements previous surveys and aims to support dashboard designers and researchers in co-creation, structured design decisions, as well as future user evaluations about dashboard design guidelines. Detailed pattern descriptions and workshop material can be found online: this https URL
+--------------------------------------------------
+Summary:
+Exit Code: 0

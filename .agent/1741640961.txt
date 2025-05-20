@@ -1,0 +1,51 @@
+Stdout/Stderr: import click
+import json
+import llm
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+import logging
+import sys
+import re
+import os
+import pathlib
+import sqlite_utils
+from pydantic import BaseModel
+import time  # added import for time
+import concurrent.futures  # Add concurrent.futures for parallel processing
+import threading  # Add threading for thread-local storage
+
+# Todo:
+# "finish_reason": "length"
+# "finish_reason": "max_tokens"
+# "stop_reason": "max_tokens",
+# "finishReason": "MAX_TOKENS"
+# "finishReason": "length"
+# response.response_json
+# Todo: setup continuation models: claude, deepseek etc.
+
+# Read system prompt from file
+def _read_system_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "system_prompt.txt"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading system prompt file: {e}")
+        return ""
+
+def _read_arbiter_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "arbiter_prompt.xml"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading arbiter prompt file: {e}")
+        return ""
+
+def _read_iteration_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "iteration_prompt.txt"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+Exit Code: 0

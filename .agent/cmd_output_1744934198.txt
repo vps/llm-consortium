@@ -1,0 +1,184 @@
+Stdout/Stderr: from .base import ConsortiumStrategy
+from typing import List, Dict, Any, Optional
+import logging
+import json
+import os
+import pathlib
+import click # Need click for get_app_dir
+
+logger = logging.getLogger(__name__) # Use specific logger
+
+# Define the directory for storing consortium state relative to the LLM user directory
+def get_consortium_state_dir() -> pathlib.Path:
+    """Gets the directory for storing consortium conversation state."""
+    # Using the same base directory structure as the main llm tool
+    # Use LLM_USER_PATH env var if set, otherwise use click's default app dir
+    base_dir_str = os.environ.get("LLM_USER_PATH")
+    if base_dir_str:
+        base_dir = pathlib.Path(base_dir_str)
+    else:
+        # Fallback to click's default directory for llm
+        base_dir = pathlib.Path(click.get_app_dir("io.datasette.llm"))
+
+    state_dir = base_dir / "consortium_state"
+    state_dir.mkdir(parents=True, exist_ok=True) # Ensure directory exists
+    return state_dir
+
+class DefaultStrategy(ConsortiumStrategy):
+    """
+    The default strategy:
+    - Selects all available models configured in the orchestrator.
+    - Performs no processing or filtering on the responses before synthesis.
+    - Persists conversation history between invocations if a conversation_id is provided.
+    """
+
+    def __init__(self, orchestrator, params: Optional[Dict[str, Any]] = None):
+        """
+        Initializes the strategy.
+        Params might include 'conversation_id'.
+        """
+        super().__init__(orchestrator, params)
+        # Initial conversation_id might be None here. It will be set later.
+        self.conversation_id = params.get("conversation_id") if params else None
+        self.iteration_state = {} # State dictionary for the current run
+        logger.debug(f"DefaultStrategy initialized. Conversation ID initially: {self.conversation_id}")
+
+    def set_conversation_id(self, conversation_id: Optional[str]):
+        """Allows setting the conversation ID after initialization."""
+        # This method is crucial for updating the ID when orchestrate() starts.
+        if self.conversation_id != conversation_id:
+            logger.debug(f"DefaultStrategy conversation ID updated to: {conversation_id}")
+            self.conversation_id = conversation_id
+            # Re-initialize state when the conversation ID is set/changed
+            self.initialize_state()
+
+    def _get_state_path(self) -> Optional[pathlib.Path]:
+        """Determines the file path for storing/loading state for the current conversation_id."""
+        if not self.conversation_id:
+            return None
+        state_dir = get_consortium_state_dir()
+        # Sanitize conversation_id for use as filename if needed, though UUIDs are usually safe
+        filename = f"conv_{self.conversation_id}.json"
+        return state_dir / filename
+
+    def _load_state(self) -> Dict[str, Any]:
+        """Loads state from the persistent file."""
+        state_path = self._get_state_path()
+        if state_path and state_path.exists():
+            try:
+                with open(state_path, "r") as f:
+                    loaded_state = json.load(f)
+                    logger.info(f"Loaded previous state for conversation {self.conversation_id} from {state_path}")
+                    # Basic validation
+                    if isinstance(loaded_state, dict) and "history" in loaded_state and "iteration" in loaded_state:
+                        return loaded_state
+                    else:
+                        logger.warning(f"Invalid state format in {state_path}. Starting fresh.")
+            except json.JSONDecodeError:
+                logger.error(f"Error decoding JSON state from {state_path}. Starting fresh.")
+            except Exception as e:
+                logger.error(f"Error loading state from {state_path}: {e}. Starting fresh.")
+        else:
+            logger.info(f"No previous state file found for conversation {self.conversation_id}.")
+        # Return default empty state if loading fails or no file exists
+        return {"history": [], "iteration": 0} # Ensure basic structure
+
+    def _save_state(self):
+        """Saves the current iteration_state to the persistent file."""
+        state_path = self._get_state_path()
+        if not state_path:
+            logger.debug("Cannot save state: No conversation ID set.")
+            return
+
+        try:
+            # Ensure the directory exists (though get_consortium_state_dir should handle this)
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(state_path, "w") as f:
+                json.dump(self.iteration_state, f, indent=2)
+            logger.info(f"Saved state for conversation {self.conversation_id} to {state_path}")
+        except Exception as e:
+            logger.error(f"Error saving state to {state_path}: {e}")
+
+    def initialize_state(self):
+        """
+        Initializes the state for an orchestrate() run.
+        Loads persistent state if a conversation_id is available.
+        Called AFTER set_conversation_id in the orchestrate flow.
+        """
+        if self.conversation_id:
+            logger.info(f"Initializing state for conversation: {self.conversation_id}")
+            self.iteration_state = self._load_state()
+            # Ensure essential keys exist even if loaded state is minimal/corrupt
+            if "history" not in self.iteration_state or not isinstance(self.iteration_state["history"], list):
+                self.iteration_state["history"] = []
+            if "iteration" not in self.iteration_state or not isinstance(self.iteration_state["iteration"], int):
+                 # Base iteration count off loaded history length if iteration number is missing/invalid
+                 self.iteration_state["iteration"] = len(self.iteration_state.get("history", []))
+            logger.info(f"Initialized with state: {self.iteration_state}")
+        else:
+            logger.info("Initializing temporary state (no conversation ID).")
+            self.iteration_state = {"history": [], "iteration": 0} # Default for non-persistent runs
+
+
+    def select_models(self, available_models: Dict[str, int], current_prompt: str, iteration: int) -> Dict[str, int]:
+        """Selects all available models defined in the orchestrator's config."""
+        # Accessing history from iteration_state if needed for future selection logic
+        # history = self.iteration_state.get("history", [])
+        logger.debug(f"[DefaultStrategy Conv: {self.conversation_id} Iteration {iteration}] Selecting models: {available_models}")
+        # TODO: Pass history to models if needed during selection?
+        return available_models.copy()
+
+    def process_responses(self, successful_responses: List[Dict[str, Any]], iteration: int) -> List[Dict[str, Any]]:
+        """Returns the list of successful responses unmodified."""
+        logger.debug(f"[DefaultStrategy Conv: {self.conversation_id} Iteration {iteration}] Processing {len(successful_responses)} responses.")
+        return successful_responses
+
+    def update_state(self, iteration_results: Dict[str, Any]):
+        """
+        Updates the state after an iteration completes.
+        Appends results to history and persists the state if conversation_id is set.
+        """
+        # Ensure iteration state is initialized (should be, but defensively check)
+        if not self.iteration_state:
+           logger.warning("update_state called before state initialization. Initializing now.")
+           self.initialize_state()
+
+        current_iteration_num = self.iteration_state.get("iteration", 0)
+        logger.info(f"[DefaultStrategy Conv: {self.conversation_id} Iteration {current_iteration_num}] Updating state.")
+
+        # Add relevant parts of the iteration results to history
+        # Extract synthesis details carefully
+        synthesis_data = iteration_results.get("synthesis", {})
+        if not isinstance(synthesis_data, dict): # Handle case where synthesis might not be a dict
+             synthesis_data = {"raw": str(synthesis_data)}
+
+        history_entry = {
+            "iteration": current_iteration_num,
+            # Distinguish original prompt vs iteration prompt? Needs clarity from orchestrator.
+            "prompt": iteration_results.get("current_prompt_for_iteration"), # Assuming orchestrator provides this
+            "original_prompt": iteration_results.get("original_prompt"),
+            "model_responses": iteration_results.get("model_responses", []),
+            "synthesis": synthesis_data
+        }
+
+        # Ensure history list exists before appending
+        if "history" not in self.iteration_state or not isinstance(self.iteration_state["history"], list):
+            self.iteration_state["history"] = []
+
+        self.iteration_state["history"].append(history_entry)
+
+        # Increment iteration count *after* recording the current one
+        self.iteration_state["iteration"] = current_iteration_num + 1
+        logger.info(f"Iteration count incremented to: {self.iteration_state['iteration']}")
+
+
+        # Persist the updated state if conversation_id is set
+        if self.conversation_id:
+            self._save_state()
+        else:
+            logger.debug("State updated in memory but not saved (no conversation ID).")
+
+    # No specific parameter validation needed for this simple strategy
+    def _validate_params(self):
+        pass
+Exit Code: 0

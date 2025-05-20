@@ -1,0 +1,149 @@
+438:            return self._parse_arbiter_response(arbiter_response.text())
+439-        except Exception as e:
+440-            logger.error(f"Error parsing arbiter response: {e}")
+441-            return {
+442-                "synthesis": arbiter_response.text(),
+443-                "confidence": 0.0,
+444-                "analysis": "Parsing failed - see raw response",
+445-                "dissent": "",
+446-                "needs_iteration": False,
+447-                "refinement_areas": []
+448-            }
+449-
+450:    def _parse_arbiter_response(self, text: str, is_final_iteration: bool = False) -> Dict[str, Any]:
+451-        """Parse arbiter response with special handling for final iteration."""
+452-        sections = {
+453-            "synthesis": r"<synthesis>([sS]*?)</synthesis>",
+454-            "confidence": r"<confidence>s*([d.]+)s*</confidence>",
+455-            "analysis": r"<analysis>([sS]*?)</analysis>",
+456-            "dissent": r"<dissent>([sS]*?)</dissent>",
+457-            "needs_iteration": r"<needs_iteration>(true|false)</needs_iteration>",
+458-            "refinement_areas": r"<refinement_areas>([sS]*?)</refinement_areas>"
+459-        }
+460-
+461-        # Initialize with default values to avoid KeyError
+462-        result = {
+463-            "synthesis": text,  # Use the full text as fallback synthesis
+464-            "confidence": 0.0,   # Default confidence
+465-            "analysis": "",
+466-            "dissent": "",
+467-            "needs_iteration": False,
+468-            "refinement_areas": []
+469-        }
+470-
+471-        for key, pattern in sections.items():
+472-            match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+473-            if match:
+474-                if key == "confidence":
+475-                    try:
+476-                        value = float(match.group(1).strip())
+477-                        result[key] = value / 100 if value > 1 else value
+478-                    except (ValueError, TypeError):
+479-                        # Keep default value
+480-                        pass
+512:class ConsortiumModel(llm.Model):
+513-    can_stream = True
+514-
+515-    class Options(llm.Options):
+516-        confidence_threshold: Optional[float] = None
+517-        max_iterations: Optional[int] = None
+518-        system_prompt: Optional[str] = None  # Add support for system prompt as an option
+519-
+520-    def __init__(self, model_id: str, config: ConsortiumConfig):
+521-        self.model_id = model_id
+522-        self.config = config
+523-        self._orchestrator = None  # Lazy initialization
+524-
+525-    def __str__(self):
+526-        return f"Consortium Model: {self.model_id}"
+527-
+528-    def get_orchestrator(self):
+529-        if self._orchestrator is None:
+530-            try:
+531-                self._orchestrator = ConsortiumOrchestrator(self.config)
+532-            except Exception as e:
+533-                raise llm.ModelError(f"Failed to initialize consortium: {e}")
+534-        return self._orchestrator
+535-
+536-    def execute(self, prompt, stream, response, conversation):
+537-        """Execute the consortium synchronously"""
+538-        try:
+539-            # Extract conversation history from the conversation object directly
+540-            conversation_history = ""
+541-            if conversation and hasattr(conversation, 'responses') and conversation.responses:
+542-                logger.info(f"Processing conversation with {len(conversation.responses)} previous exchanges")
+Stdout/Stderr: 438:            return self._parse_arbiter_response(arbiter_response.text())
+439-        except Exception as e:
+440-            logger.error(f"Error parsing arbiter response: {e}")
+441-            return {
+442-                "synthesis": arbiter_response.text(),
+443-                "confidence": 0.0,
+444-                "analysis": "Parsing failed - see raw response",
+445-                "dissent": "",
+446-                "needs_iteration": False,
+447-                "refinement_areas": []
+448-            }
+449-
+450:    def _parse_arbiter_response(self, text: str, is_final_iteration: bool = False) -> Dict[str, Any]:
+451-        """Parse arbiter response with special handling for final iteration."""
+452-        sections = {
+453-            "synthesis": r"<synthesis>([sS]*?)</synthesis>",
+454-            "confidence": r"<confidence>s*([d.]+)s*</confidence>",
+455-            "analysis": r"<analysis>([sS]*?)</analysis>",
+456-            "dissent": r"<dissent>([sS]*?)</dissent>",
+457-            "needs_iteration": r"<needs_iteration>(true|false)</needs_iteration>",
+458-            "refinement_areas": r"<refinement_areas>([sS]*?)</refinement_areas>"
+459-        }
+460-
+461-        # Initialize with default values to avoid KeyError
+462-        result = {
+463-            "synthesis": text,  # Use the full text as fallback synthesis
+464-            "confidence": 0.0,   # Default confidence
+465-            "analysis": "",
+466-            "dissent": "",
+467-            "needs_iteration": False,
+468-            "refinement_areas": []
+469-        }
+470-
+471-        for key, pattern in sections.items():
+472-            match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+473-            if match:
+474-                if key == "confidence":
+475-                    try:
+476-                        value = float(match.group(1).strip())
+477-                        result[key] = value / 100 if value > 1 else value
+478-                    except (ValueError, TypeError):
+479-                        # Keep default value
+480-                        pass
+512:class ConsortiumModel(llm.Model):
+513-    can_stream = True
+514-
+515-    class Options(llm.Options):
+516-        confidence_threshold: Optional[float] = None
+517-        max_iterations: Optional[int] = None
+518-        system_prompt: Optional[str] = None  # Add support for system prompt as an option
+519-
+520-    def __init__(self, model_id: str, config: ConsortiumConfig):
+521-        self.model_id = model_id
+522-        self.config = config
+523-        self._orchestrator = None  # Lazy initialization
+524-
+525-    def __str__(self):
+526-        return f"Consortium Model: {self.model_id}"
+527-
+528-    def get_orchestrator(self):
+529-        if self._orchestrator is None:
+530-            try:
+531-                self._orchestrator = ConsortiumOrchestrator(self.config)
+532-            except Exception as e:
+533-                raise llm.ModelError(f"Failed to initialize consortium: {e}")
+534-        return self._orchestrator
+535-
+536-    def execute(self, prompt, stream, response, conversation):
+537-        """Execute the consortium synchronously"""
+538-        try:
+539-            # Extract conversation history from the conversation object directly
+540-            conversation_history = ""
+541-            if conversation and hasattr(conversation, 'responses') and conversation.responses:
+542-                logger.info(f"Processing conversation with {len(conversation.responses)} previous exchanges")
+Exit Code: 

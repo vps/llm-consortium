@@ -1,0 +1,22 @@
+--- NEW ITEM ---
+Continue with task.
+Check the current code in llm-consortium.
+Make required amendments. Ensure unit tests and integration tests. Follow the algorithm we agreed for confirming valid logs after a consortium run.
+
+When all is working make a PR.
+
+IMPORTANT: Inform me the INSTANT you run in to a problem. 
+IMPORTANT: The github_monitor function blocks. Be careful to listen for new gh issue comments (for my replies) AFTER you have written and posted your own comment. 
+
+Do the needful and get back to me ASAP.
+<CMD_OUTPUT>--- NEW ITEM ---
+Continue with task.
+Check the current code in llm-consortium.
+Make required amendments. Ensure unit tests and integration tests. Follow the algorithm we agreed for confirming valid logs after a consortium run.
+
+When all is working make a PR.
+
+IMPORTANT: Inform me the INSTANT you run in to a problem. 
+IMPORTANT: The github_monitor function blocks. Be careful to listen for new gh issue comments (for my replies) AFTER you have written and posted your own comment. 
+
+Do the needful and get back to me ASAP.</CMD_OUTPUT>

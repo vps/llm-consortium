@@ -1,0 +1,22 @@
+Stdout/Stderr: 695:    prompt_method = model.prompt
+696-    if conversation:
+697-        prompt_method = conversation.prompt
+698-
+699-    try:
+700-        if async_:
+701-
+702-            async def inner():
+703-                if should_stream:
+704-                    response = prompt_method(
+705-                        prompt,
+706-                        attachments=resolved_attachments,
+707-                        system=system,
+708-                        schema=schema,
+709-                        fragments=fragments,
+710-                        system_fragments=system_fragments,
+711-                        **kwargs,
+712-                    )
+713-                    async for chunk in response:
+714-                        print(chunk, end="")
+715-                        sys.stdout.flush()
+Exit Code: 0

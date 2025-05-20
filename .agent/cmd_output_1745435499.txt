@@ -1,0 +1,25 @@
+unknown flag: --edit
+
+Usage:  gh issue comment {<number> | <url>} [flags]
+
+Flags:
+  -b, --body text        The comment body text
+  -F, --body-file file   Read body text from file (use "-" to read from standard input)
+      --create-if-none   Create a new comment if no comments are found. Can be used only with --edit-last
+      --edit-last        Edit the last comment of the same author
+  -e, --editor           Skip prompts and open the text editor to write the body in
+  -w, --web              Open the web browser to write the comment
+  
+Stdout/Stderr: unknown flag: --edit
+
+Usage:  gh issue comment {<number> | <url>} [flags]
+
+Flags:
+  -b, --body text        The comment body text
+  -F, --body-file file   Read body text from file (use "-" to read from standard input)
+      --create-if-none   Create a new comment if no comments are found. Can be used only with --edit-last
+      --edit-last        Edit the last comment of the same author
+  -e, --editor           Skip prompts and open the text editor to write the body in
+  -w, --web              Open the web browser to write the comment
+  
+Exit Code: 

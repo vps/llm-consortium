@@ -1,0 +1,73 @@
+Stdout/Stderr: 2025-04-12 17:27:42,998 - llm_consortium - ERROR - Error getting response from openrouter/mistralai/codestral-2501 instance 1
+Traceback (most recent call last):
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py", line 291, in _get_model_response
+    response = llm.get_model(model).prompt(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 846, in prompt
+    options=self.Options(**options),
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-04-12 17:27:43,003 - llm_consortium - ERROR - Error getting response from openrouter/aion-labs/aion-1.0-mini instance 1
+Traceback (most recent call last):
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py", line 291, in _get_model_response
+    response = llm.get_model(model).prompt(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 846, in prompt
+    options=self.Options(**options),
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-04-12 17:27:43,010 - llm_consortium - ERROR - Error getting or parsing arbiter response for consortium e4923a08-6962-4eca-8267-1ed79867b792: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-04-12 17:27:43,023 - llm_consortium - ERROR - Error getting response from openrouter/aion-labs/aion-1.0-mini instance 1
+Traceback (most recent call last):
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py", line 291, in _get_model_response
+    response = llm.get_model(model).prompt(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 846, in prompt
+    options=self.Options(**options),
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-04-12 17:27:43,024 - llm_consortium - ERROR - Error getting response from openrouter/mistralai/codestral-2501 instance 1
+Traceback (most recent call last):
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py", line 291, in _get_model_response
+    response = llm.get_model(model).prompt(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 846, in prompt
+    options=self.Options(**options),
+            ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+2025-04-12 17:27:43,031 - llm_consortium - ERROR - Error getting or parsing arbiter response for consortium e4923a08-6962-4eca-8267-1ed79867b792: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Error during synthesis: 1 validation error for Options
+extra_response_data
+  Extra inputs are not permitted [type=extra_forbidden, input_value={'consortium_id': 'e4923a...4eca-8267-1ed79867b792'}, input_type=dict]
+    For further information visit https://errors.pydantic.dev/2.10/v/extra_forbidden
+Exit Code: 0

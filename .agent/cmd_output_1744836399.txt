@@ -1,0 +1,81 @@
+Stdout/Stderr: import click
+import json
+import llm
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+import logging
+import sys
+import re
+import os
+import pathlib
+import sqlite_utils
+from pydantic import BaseModel
+import time  # added import for time
+import concurrent.futures  # Add concurrent.futures for parallel processing
+import threading  # Add threading for thread-local storage
+
+# Todo:
+# "finish_reason": "length"
+# "finish_reason": "max_tokens"
+# "stop_reason": "max_tokens",
+# "finishReason": "MAX_TOKENS"
+# "finishReason": "length"
+# response.response_json
+# Todo: setup continuation models: claude, deepseek etc.
+
+# Read system prompt from file
+def _read_system_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "system_prompt.txt"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading system prompt file: {e}")
+        return ""
+
+def _read_arbiter_prompt() -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / "arbiter_prompt.xml"
+        with open(file_path, "r") as f:
+            return f.read().strip()
+    def remove_command(name):
+        """Remove a saved consortium."""
+        db = DatabaseConnection.get_connection()
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS consortium_configs (
+            name TEXT PRIMARY KEY,
+            config TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+        try:
+            db["consortium_configs"].delete(name)
+            click.echo(f"Consortium '{name}' removed.")
+        except sqlite_utils.db.NotFoundError:
+            raise click.ClickException(f"Consortium with name '{name}' not found.")
+
+@llm.hookimpl
+def register_models(register):
+    logger.debug("KarpathyConsortiumPlugin.register_commands called")
+    try:
+        for name, config in _get_consortium_configs().items():
+            try:
+                model = ConsortiumModel(name, config)
+                register(model, aliases=(name,))
+            except Exception as e:
+                logger.error(f"Failed to register consortium '{name}': {e}")
+    except Exception as e:
+        logger.error(f"Failed to load consortium configurations: {e}")
+
+class KarpathyConsortiumPlugin:
+    @staticmethod
+    @llm.hookimpl
+    def register_commands(cli):
+        logger.debug("KarpathyConsortiumPlugin.register_commands called")
+
+logger.debug("llm_karpathy_consortium module finished loading")
+
+__all__ = ['KarpathyConsortiumPlugin', 'log_response', 'DatabaseConnection', 'logs_db_path', 'user_dir', 'ConsortiumModel']
+
+__version__ = "0.3.1"
+Exit Code: 0

@@ -1,0 +1,49 @@
+311:        return default
+314:        return self._parse_confidence_value(text)
+339:                    return iteration_prompt_template.format(
+347:                    return f"""Refining response for original prompt:
+356:                    return iteration_prompt_template.format(
+363:                    return f"""Refining response for original prompt:
+372:            return f"""Refining response for original prompt:
+399:        return "
+".join(history) if history else "<no_previous_iterations>No previous iterations available.</no_previous_iterations>"
+402:        return "
+                ".join(f"<area>{area}</area>" for area in areas)
+413:        return "
+".join(formatted)
+438:            return self._parse_arbiter_response(arbiter_response.text())
+441:            return {
+495:        return result
+504:    return model_dict
+509:        return sys.stdin.read().strip()
+510:    return None
+526:        return f"Consortium Model: {self.model_id}"
+534:        return self._orchestrator
+581:            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+604:    return configs
+632:            return rv
+Stdout/Stderr: 311:        return default
+314:        return self._parse_confidence_value(text)
+339:                    return iteration_prompt_template.format(
+347:                    return f"""Refining response for original prompt:
+356:                    return iteration_prompt_template.format(
+363:                    return f"""Refining response for original prompt:
+372:            return f"""Refining response for original prompt:
+399:        return "
+".join(history) if history else "<no_previous_iterations>No previous iterations available.</no_previous_iterations>"
+402:        return "
+                ".join(f"<area>{area}</area>" for area in areas)
+413:        return "
+".join(formatted)
+438:            return self._parse_arbiter_response(arbiter_response.text())
+441:            return {
+495:        return result
+504:    return model_dict
+509:        return sys.stdin.read().strip()
+510:    return None
+526:        return f"Consortium Model: {self.model_id}"
+534:        return self._orchestrator
+581:            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+604:    return configs
+632:            return rv
+Exit Code: 

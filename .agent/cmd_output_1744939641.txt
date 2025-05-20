@@ -1,0 +1,58 @@
+Stdout/Stderr:         # Store system_prompt from config
+        self.system_prompt = config.system_prompt  
+        self.confidence_threshold = config.confidence_threshold
+        self.max_iterations = config.max_iterations
+        self.minimum_iterations = config.minimum_iterations
+        self.arbiter = config.arbiter or "gemini-2.0-flash"
+        self.iteration_history: List[IterationContext] = []
+        # New: Dictionary to track conversation IDs for each model instance
+        self.conversation_ids: Dict[str, str] = {}
+
+    def orchestrate(self, prompt: str) -> Dict[str, Any]:
+        iteration_count = 0
+        final_result = None
+        original_prompt = prompt
+        # Incorporate system instructions into the user prompt if available.
+        if self.system_prompt:
+            combined_prompt = f"[SYSTEM INSTRUCTIONS]
+{self.system_prompt}
+[/SYSTEM INSTRUCTIONS]
+
+{original_prompt}"
+        else:
+            combined_prompt = original_prompt
+
+        current_prompt = f"""<prompt>
+--- SEPARATOR ---
+    def execute(self, prompt, stream, response, conversation):
+        """Execute the consortium synchronously"""
+        try:
+            # Check if a system prompt was provided via --system option
+            if hasattr(prompt, 'system') and prompt.system:
+                # Create a copy of the config with the updated system prompt
+                updated_config = ConsortiumConfig(**self.config.to_dict())
+                updated_config.system_prompt = prompt.system
+                # Create a new orchestrator with the updated config
+                orchestrator = ConsortiumOrchestrator(updated_config)
+                result = orchestrator.orchestrate(prompt.prompt)
+            else:
+                # Use the default orchestrator with the original config
+                result = self.get_orchestrator().orchestrate(prompt.prompt)
+                
+            response.response_json = result
+            return result["synthesis"]["synthesis"]
+
+        except Exception as e:
+            raise llm.ModelError(f"Consortium execution failed: {e}")
+
+def _get_consortium_configs() -> Dict[str, ConsortiumConfig]:
+    """Fetch saved consortium configurations from the database."""
+    db = DatabaseConnection.get_connection()
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS consortium_configs (
+            name TEXT PRIMARY KEY,
+            config TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+Exit Code: 0

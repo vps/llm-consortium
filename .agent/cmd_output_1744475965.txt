@@ -1,0 +1,27 @@
+Stdout/Stderr: Traceback (most recent call last):
+  File "/home/thomas/.local/share/../bin/llm", line 8, in <module>
+    sys.exit(cli())
+             ^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/click/core.py", line 1161, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/click/core.py", line 1082, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/click/core.py", line 1697, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/click/core.py", line 1697, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/click/core.py", line 1443, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/click/core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py", line 780, in run_command
+    stdin_content = read_stdin_if_not_tty()
+                    ^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'read_stdin_if_not_tty' is not defined
+Exit Code: 0

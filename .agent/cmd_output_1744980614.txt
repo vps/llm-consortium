@@ -1,0 +1,36 @@
+Stdout/Stderr: warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+DEBUG: ConsortiumModel.prompt called with conversation_id: test-cid
+DEBUG: Retrieved conversation object: <MagicMock name='llm.get_conversation()' id='135068411033680'>
+DEBUG: Conversation messages count: 2
+E
+======================================================================
+ERROR: test_conversation_history_is_prepended (tests.test_llm_consortium.TestConsortiumModelConversationPersistence.test_conversation_history_is_prepended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/python/cpython-3.11.7-linux-x86_64-gnu/lib/python3.11/unittest/mock.py", line 1375, in patched
+    return func(*newargs, **newkeywargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/tests/test_llm_consortium.py", line 29, in test_conversation_history_is_prepended
+    model.prompt(user_prompt, conversation_id="test-cid")
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/plugin.py", line 112, in prompt
+    return self._execute_orchestration(prompt, system, conversation, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/plugin.py", line 125, in _execute_orchestration
+    config = self.prepare_config(**kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/plugin.py", line 69, in prepare_config
+    return ConsortiumConfig(
+           ^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/pydantic/main.py", line 214, in __init__
+    validated_self = self.__pydantic_validator__.validate_python(data, self_instance=self)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+pydantic_core._pydantic_core.ValidationError: 1 validation error for ConsortiumConfig
+arbiter
+  Input should be a valid string [type=string_type, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.10/v/string_type
+
+----------------------------------------------------------------------
+Ran 1 test in 0.008s
+
+FAILED (errors=1)
+Exit Code: 0

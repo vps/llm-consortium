@@ -1,0 +1,22 @@
+Stdout/Stderr: def load_conversation(
+    conversation_id: Optional[str], async_=False
+) -> Optional[_BaseConversation]:
+    db = sqlite_utils.Database(logs_db_path())
+    migrate(db)
+    if conversation_id is None:
+        # Return the most recent conversation, or None if there are none
+        matches = list(db["conversations"].rows_where(order_by="id desc", limit=1))
+        if matches:
+            conversation_id = matches[0]["id"]
+        else:
+            return None
+    try:
+        row = cast(sqlite_utils.db.Table, db["conversations"]).get(conversation_id)
+    except sqlite_utils.db.NotFoundError:
+        raise click.ClickException(
+            "No conversation found with id={}".format(conversation_id)
+        )
+    # Inflate that conversation
+    conversation_class = AsyncConversation if async_ else Conversation
+    response_class = AsyncResponse if async_ else Response
+Exit Code: 0

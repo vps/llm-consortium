@@ -1,0 +1,128 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+CREATE TABLE [server_metrics] (
+   [id] TEXT PRIMARY KEY,
+   [timestamp] TEXT,
+   [model] TEXT,
+   [duration] FLOAT,
+   [tokens] INTEGER,
+   [success] INTEGER,
+   [error] TEXT
+);
+CREATE TABLE consortium_configs (
+            name TEXT PRIMARY KEY,
+            config TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        );
+CREATE TABLE [_llm_migrations] (
+   [name] TEXT PRIMARY KEY,
+   [applied_at] TEXT
+);
+CREATE TABLE [conversations] (
+   [id] TEXT PRIMARY KEY,
+   [name] TEXT,
+   [model] TEXT
+);
+CREATE TABLE [attachments] (
+   [id] TEXT PRIMARY KEY,
+   [type] TEXT,
+   [path] TEXT,
+   [url] TEXT,
+   [content] BLOB
+);
+CREATE TABLE [prompt_attachments] (
+   [response_id] TEXT REFERENCES [responses]([id]),
+   [attachment_id] TEXT REFERENCES [attachments]([id]),
+   [order] INTEGER,
+   PRIMARY KEY ([response_id], [attachment_id])
+);
+CREATE TABLE feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        response_id TEXT NOT NULL,
+        datetime_utc TIMESTAMP DEFAULT (strftime('%Y-%m-%d %H:%M:%f', 'now')),
+        feedback TEXT NOT NULL,
+        comment TEXT
+    );
+CREATE TABLE sqlite_sequence(name,seq);
+CREATE TABLE IF NOT EXISTS "temp_import"(
+"-- Exporting data from responses table" TEXT);
+CREATE TABLE [schemas] (
+   [id] TEXT PRIMARY KEY,
+   [content] TEXT
+);
+CREATE TABLE IF NOT EXISTS "responses" (
+   [id] TEXT PRIMARY KEY,
+   [model] TEXT,
+   [prompt] TEXT,
+   [system] TEXT,
+   [prompt_json] TEXT,
+   [options_json] TEXT,
+   [response] TEXT,
+   [response_json] TEXT,
+   [conversation_id] TEXT REFERENCES [conversations]([id]),
+   [duration_ms] INTEGER,
+   [datetime_utc] TEXT,
+   [input_tokens] INTEGER,
+   [output_tokens] INTEGER,
+   [token_details] TEXT,
+   [human_vote] TEXT,
+   [human_note] TEXT,
+   [bookmark] INTEGER,
+   [session_id] INTEGER,
+   [schema_id] TEXT REFERENCES [schemas]([id])
+, consortium_id TEXT, is_arbiter_response INTEGER DEFAULT 0, consortium_group_id TEXT);
+CREATE VIRTUAL TABLE [responses_fts] USING FTS5 (
+    [prompt], [response],
+    content=[responses]
+)
+/* responses_fts(prompt,response) */;
+CREATE TABLE IF NOT EXISTS 'responses_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
+CREATE TABLE IF NOT EXISTS 'responses_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS 'responses_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
+CREATE TABLE IF NOT EXISTS 'responses_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
+CREATE TRIGGER [responses_ai] AFTER INSERT ON [responses] BEGIN
+  INSERT INTO [responses_fts] (rowid, [prompt], [response]) VALUES (new.rowid, new.[prompt], new.[response]);
+END;
+CREATE TRIGGER [responses_ad] AFTER DELETE ON [responses] BEGIN
+  INSERT INTO [responses_fts] ([responses_fts], rowid, [prompt], [response]) VALUES('delete', old.rowid, old.[prompt], old.[response]);
+END;
+CREATE TRIGGER [responses_au] AFTER UPDATE ON [responses] BEGIN
+  INSERT INTO [responses_fts] ([responses_fts], rowid, [prompt], [response]) VALUES('delete', old.rowid, old.[prompt], old.[response]);
+  INSERT INTO [responses_fts] (rowid, [prompt], [response]) VALUES (new.rowid, new.[prompt], new.[response]);
+END;
+CREATE INDEX idx_consortium_id ON responses(consortium_id);
+CREATE TABLE [classifications] (
+   [id] INTEGER PRIMARY KEY,
+   [content] TEXT,
+   [class] TEXT,
+   [model] TEXT,
+   [temperature] FLOAT,
+   [datetime_utc] TEXT,
+   [response_json] TEXT,
+   [confidence] FLOAT
+);
+CREATE TABLE [fragments] (
+   [id] INTEGER PRIMARY KEY,
+   [hash] TEXT,
+   [content] TEXT,
+   [datetime_utc] TEXT,
+   [source] TEXT
+);
+CREATE UNIQUE INDEX [idx_fragments_hash]
+    ON [fragments] ([hash]);
+CREATE TABLE [fragment_aliases] (
+   [alias] TEXT PRIMARY KEY,
+   [fragment_id] INTEGER REFERENCES [fragments]([id])
+);
+CREATE TABLE IF NOT EXISTS "prompt_fragments" (
+   [response_id] TEXT REFERENCES [responses]([id]),
+   [fragment_id] INTEGER REFERENCES [fragments]([id]),
+   [order] INTEGER,
+   PRIMARY KEY ([response_id], [fragment_id], [order])
+);
+CREATE TABLE IF NOT EXISTS "system_fragments" (
+   [response_id] TEXT REFERENCES [responses]([id]),
+   [fragment_id] INTEGER REFERENCES [fragments]([id]),
+   [order] INTEGER,
+   PRIMARY KEY ([response_id], [fragment_id], [order])
+);
+Exit Code: 0

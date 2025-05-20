@@ -1,0 +1,27 @@
+Stdout/Stderr:     def _synthesize_responses(self, original_prompt: str, responses: List[Dict[str, Any]]) -> Dict[str, Any]:
+        logger.debug("Synthesizing responses")
+        arbiter = llm.get_model(self.arbiter)
+
+        formatted_history = self._format_iteration_history()
+        formatted_responses = self._format_responses(responses)
+
+        # Extract user instructions from system_prompt if available
+        user_instructions = self.system_prompt or ""
+
+        # Load and format the arbiter prompt template
+        arbiter_prompt_template = _read_arbiter_prompt()
+        arbiter_prompt = arbiter_prompt_template.format(
+            original_prompt=original_prompt,
+            formatted_responses=formatted_responses,
+            formatted_history=formatted_history,
+            user_instructions=user_instructions
+        )
+
+        arbiter_response = arbiter.prompt(arbiter_prompt)
+        log_response(arbiter_response, arbiter)
+
+        try:
+            return self._parse_arbiter_response(arbiter_response.text())
+        except Exception as e:
+            logger.error(f"Error parsing arbiter response: {e}")
+Exit Code: 0

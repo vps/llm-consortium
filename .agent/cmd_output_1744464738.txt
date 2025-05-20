@@ -1,0 +1,151 @@
+Stdout/Stderr: # LLM Consortium Evaluation Planning
+
+## Project Overview and Goals
+
+The llm-consortium project facilitates running multiple LLM models in parallel, having an arbiter model synthesize their responses, and potentially going through multiple iterations to improve the final answer. Current goals:
+
+1. **Prepare the project to facilitate extracting automated model evaluations** from the consortium process
+2. **Plan for a web dashboard** for managing and running llm-consortiums
+3. **Reconsider the logging structure** for consortium responses in the database
+
+## Current System Analysis
+
+### Core Components
+
+1. **ConsortiumOrchestrator** (in `__init__.py`): 
+   - Manages the process of getting responses from multiple models
+   - Sends responses to an arbiter model for synthesis
+   - Handles iterations when needed
+   - Currently logs individual model responses to the standard llm logs database
+
+2. **Prompt Templates**:
+   - `system_prompt.txt`: Instructions for participating models (include `<think>`, `<answer>`, and `<confidence>` tags)
+   - `arbiter_prompt.xml`: Detailed instructions for the arbiter to analyze and synthesize responses
+   - `iteration_prompt.txt`: Instructions for models during iteration rounds
+
+3. **Database Interaction**:
+   - Uses `DatabaseConnection` class for thread-safe database access
+   - Uses `log_response` function to log individual model responses
+   - Stores consortium configurations in `consortium_configs` table
+
+### Evaluation Data Available
+
+From examining the codebase, the following data points are available for evaluations:
+
+1. **Individual Model Responses**:
+   - Model name and instance number
+   - Raw text response
+   - Self-reported confidence (if included in response)
+   - Response time (potentially extractable)
+   - Error information (if any)
+
+2. **Arbiter Processing**:
+   - Synthesized final response
+   - Analysis of model responses
+   - Dissenting views
+   - Arbiter confidence
+   - Refinement areas (if iteration needed)
+
+3. **Iteration Information**:
+   - Number of iterations performed
+   - Refinement areas for each iteration
+   - Changes in confidence between iterations
+   - Final synthesis outcome
+
+## Database Schema Considerations
+
+### Current Schema Limitations
+
+The current logging approach has several limitations for consortium evaluation:
+
+1. Individual model responses are logged separately without clear association to a specific consortium run
+2. There's no structured way to track iterations within a consortium run
+3. The arbiter's analysis and metadata aren't preserved in a queryable format
+4. Relationship between model responses and final synthesis isn't clearly maintained
+
+### Proposed Schema Modifications
+
+We should consider adding the following tables:
+
+1. **`consortium_runs`**:
+   - `run_id`: unique identifier
+   - `timestamp`: when the run started
+   - `config_id`: reference to the consortium configuration used
+   - `original_prompt`: the user's original prompt
+   - `final_synthesis`: the final synthesized response
+   - `iterations_count`: number of iterations performed
+   - `final_confidence`: the final confidence score
+   - `conversation_id`: optional link to the conversation if in chat context
+
+2. **`consortium_responses`**:
+   - `response_id`: unique identifier
+   - `run_id`: reference to the consortium run
+   - `model_name`: the model used
+   - `instance_number`: for multiple instances of the same model
+   - `iteration_number`: which iteration this response is for
+   - `response_text`: the model's response
+   - `confidence`: the model's self-reported confidence
+   - `response_time_ms`: how long the response took
+   - `selected`: whether this response was selected/used by the arbiter
+   - `original_log_id`: reference to the entry in the standard logs table
+
+3. **`consortium_iterations`**:
+   - `iteration_id`: unique identifier
+   - `run_id`: reference to the consortium run
+   - `iteration_number`: sequence number
+   - `arbiter_analysis`: the arbiter's analysis
+   - `refinement_areas`: identified areas needing improvement
+   - `interim_synthesis`: the synthesis for this iteration
+   - `interim_confidence`: confidence for this iteration
+
+## Automated Evaluation Metrics
+
+Based on the available data, we could implement these evaluation metrics:
+
+1. **Model Performance Metrics**:
+   - Selection rate: How often each model's response is selected by the arbiter
+   - Confidence accuracy: Correlation between self-reported confidence and arbiter selection
+   - Response time: Average time to generate responses
+   - Error rate: Frequency of errors or timeout failures
+
+2. **Iteration Effectiveness**:
+   - Confidence delta: Change in confidence between iterations
+   - Response length delta: Change in synthesis length between iterations
+   - Refinement area resolution: How well refinement areas are addressed
+   - Iteration efficiency: How many iterations were needed to reach high confidence
+
+3. **Synthesis Quality**:
+   - Diversity incorporation: How well the final synthesis incorporates diverse viewpoints
+   - Prompt alignment: How well the synthesis addresses the original prompt
+   - Confidence stabilization: How quickly confidence values stabilize across iterations
+
+## Web Dashboard Planning
+
+The web dashboard should provide these capabilities:
+
+1. **Consortium Management**:
+   - Create, edit, and delete consortium configurations
+   - View historical runs and their results
+   - Compare performance of different consortium configurations
+
+2. **Run Visualization**:
+   - Display individual model responses side-by-side
+   - Highlight arbiter selections and reasoning
+   - Show iteration progression and refinement areas
+   - Toggle between raw responses and formatted display
+
+3. **Evaluation Views**:
+   - Model performance comparison charts
+   - Iteration effectiveness metrics
+   - Confidence and quality trend analysis
+   - Filter and search capabilities for analysis
+
+## Next Steps
+
+1. [ ] Design detailed database schema for the new tables
+2. [ ] Modify the ConsortiumOrchestrator to store additional evaluation data
+3. [ ] Implement basic evaluation metric calculations
+4. [ ] Create a prototype evaluation report generator
+5. [ ] Plan web dashboard architecture and integration
+6. [ ] Consider API endpoints needed for dashboard interactions
+Exit Code: 0

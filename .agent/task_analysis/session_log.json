@@ -1,0 +1,57 @@
+{
+  "timestamp": "2025-04-23T22:08:54+01:00",
+  "task": "```xml
+<request>
+  <context>
+    <current_directory>/home/thomas/Projects/llm/plugins/Utilities/llm-consortium</current_directory>
+    <repository_info>
+        <tool_output command="gh issue list">
+        10	OPEN	DEEPBLOOM Task Tracking: Robust Synthesis Logging & Enhanced Consortium Functionality		2025-04-23T21:02:35Z
+        8	OPEN	Feature: Add Conversation Continuation Support		2025-04-21T20:51:37Z
+        7	OPEN	Retrospective Consortium DB Linking Analysis		2025-04-20T01:09:48Z
+        5	OPEN	Async errors		2025-01-19T13:59:48Z
+        4	OPEN	token limit awareness		2025-01-07T11:51:46Z
+        2	OPEN	ModelError: Developer instruction is not enabled for models/gemini-pro		2024-12-23T23:44:32Z
+        </tool_output>
+        <inferred_repo>irthomasthomas/llm-consortium</inferred_repo> <!-- Inferred from pwd and successful gh command -->
+    </repository_info>
+    <available_tools>
+        <tool name="gh" description="GitHub CLI tool. Assumed to be configured for the 'shelllm' account."/>
+        <tool name="monitor_issue.sh" path="/home/thomas/Projects/claude.sh/monitor_issue.sh" description="Monitors GitHub issues or comments based on specified mode and filters."/>
+    </available_tools>
+    <user_constraints>
+        <constraint>Use GitHub account associated with 'shelllm'.</constraint>
+        <constraint>Monitor GitHub Issue #10 specifically.</constraint>
+        <constraint>Only react to new comments on Issue #10 authored by the user 'irthomasthomas'.</constraint>
+    </user_constraints>
+  </context>
+
+  <objective>
+    1. Retrieve the complete content (including all previous comments) of GitHub Issue #10 from the repository `irthomasthomas/llm-consortium`.
+    2. After retrieving the content, initiate a background monitoring process using the `monitor_issue.sh` script to specifically watch **only** Issue #10 in the `irthomasthomas/llm-consortium` repository for **new comments** authored solely by the GitHub user `irthomasthomas`.
+  </objective>
+
+  <instructions>
+    *   Ensure all GitHub operations (`gh` command, `monitor_issue.sh` script) are performed assuming the context of the `shelllm` GitHub account configuration.
+    *   First, use the `gh` command to view Issue #10 along with all its comments. Explicitly specify the repository (`--repo irthomasthomas/llm-consortium`).
+    *   Second, construct and execute the command to run `/home/thomas/Projects/claude.sh/monitor_issue.sh` with the correct parameters (`--mode issue-comments`, `--repo irthomasthomas/llm-consortium`, `--issue 10`, `--user irthomasthomas`).
+    *   Run the `monitor_issue.sh` script in the background (using `&`) so you can report its initiation and await further user instructions.
+    *   Structure your response using the required `<REASONING>`, `<PLAN>`, and `<COMMAND>` tags.
+    *   After initiating the background monitor, provide a confirmation message indicating that monitoring for comments by `irthomasthomas` on issue #10 has started.
+  </instructions>
+
+  <expected_output>
+    1.  Reasoning and plan for fetching issue data.
+    2.  Execution of the `gh issue view` command.
+    3.  Reasoning and plan for initiating the monitor.
+    4.  Execution of the `monitor_issue.sh` command in the background.
+    5.  A final confirmation that the data was retrieved (implicitly by showing the command output) and monitoring has begun. Do not use `<FINAL_ANSWER>` yet; await further instructions after starting the monitor.
+  </expected_output>
+</request>
+```",
+  "difficulty_score": 96.851799999999997,
+  "task_type": "system",
+  "task_confidence": 0.9626,
+  "primary_model": "claude-3.7-sonnet",
+  "processing_time": 48
+}

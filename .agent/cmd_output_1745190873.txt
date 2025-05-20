@@ -1,0 +1,32 @@
+Stdout/Stderr: 158:class _BaseConversation:
+159-    model: "_BaseModel"
+160-    id: str = field(default_factory=lambda: str(ULID()).lower())
+161-    name: Optional[str] = None
+162-    responses: List["_BaseResponse"] = field(default_factory=list)
+163-
+164-    @classmethod
+165-    @abstractmethod
+166-    def from_row(cls, row: Any) -> "_BaseConversation":
+167-        raise NotImplementedError
+168-
+169-
+170-@dataclass
+171-class Conversation(_BaseConversation):
+172-    def prompt(
+173-        self,
+174-        prompt: Optional[str] = None,
+175-        *,
+176-        fragments: Optional[List[str]] = None,
+177-        attachments: Optional[List[Attachment]] = None,
+178-        system: Optional[str] = None,
+179-        schema: Optional[Union[dict, type[BaseModel]]] = None,
+180-        system_fragments: Optional[List[str]] = None,
+181-        stream: bool = True,
+182-        key: Optional[str] = None,
+183-        **options,
+184-    ) -> "Response":
+185-        return Response(
+186-            Prompt(
+187-                prompt,
+188-                model=self.model,
+Exit Code: 0

@@ -1,0 +1,57 @@
+Stdout/Stderr: 541-            input=self.input_tokens,
+542-            output=self.output_tokens,
+543-            details=self.token_details,
+544-        )
+545-
+546:    def __iter__(self) -> Iterator[str]:
+547-        self._start = time.monotonic()
+548-        self._start_utcnow = datetime.datetime.now(datetime.timezone.utc)
+549-        if self._done:
+550-            yield from self._chunks
+551-            return
+552-
+553-        if isinstance(self.model, Model):
+554-            for chunk in self.model.execute(
+555-                self.prompt,
+556-                stream=self.stream,
+557-                response=self,
+558-                conversation=self.conversation,
+559-            ):
+560-                yield chunk
+561-                self._chunks.append(chunk)
+562-        elif isinstance(self.model, KeyModel):
+563-            for chunk in self.model.execute(
+564-                self.prompt,
+565-                stream=self.stream,
+566-                response=self,
+567-                conversation=self.conversation,
+568-                key=self.model.get_key(self._key),
+569-            ):
+570-                yield chunk
+571-                self._chunks.append(chunk)
+572-        else:
+573-            raise Exception("self.model must be a Model or KeyModel")
+574-
+575-        if self.conversation:
+576-            self.conversation.responses.append(self)
+577-        self._end = time.monotonic()
+578-        self._done = True
+579-        self._on_done()
+580-
+581-    def __repr__(self):
+582-        text = "... not yet done ..."
+583-        if self._done:
+584-            text = "".join(self._chunks)
+585-        return "<Response prompt='{}' text='{}'>".format(self.prompt.prompt, text)
+586-
+587-
+588-class AsyncResponse(_BaseResponse):
+589-    model: "AsyncModel"
+590-    conversation: Optional["AsyncConversation"] = None
+591-
+592-    @classmethod
+593-    def from_row(cls, db, row, _async=False):
+594-        return super().from_row(db, row, _async=True)
+595-
+596-    async def on_done(self, callback):
+Exit Code: 0

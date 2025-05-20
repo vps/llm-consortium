@@ -1,0 +1,60 @@
+Stdout/Stderr: {
+  "original_prompt": "What is 2+2?",
+  "model_responses": [
+    {
+      "model": "claude-3.5-sonnet",
+      "instance": 1,
+      "response": "2 + 2 = 4",
+      "confidence": 0.0,
+      "conversation_id": null,
+      "response_id": null
+    }
+  ],
+  "synthesis": {
+    "synthesis": "No synthesis found.",
+    "confidence": 0.99,
+    "analysis": "No analysis found.",
+    "dissent": "",
+    "needs_iteration": false,
+    "refinement_areas": [],
+    "response_id": null
+  },
+  "iteration_history": [
+    {
+      "iteration": 1,
+      "synthesis": {
+        "synthesis": "No synthesis found.",
+        "confidence": 0.99,
+        "analysis": "No analysis found.",
+        "dissent": "",
+        "needs_iteration": false,
+        "refinement_areas": [],
+        "response_id": null
+      },
+      "model_responses": [
+        {
+          "model": "claude-3.5-sonnet",
+          "instance": 1,
+          "response": "2 + 2 = 4",
+          "confidence": 0.0,
+          "conversation_id": null,
+          "response_id": null
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "consortium_id": "b2218a83-34ea-4351-80f6-1b6b979e8c40",
+    "models_used": {
+      "claude-3.5-sonnet": 1
+    },
+    "arbiter": "claude-3.5-sonnet",
+    "timestamp": "2025-04-12T16:30:12.035327",
+    "iteration_count": 1,
+    "total_time_ms": 8361,
+    "confidence_threshold": 0.8,
+    "max_iterations": 1,
+    "min_iterations": 1
+  }
+}
+Exit Code: 0

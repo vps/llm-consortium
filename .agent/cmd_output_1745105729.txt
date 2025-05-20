@@ -1,0 +1,23 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+id|model|conversation_id|session_id|datetime_utc
+01js86gcf298bg77m4a5y0a1dx|4.1-t0.7|01js86f4zsjx2jpc73rysxjnc5||2025-04-19T23:35:25.448399+00:00
+01js86g78w3w9evrpee8m4arvr|4.1-t0.7|01js86f4zsjx2jpc73rysxjnc5||2025-04-19T23:35:20.265342+00:00
+01js86g24ypsen373bbs7emncz|openrouter/google/gemini-2.5-pro-preview-03-25|01js86f4zsjx2jpc73rysxjnc5||2025-04-19T23:35:03.166324+00:00
+01js86fhhv4drhb0z8yzjta8m5|4.1-t0.7|01js86f4zsjx2jpc73rysxjnc5||2025-04-19T23:34:57.730328+00:00
+01js86fc6tpz4csxfn2cyc7zy6|4.1-t0.7|01js86f4zsjx2jpc73rysxjnc5||2025-04-19T23:34:50.996169+00:00
+01js86f50dtavyhyhay4vfc7rg|openrouter/google/gemini-2.5-pro-preview-03-25|01js86f4zsjx2jpc73rysxjnc5||2025-04-19T23:34:34.017260+00:00
+01js86eq307mvk0qbkzeecr4pm|anthropic/claude-3-7-sonnet-latest|01js86eq2e23q7s40ktdk3k8ba||2025-04-19T23:34:00.097377+00:00
+01js86dk6asgf995ehemqs2ncp|openrouter/google/gemini-2.5-pro-preview-03-25|01js86dk5pkp5fs4k5nz9ax555||2025-04-19T23:33:20.618340+00:00
+01js86cfe02z4ghy4g1s0xfbn2|openrouter/google/gemini-2.5-flash-preview|01js86cfdesnsy7twtnxztrnx0||2025-04-19T23:33:18.497209+00:00
+01js86cdawwy8k5wk1638t583d|fast-qwq|01js86cdaa5ntta6k5wt1vyhwn||2025-04-19T23:32:53.416787+00:00
+01js86b6dngrgfadah5bq5fkyk|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:32:36.618472+00:00
+01js86b2f3e1hhjz8evvn9shvd|openrouter/google/gemini-2.5-pro-preview-03-25|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:32:26.840792+00:00
+01js86arypfh1szeepv33a25kw|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:32:22.988701+00:00
+01js86an57wkftct6xzqkgv0j5|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:32:17.141749+00:00
+01js86aff77jd3c4vgv6xafgr6|openrouter/google/gemini-2.5-pro-preview-03-25|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:32:12.873374+00:00
+01js86ab8vabheed5h577epkb2|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:32:08.293290+00:00
+01js86a6tvckrwcgvdxs6w0thj|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:31:59.616030+00:00
+01js869yb5yq37zfktv6735wjg|openrouter/google/gemini-2.5-pro-preview-03-25|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:31:50.072604+00:00
+01js869n1wynsy7mj3rcf3r6ae|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:31:46.391930+00:00
+01js869hefp8gkzcg53edpfbxg|4.1-t0.7|01js85x4b62w60y2yp6b46ayd3||2025-04-19T23:31:41.902157+00:00
+Exit Code: 0

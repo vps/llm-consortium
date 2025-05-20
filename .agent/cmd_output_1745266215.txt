@@ -1,0 +1,27 @@
+diff --git a/llm_consortium/__init__.py b/llm_consortium/__init__.py
+index b8cf383..de577cd 100644
+--- a/llm_consortium/__init__.py
++++ b/llm_consortium/__init__.py
+@@ -578,7 +578,7 @@ class ConsortiumModel(llm.Model):
+                 result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+                 
+             response.response_json = result
+-            return result["synthesis"]["synthesis"]
++            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+ 
+         except Exception as e:
+             logger.exception(f"Consortium execution failed: {e}")
+Stdout/Stderr: diff --git a/llm_consortium/__init__.py b/llm_consortium/__init__.py
+index b8cf383..de577cd 100644
+--- a/llm_consortium/__init__.py
++++ b/llm_consortium/__init__.py
+@@ -578,7 +578,7 @@ class ConsortiumModel(llm.Model):
+                 result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+                 
+             response.response_json = result
+-            return result["synthesis"]["synthesis"]
++            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+ 
+         except Exception as e:
+             logger.exception(f"Consortium execution failed: {e}")
+Exit Code: 

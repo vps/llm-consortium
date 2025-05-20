@@ -1,0 +1,254 @@
+Stdout/Stderr: import asyncio
+import llm
+from typing import Optional, Dict, Any, List
+import json
+import os
+from pathlib import Path
+import sys
+from .strategies import DefaultStrategy, ConsortiumStrategy
+from . import ConsortiumOrchestrator, ConsortiumConfig, get_default_system_prompt
+
+# Ensure llm.hookimpl is available or handle potential absence
+try:
+    from llm import hookimpl
+except ImportError:
+    # Define a dummy decorator if hookimpl is not available (older llm versions?)
+    def hookimpl(func):
+        return func
+
+class ConsortiumModel(llm.Model):
+    can_stream = False # Consortium logic is complex, streaming not directly supported easily
+
+    def __init__(
+        self,
+        model_id,
+        strategy_class: Optional[type[ConsortiumStrategy]] = None,
+        strategy_params: Optional[Dict[str, Any]] = None,
+        config: Optional[Dict[str, Any]] = None, # Allow passing config directly
+    ):
+        self.model_id = model_id
+        self._config = config or {} # Store raw config passed during registration/init
+
+        # Determine strategy class: Explicit > Config > Default
+        if strategy_class:
+            self.strategy_class = strategy_class
+        elif self._config.get("strategy_class"):
+            # TODO: Need robust way to resolve class from string if stored in config
+            print(f"Warning: strategy_class from config ('{self._config['strategy_class']}') not yet fully supported dynamically. Using DefaultStrategy.", file=sys.stderr)
+            self.strategy_class = DefaultStrategy
+        else:
+            self.strategy_class = DefaultStrategy
+
+        # Determine strategy params: Explicit > Config > Default
+        self.strategy_params = strategy_params if strategy_params is not None else self._config.get("strategy_params", {})
+
+        # Extract models if specified directly in model_id like alias:model1,model2
+        if ":" in model_id:
+            self.alias, models_str = model_id.split(":", 1)
+            self._config["models"] = {model: 1 for model in models_str.split(",")}
+        else:
+            self.alias = model_id
+            # Ensure models key exists in config, even if empty, for prepare_config
+            if "models" not in self._config:
+                 self._config["models"] = {}
+
+        # Set model_name for display
+        self.model_name = self._config.get("name", self.alias)
+
+    def __repr__(self):
+        return f"ConsortiumModel(model_id='{self.model_id}', strategy={self.strategy_class.__name__})"
+
+    def prepare_config(self, **prompt_kwargs) -> ConsortiumConfig:
+        """Merges init config with prompt-specific kwargs."""
+        # Start with initial config
+        merged_config = self._config.copy()
+        # Override with prompt-specific kwargs
+        merged_config.update(prompt_kwargs)
+        # Ensure required fields for ConsortiumConfig are present or defaulted
+        # Models/Arbiter might come from merged_config or need defaults
+        return ConsortiumConfig(
+            models=merged_config.get('models', {}), # Default to empty dict if not set
+            arbiter=merged_config.get('arbiter', None), # Default to None if not set
+            max_iterations=merged_config.get('max_iterations', 3),
+            confidence_threshold=merged_config.get('confidence_threshold', 0.8),
+            system_prompt=merged_config.get('system_prompt', None),
+            # Strategy class/params are handled during __init__, not directly by ConsortiumConfig
+            # Pass any other relevant config fields if ConsortiumConfig supports them
+        )
+
+    def execute(self, prompt, system, response, conversation):
+        """
+        Note: This method signature aligns with newer llm versions (>= 0.14?).
+        The `prompt()` method below provides compatibility with older versions.
+        Handles conversation loading logic.
+        """
+        return self._execute_orchestration(prompt.prompt, system, conversation)
+
+    def prompt(
+        self,
+        prompt: str,
+        system: Optional[str] = None,
+        conversation_id: Optional[str] = None,
+        **kwargs # Catches any other args like temperature, max_tokens passed via llm cli or API
+    ) -> llm.Response:
+        """
+        Compatibility method for older llm versions that call model.prompt().
+        Newer versions might call model.execute().
+        """
+        print(f"DEBUG: ConsortiumModel.prompt called with conversation_id: {conversation_id}", file=sys.stderr)
+        conversation = None
+        if conversation_id:
+            try:
+                conversation = llm.get_conversation(conversation_id, self.model_id)
+                print(f"DEBUG: Retrieved conversation object: {conversation}", file=sys.stderr)
+                if conversation:
+                    print(f"DEBUG: Conversation messages count: {len(conversation.messages)}", file=sys.stderr)
+
+            except Exception as e:
+                print(f"Error getting conversation {conversation_id}: {e}", file=sys.stderr)
+                # Decide if we should proceed without history or raise error
+
+        # Delegate the core logic, passing the potentially loaded conversation
+        return self._execute_orchestration(prompt, system, conversation, **kwargs)
+
+
+    def _execute_orchestration(
+        self,
+        current_prompt: str,
+        system_prompt_arg: Optional[str] = None,
+        conversation: Optional[llm.Conversation] = None,
+        **kwargs # Consumes any extra kwargs like temperature
+    ) -> llm.Response:
+
+        # Prepare the configuration, merging init config with any prompt-time kwargs
+        # Note: kwargs passed here might override things set in __init__ if names clash
+        config = self.prepare_config(**kwargs)
+
+        # --- Conversation History Integration ---
+        full_prompt = ""
+        if conversation and conversation.messages:
+            history_context = []
+            for message in conversation.messages:
+                # We assume 'prompt' maps to user/human and 'response' maps to assistant/AI
+                # Adjust if llm.Conversation uses different keys/structure
+                role = "user" if message.get('prompt') else "assistant"
+                content = message.get('prompt') or message.get('response')
+                if content: # Ensure there is content to add
+                    history_context.append(f"{role}: {content}")
+            if history_context:
+                full_prompt += "
+".join(history_context)
+                full_prompt += "
+
+---
+
+" # Separator for clarity
+            print(f"DEBUG: Prepared history context:
+{full_prompt}", file=sys.stderr)
+        full_prompt += f"user: {current_prompt}" # Append the current user prompt, clearly marked
+
+        # --- System Prompt Selection ---
+        # Priority: 1. Explicitly passed `system` arg, 2. Config `system_prompt`, 3. Default
+        final_system_prompt = system_prompt_arg or config.system_prompt or get_default_system_prompt()
+
+        # --- Initialize Orchestrator ---
+        orchestrator = ConsortiumOrchestrator(
+            models=config.models, # Should be resolved to dict in prepare_config
+            arbiter=config.arbiter, # Should be resolved in prepare_config
+            max_iterations=config.max_iterations,
+            confidence_threshold=config.confidence_threshold,
+            system_prompt=final_system_prompt, # Pass the chosen system prompt
+            strategy_class=self.strategy_class, # From instance __init__
+            strategy_params=self.strategy_params, # From instance __init__
+        )
+
+        # --- Run Orchestration ---
+        print(f"DEBUG: Running orchestrator with final prompt:
+{full_prompt}", file=sys.stderr)
+        # Pass the full prompt (potentially with history) to the orchestrator
+        result = asyncio.run(orchestrator.orchestrate(full_prompt))
+
+
+        # --- Process Result ---
+        # Extract the synthesis or provide a fallback
+        synthesis_data = result.get("synthesis", {})
+        final_synthesis = synthesis_data.get("synthesis", "Error: No synthesis generated.")
+        # Extract confidence if available
+        final_confidence = synthesis_data.get("confidence")
+
+        # --- Create llm.Response ---
+        llm_response = llm.Response.fake(self) # Create a basic response object linked to this model
+
+        # Populate response details
+        llm_response.prompt = current_prompt # The user's original prompt for this turn
+        llm_response._prompt_json = {"prompt": current_prompt, "system": system_prompt_arg} # Store raw inputs if needed
+        llm_response.system_prompt = final_system_prompt
+        llm_response.response = final_synthesis # The final result
+        llm_response._response_json = result # Store the full orchestrator result for potential inspection
+
+        llm_response.model_id = self.model_id # Identify the consortium model used
+
+        # Optionally add custom attributes from the result if useful
+        llm_response.extras["orchestrator_result"] = result
+        if final_confidence is not None:
+           llm_response.extras["confidence"] = final_confidence
+        llm_response.extras["iterations"] = result.get("metadata", {}).get("iteration_count", 0)
+
+        # --- Log to Conversation (crucial step!) ---
+        if conversation:
+             try:
+                 print("DEBUG: Adding prompt and response to conversation object.", file=sys.stderr)
+                 # Log the *user's current prompt* and the *final synthesis*
+                 conversation.add(prompt=current_prompt, response=final_synthesis, system=final_system_prompt, actor="user")
+                 conversation.add(prompt=current_prompt, response=final_synthesis, system=final_system_prompt, actor="assistant")
+
+                 # Alternative using built-in add_prompt/add_response methods if preferred:
+                 # conversation.add_prompt(current_prompt, system=final_system_prompt)
+                 # conversation.add_response(final_synthesis, self.model_id) # Log response with model ID
+
+             except Exception as e:
+                 print(f"Error adding to conversation {conversation.id}: {e}", file=sys.stderr)
+
+
+        print(f"DEBUG: Returning llm.Response object: {llm_response}", file=sys.stderr)
+        return llm_response
+
+# --- Plugin Registration Hook ---
+@hookimpl
+def register_models(register):
+    # Load configurations from a standard location, e.g., llm config dir
+    # For now, define a default example directly. Users should configure via settings.json
+    # Example: Register 'qwq-consortium' using fast-qwq and claude-3-haiku
+    register(
+         ConsortiumModel(
+            model_id='qwq-consortium', # Alias users will use
+            config={
+                "name": "QWQ Consortium (Fast+Haiku)",
+                "models": {"fast-qwq": 1, "claude-3-haiku-20240307": 1}, # Models to use
+                "arbiter": "claude-3-sonnet-20240229", # Arbiter model
+                "max_iterations": 2,
+                "confidence_threshold": 0.85,
+                # Add default system prompt specific to this consortium maybe?
+            }
+         ),
+         aliases=['qwqc'] # Optional shorter alias
+    )
+
+    # Example: Register a second consortium with different settings
+    register(
+         ConsortiumModel(
+            model_id='research-consortium',
+            config={
+                 "name": "Research Consortium (GPT4o+Sonnet)",
+                 "models": {"gpt-4o": 1, "claude-3-sonnet-20240229": 1},
+                 "arbiter": "gpt-4-turbo",
+                 "max_iterations": 3,
+            }
+         )
+    )
+
+    # Register a very basic default for testing if needed
+    register(
+         ConsortiumModel(model_id='consortium-default')
+    )
+Exit Code: 0

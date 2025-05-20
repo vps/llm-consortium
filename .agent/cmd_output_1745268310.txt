@@ -1,0 +1,49 @@
+[DEBUG] Mode: issue-comments. Repo: irthomasthomas/llm-consortium Issue: 8. User: irthomasthomas. Label: 
+[DEBUG] Fetching initial latest comment ID...
+[DEBUG] No existing comments from 'irthomasthomas' found on issue irthomasthomas/llm-consortium#8 or error fetching. Will monitor for the first.
+[DEBUG] Monitoring will begin for new items newer than marker: 0
+[DEBUG] Loop: Fetching latest 100 comments on irthomasthomas/llm-consortium#8...
+[DEBUG] Comments fetched successfully (23 items). Processing...
+[DEBUG] Filtering for new comments from 'irthomasthomas' newer than ID '0'...
+[DEBUG] New item found! Outputting body and updating marker...
+[DEBUG] Updated last_processed_marker to: IC_kwDONgssgs6oC73X
+--- NEW ITEM ---
+cat monitor_issue.sh again
+
+Refactor it to be more generic and useful.
+
+Allow monitoring:
+ - any gh issue thread for new comments by owner
+ - New issues belonging to a specified repo
+ - Optionally specify a label which must also be present for the script to return the content
+
+I want this to support spawning sub-agents from the main thread which will then monitor a different repo or issue thread for different projects and tasks.
+
+Ask me if anything is unclear...
+When you have refactored it, you should be able to launch it in such a way that it resumes monitoring this gh issue thread.
+Note also that the default values you wrote last time where too tight, like, don't put such a small limit on issue_count, allow for at least 100...
+Stdout/Stderr: [DEBUG] Mode: issue-comments. Repo: irthomasthomas/llm-consortium Issue: 8. User: irthomasthomas. Label: 
+[DEBUG] Fetching initial latest comment ID...
+[DEBUG] No existing comments from 'irthomasthomas' found on issue irthomasthomas/llm-consortium#8 or error fetching. Will monitor for the first.
+[DEBUG] Monitoring will begin for new items newer than marker: 0
+[DEBUG] Loop: Fetching latest 100 comments on irthomasthomas/llm-consortium#8...
+[DEBUG] Comments fetched successfully (23 items). Processing...
+[DEBUG] Filtering for new comments from 'irthomasthomas' newer than ID '0'...
+[DEBUG] New item found! Outputting body and updating marker...
+[DEBUG] Updated last_processed_marker to: IC_kwDONgssgs6oC73X
+--- NEW ITEM ---
+cat monitor_issue.sh again
+
+Refactor it to be more generic and useful.
+
+Allow monitoring:
+ - any gh issue thread for new comments by owner
+ - New issues belonging to a specified repo
+ - Optionally specify a label which must also be present for the script to return the content
+
+I want this to support spawning sub-agents from the main thread which will then monitor a different repo or issue thread for different projects and tasks.
+
+Ask me if anything is unclear...
+When you have refactored it, you should be able to launch it in such a way that it resumes monitoring this gh issue thread.
+Note also that the default values you wrote last time where too tight, like, don't put such a small limit on issue_count, allow for at least 100...
+Exit Code: 

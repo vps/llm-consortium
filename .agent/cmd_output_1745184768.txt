@@ -1,0 +1,36 @@
+Stdout/Stderr: /home/thomas/Projects/llm/my-llm/llm/cli.py:    "conversation_id",
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    conversation_id,
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            ("--cid", conversation_id),
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    if conversation_id or _continue:
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            conversation = load_conversation(conversation_id, async_=async_)
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    "conversation_id",
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    conversation_id,
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    if conversation_id or _continue:
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            conversation = load_conversation(conversation_id)
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    conversation_id: Optional[str], async_=False
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    if conversation_id is None:
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            conversation_id = matches[0]["id"]
+/home/thomas/Projects/llm/my-llm/llm/cli.py:        row = cast(sqlite_utils.db.Table, db["conversations"]).get(conversation_id)
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            "No conversation found with id={}".format(conversation_id)
+/home/thomas/Projects/llm/my-llm/llm/cli.py:        "conversation_id = ?", [conversation_id]
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    responses.conversation_id,
+/home/thomas/Projects/llm/my-llm/llm/cli.py:left join conversations on responses.conversation_id = conversations.id{extra_where}
+/home/thomas/Projects/llm/my-llm/llm/cli.py:left join conversations on responses.conversation_id = conversations.id
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    "conversation_id",
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    conversation_id,
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    if response and not current_conversation and not conversation_id:
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            conversation_id = next(
+/home/thomas/Projects/llm/my-llm/llm/cli.py:                    "select conversation_id from responses order by id desc limit 1"
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            )["conversation_id"]
+/home/thomas/Projects/llm/my-llm/llm/cli.py:        if conversation_id:
+/home/thomas/Projects/llm/my-llm/llm/cli.py:        "conversation_id": conversation_id,
+/home/thomas/Projects/llm/my-llm/llm/cli.py:    if conversation_id:
+/home/thomas/Projects/llm/my-llm/llm/cli.py:        where_bits.append("responses.conversation_id = :conversation_id")
+/home/thomas/Projects/llm/my-llm/llm/cli.py:                        item[find_unused_key(item, "conversation_id")] = row["id"]
+/home/thomas/Projects/llm/my-llm/llm/cli.py:                cid = row["conversation_id"]
+/home/thomas/Projects/llm/my-llm/llm/cli.py:                            row["conversation_id"], row["id"]
+/home/thomas/Projects/llm/my-llm/llm/cli.py:            if conversation_id:
+/home/thomas/Projects/llm/my-llm/llm/migrations.py:            "conversation_id": str,
+/home/thomas/Projects/llm/my-llm/llm/migrations.py:        foreign_keys=(("conversation_id", "conversations", "id"),),
+/home/thomas/Projects/llm/my-llm/llm/models.py:            "conversation_id": conversation.id,
+Exit Code: 0

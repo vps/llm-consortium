@@ -1,0 +1,21 @@
+Stdout/Stderr: 408:    _continue,
+409-    conversation_id,
+410-    key,
+411-    save,
+412-    async_,
+413-    usage,
+414-    extract,
+415-    extract_last,
+416-):
+417-    """
+418-    Execute a prompt
+--
+822:    _continue,
+823-    conversation_id,
+824-    template,
+825-    param,
+826-    options,
+827-    no_stream,
+828-    key,
+829-):
+Exit Code: 0

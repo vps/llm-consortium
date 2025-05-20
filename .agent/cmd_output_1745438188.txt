@@ -1,0 +1,53 @@
+    def execute(self, prompt, stream, response, conversation):
+        """Execute the consortium synchronously"""
+        try:
+            # Extract conversation history from the conversation object directly
+            conversation_history = ""
+            if conversation and hasattr(conversation, 'responses') and conversation.responses:
+                logger.info(f"Processing conversation with {len(conversation.responses)} previous exchanges")
+                history_parts = []
+                for resp in conversation.responses:
+                    # Handle prompt format
+                    human_prompt = "[prompt unavailable]"
+                    if hasattr(resp, 'prompt') and resp.prompt:
+                        if hasattr(resp.prompt, 'prompt'):
+                            human_prompt = resp.prompt.prompt
+                        else:
+                            human_prompt = str(resp.prompt)
+
+                    # Handle response text format
+                    assistant_response = "[response unavailable]"
+                    if hasattr(resp, 'text') and callable(resp.text):
+                        assistant_response = resp.text()
+                    elif hasattr(resp, 'response') and resp.response:
+                        assistant_response = resp.response
+
+                    # Format the history exchange
+                    history_parts.append(f"Human: {human_prompt}")
+Stdout/Stderr:     def execute(self, prompt, stream, response, conversation):
+        """Execute the consortium synchronously"""
+        try:
+            # Extract conversation history from the conversation object directly
+            conversation_history = ""
+            if conversation and hasattr(conversation, 'responses') and conversation.responses:
+                logger.info(f"Processing conversation with {len(conversation.responses)} previous exchanges")
+                history_parts = []
+                for resp in conversation.responses:
+                    # Handle prompt format
+                    human_prompt = "[prompt unavailable]"
+                    if hasattr(resp, 'prompt') and resp.prompt:
+                        if hasattr(resp.prompt, 'prompt'):
+                            human_prompt = resp.prompt.prompt
+                        else:
+                            human_prompt = str(resp.prompt)
+
+                    # Handle response text format
+                    assistant_response = "[response unavailable]"
+                    if hasattr(resp, 'text') and callable(resp.text):
+                        assistant_response = resp.text()
+                    elif hasattr(resp, 'response') and resp.response:
+                        assistant_response = resp.response
+
+                    # Format the history exchange
+                    history_parts.append(f"Human: {human_prompt}")
+Exit Code: 

@@ -1,0 +1,33 @@
+Stdout/Stderr: # Consortium Log Processing Progress
+
+## Step 1: Database Schema Updated
+
+We have added two columns to the `responses` table in the SQLite log database:
+
+- `is_arbiter_response` (`INTEGER`, default 0): Flags whether each row is an arbiter response (1) or not (0).
+- `consortium_group_id` (`TEXT`): Stores the generated consortium group ID for each set of related experiment responses.
+
+---
+
+### Table: responses (updated schema)
+
+```mermaid
+erDiagram
+    RESPONSES {
+        INTEGER rowid PK
+        TEXT model
+        TEXT prompt
+        TEXT response
+        TEXT datetime_utc
+        INTEGER is_arbiter_response
+        TEXT consortium_group_id
+        ...
+    }
+```
+
+---
+
+**Next Steps:**  
+- Identify arbiter responses by searching for the `<synthesis_output>` tag in the `response` column.
+- Assign unique consortium group IDs and propagate them to related responses.
+Exit Code: 0

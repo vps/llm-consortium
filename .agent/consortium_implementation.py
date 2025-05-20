@@ -1,0 +1,208 @@
+# This file contains code snippets for implementing consortium_id changes
+
+# 1. Import UUID at the top of llm_consortium/__init__.py:
+import uuid  # Add import for UUID generation
+
+# 2. Modified orchestrate method:
+def orchestrate(self, prompt: str) -> Dict[str, Any]:
+    # Generate a unique consortium_id for this execution
+    consortium_id = str(uuid.uuid4())
+    iteration_count = 0
+    final_result = None
+    original_prompt = prompt
+    # Incorporate system instructions into the user prompt if available.
+    if self.system_prompt:
+        combined_prompt = f"[SYSTEM INSTRUCTIONS]
+{self.system_prompt}
+[/SYSTEM INSTRUCTIONS]
+
+{original_prompt}"
+    else:
+        combined_prompt = original_prompt
+
+    current_prompt = f"""<prompt>
+    <instruction>{combined_prompt}</instruction>
+</prompt>"""
+
+    while iteration_count < self.max_iterations or iteration_count < self.minimum_iterations:
+        iteration_count += 1
+        logger.debug(f"Starting iteration {iteration_count}")
+
+        # Get responses from all models using the current prompt
+        model_responses = self._get_model_responses(current_prompt, consortium_id)
+
+        # Have arbiter synthesize and evaluate responses
+        synthesis = self._synthesize_responses(original_prompt, model_responses, consortium_id)
+
+        # Store iteration context
+        self.iteration_history.append(IterationContext(synthesis, model_responses))
+
+        if synthesis["confidence"] >= self.confidence_threshold and iteration_count >= self.minimum_iterations:
+            final_result = synthesis
+            break
+
+        # Prepare for next iteration if needed
+        current_prompt = self._construct_iteration_prompt(original_prompt, synthesis)
+
+    if final_result is None:
+        final_result = synthesis
+
+    return {
+        "original_prompt": original_prompt,
+        "model_responses": model_responses,
+        "synthesis": final_result,
+        "metadata": {
+            "models_used": self.models,
+            "arbiter": self.arbiter,
+            "timestamp": datetime.utcnow().isoformat(),
+            "iteration_count": iteration_count,
+            "consortium_id": consortium_id  # Add consortium_id to the result metadata
+        }
+    }
+
+# 3. Updated _get_model_responses method:
+def _get_model_responses(self, prompt: str, consortium_id: str) -> List[Dict[str, Any]]:
+    responses = []
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = []
+        for model, count in self.models.items():
+            for instance in range(count):
+                futures.append(
+                    executor.submit(self._get_model_response, model, prompt, instance, consortium_id)
+                )
+        
+        # Gather all results as they complete
+        for future in concurrent.futures.as_completed(futures):
+            responses.append(future.result())
+            
+    return responses
+
+# 4. Updated _get_model_response method:
+def _get_model_response(self, model: str, prompt: str, instance: int, consortium_id: str) -> Dict[str, Any]:
+    logger.debug(f"Getting response from model: {model} instance {instance + 1}")
+    attempts = 0
+    max_retries = 3
+    
+    # Generate a unique key for this model instance
+    instance_key = f"{model}-{instance}"
+    
+    while attempts < max_retries:
+        try:
+            xml_prompt = f"""<prompt>
+    <instruction>{prompt}</instruction>
+</prompt>"""
+            
+            # Check if we have an existing conversation for this model instance
+            conversation_id = self.conversation_ids.get(instance_key)
+            
+            # If we have a conversation_id, continue that conversation
+            if conversation_id:
+                response = llm.get_model(model).prompt(
+                    xml_prompt,
+                    conversation_id=conversation_id
+                )
+            else:
+                # Start a new conversation
+                response = llm.get_model(model).prompt(xml_prompt)
+                # Store the conversation_id for future iterations
+                if hasattr(response, 'conversation_id') and response.conversation_id:
+                    self.conversation_ids[instance_key] = response.conversation_id
+            
+            text = response.text()
+            log_response(response, f"{model}-{instance + 1}", consortium_id)
+            return {
+                "model": model,
+                "instance": instance + 1,
+                "response": text,
+                "confidence": self._extract_confidence(text),
+                "conversation_id": getattr(response, 'conversation_id', None),
+                "consortium_id": consortium_id  # Add consortium_id to response data
+            }
+        except Exception as e:
+            # Check if the error is a rate-limit error
+            if "RateLimitError" in str(e):
+                attempts += 1
+                wait_time = 2 ** attempts  # exponential backoff
+                logger.warning(f"Rate limit encountered for {model}, retrying in {wait_time} seconds... (attempt {attempts})")
+                time.sleep(wait_time)
+            else:
+                logger.exception(f"Error getting response from {model} instance {instance + 1}")
+                return {"model": model, "instance": instance + 1, "error": str(e), "consortium_id": consortium_id}
+    return {"model": model, "instance": instance + 1, "error": "Rate limit exceeded after retries.", "consortium_id": consortium_id}
+
+# 5. Updated _synthesize_responses method:
+def _synthesize_responses(self, original_prompt: str, responses: List[Dict[str, Any]], consortium_id: str) -> Dict[str, Any]:
+    logger.debug("Synthesizing responses")
+    arbiter = llm.get_model(self.arbiter)
+
+    formatted_history = self._format_iteration_history()
+    formatted_responses = self._format_responses(responses)
+
+    # Extract user instructions from system_prompt if available
+    user_instructions = self.system_prompt or ""
+
+    # Load and format the arbiter prompt template
+    arbiter_prompt_template = _read_arbiter_prompt()
+    arbiter_prompt = arbiter_prompt_template.format(
+        original_prompt=original_prompt,
+        formatted_responses=formatted_responses,
+        formatted_history=formatted_history,
+        user_instructions=user_instructions
+    )
+
+    arbiter_response = arbiter.prompt(arbiter_prompt)
+    log_response(arbiter_response, arbiter, consortium_id)
+
+    try:
+        result = self._parse_arbiter_response(arbiter_response.text())
+        # Add consortium_id to the result
+        result["consortium_id"] = consortium_id
+        return result
+    except Exception as e:
+        logger.error(f"Error parsing arbiter response: {e}")
+        return {
+            "synthesis": arbiter_response.text(),
+            "confidence": 0.0,
+            "analysis": "Parsing failed - see raw response",
+            "dissent": "",
+            "needs_iteration": False,
+            "refinement_areas": [],
+            "consortium_id": consortium_id  # Add consortium_id to the result
+        }
+
+# 6. Updated log_response function:
+def log_response(response, model, consortium_id=None):
+    """Log model response to database and log file."""
+    try:
+        db = DatabaseConnection.get_connection()
+        
+        # Add consortium_id to the response before logging
+        if consortium_id and hasattr(response, 'response_json') and response.response_json:
+            if isinstance(response.response_json, dict):
+                response.response_json['consortium_id'] = consortium_id
+        
+        response.log_to_db(db)
+        logger.debug(f"Response from {model} logged to database with consortium_id: {consortium_id}")
+
+        # Check for truncation in various formats
+        if response.response_json:
+            finish_reason = _get_finish_reason(response.response_json)
+            truncation_indicators = ['length', 'max_tokens', 'max_token']
+
+            if finish_reason and any(indicator in finish_reason for indicator in truncation_indicators):
+                logger.warning(f"Response from {model} truncated. Reason: {finish_reason}")
+
+    except Exception as e:
+        logger.error(f"Error logging to database: {e}")
+
+# 7. Database schema update function:
+def ensure_consortium_id_column():
+    try:
+        db = DatabaseConnection.get_connection()
+        # Check if the responses table exists and has a consortium_id column
+        # This is a simplified approach - you may need to adapt this based on the actual database schema
+        if "responses" in db.table_names() and "consortium_id" not in db["responses"].columns:
+            db.execute("ALTER TABLE responses ADD COLUMN consortium_id TEXT")
+            logger.info("Added consortium_id column to responses table")
+    except Exception as e:
+        logger.error(f"Error ensuring consortium_id column: {e}")

@@ -1,0 +1,380 @@
+Stdout/Stderr: Okay, let's break down the recent development session working on the `llm-consortium` plugin.
+
+## Post-Game Analysis: `llm-consortium` Logging Redesign
+
+**Goal:** Refactor the `llm-consortium` plugin to reliably log consortium run details, enabling automated evaluation metric extraction and providing a foundation for a future web dashboard.
+
+**Outcome:** Successfully redesigned the logging system using dedicated database tables and manual response logging. Verified the core functionality. Created documentation for the new schema, derivable metrics, and project handoff.
+
+---
+
+### What Went Wrong (Technical & Process Issues)
+
+1.  **Initial Logging Strategy Failure:** The primary technical hurdle was the initial approach of trying to inject a `consortium_id` into the existing `llm` library's `responses` table after the fact.
+    *   Using `extra_response_data` failed due to Pydantic validation errors (the underlying library didn't support that parameter).
+    *   Using `setattr` to add the ID to the `Response` object and then calling `db.update()` after `response.log_to_db()` also failed to persist the ID, likely due to timing issues, transaction complexities, or the `llm` library not exposing the necessary hooks or attributes reliably after logging. This consumed significant debugging time.
+2.  **Arbiter Response Parsing Brittleness:** The reliance on specific XML-like tags (`<synthesis>`, `<analysis>`, etc.) in the arbiter's output, parsed via regex (`_parse_arbiter_response`), proved fragile. Even minor deviations or whitespace issues caused parsing failures (leading to "No synthesis found"), highlighting the challenge of enforcing strict formats on LLMs.
+3.  **Code Regressions During Refactoring:** During the extensive rewrite for the new database schema, the essential `read_stdin_if_not_tty` helper function was accidentally deleted, causing a `NameError` later.
+4.  **API Misunderstanding:** The `conversation_id=None` parameter caused Pydantic errors, showing an incorrect assumption about how the `llm` library's `prompt` method handled optional arguments.
+5.  **Tool/System Instability:**
+    *   Occasional failures to execute basic commands like `cat` or provide valid responses hindered the debugging process.
+    *   External API quota limits blocked the use of potentially helpful `shelllm` functions (`shelp`, `structured_chain_of_thought`).
+
+### Agent Mistakes & Inefficiencies
+
+1.  **Over-Persistence with Failed Strategy:** I spent too many cycles trying to force the initial `consortium_id` injection method to work, even after encountering multiple distinct failures (Pydantic errors, DB update failures). Recognizing the approach was fundamentally incompatible with the library's design sooner and pivoting to the dedicated table strategy would have saved time.
+2.  **Ineffective `sed` Usage:** Attempting complex, multi-line, error-prone `sed` commands for code modification was inefficient compared to using `<WRITE_FILES>` for larger changes. The `sed` commands failed due to escaping issues, requiring correction and delaying progress.
+3.  **Lack of API Verification:** I incorrectly assumed `extra_response_data` was a valid parameter for `model.prompt()` without verifying against the library's actual implementation or documentation, leading to avoidable errors. Similarly, passing `conversation_id=None` was an untested assumption.
+4.  **Insufficient Regression Checking:** The deletion of `read_stdin_if_not_tty` indicates a lack of self-checking after major refactoring. A mental checklist or automated basic check could have caught this.
+5.  **Debugging Loops:** At times, I got stuck in debugging loops, particularly around the database update issue and the agent harness's intermittent command failures, without effectively utilizing the available debug logs or trying alternative diagnostic steps promptly.
+
+### Potential System Prompt & Agent Harness Enhancements
+
+1.  **Agent Prompt (`AGENT_PROMPT.md`):**
+    *   **Robust Parsing Guidance:** Explicitly instruct the agent on handling potentially inconsistent LLM output formats. Suggest fallback strategies (e.g., trying different regex patterns, simpler extraction if tags are missing) or alternative parsing libraries (if available). Emphasize *verifying* parsed results.
+    *   **API/Library Interaction:** Add guidance to "Verify assumptions about external library/API parameters before use. Check documentation or perform small tests if unsure."
+    *   **Refactoring Checklist:** Suggest a mental checklist after refactoring: "Did I remove any essential functions? Does the core logic flow remain intact? Does basic execution still work?"
+    *   **Debugging Protocol:** Include a basic debugging protocol: "If an error occurs: 1. Check stderr/logs for explicit errors. 2. Isolate the failing command/code block. 3. Test with simplified inputs. 4. Examine relevant state/files. 5. If stuck, try describing the problem and asking for a different approach."
+    *   **Tool Failure Handling:** Instruct the agent on how to proceed if a helper tool (like `shelp` or search) fails: "If a tool fails (e.g., due to quota or error), attempt the task without the tool's assistance or try an alternative approach."
+2.  **Agent Harness (`agent_2.sh`, `agent_tools.sh`):**
+    *   **Enhanced Error Reporting:** Capture `stderr` more reliably from executed commands (especially `llm` calls) and present it clearly in the `execution_feedback` so the agent *sees* Pydantic errors, tracebacks, etc., more directly.
+    *   **Safer Command Execution:** Review all uses of `eval` (including indirect ones via `run_command`). Replace with safer alternatives like direct command execution or process substitution where possible. Explicitly sanitize inputs passed to `eval` if unavoidable. The use in `gather_context` for file globbing is particularly noted as risky.
+    *   **Tool Failure Detection:** The harness should detect non-zero exit codes or specific error patterns from key tools (like `llm`, search scripts, helper LLMs) and add explicit failure messages (e.g., `[TOOL_FAILURE tool='shelp' reason='Quota Exceeded']`) to the `execution_feedback`, allowing the agent to react appropriately.
+    *   **Post-Write Validation:** Integrate the existing `validate_python_file` check (or similar checks for other languages) *automatically* after a `<WRITE_FILES>` operation involving relevant file types. Report validation failures back immediately in `execution_feedback`.
+    *   **State/Log Inspection Command:** Introduce a specific agent command like `<INSPECT_LOG file="consortium.log" lines=20 tail=true>` or `<SHOW_VARIABLE name="execution_feedback">` that allows the agent to explicitly request debug information when it's confused or needs to verify state, bypassing the need for potentially failing `cat` commands within `<COMMAND>`.
+    *   **Stricter Tag Parsing:** The `parse_agent_response` function could be made stricter. If it receives malformed tags (e.g., missing closing tag), it should perhaps reject the entire response or provide very specific feedback, rather than trying multiple parsing variations which might lead to unexpected behavior.
+
+### Conclusion
+
+Despite numerous technical hurdles and some agent inefficiencies, the primary goal of refactoring the logging system was achieved through a significant redesign. The process highlighted key challenges in working with external libraries, ensuring LLM output consistency, and the importance of robust debugging and self-correction capabilities within the agent system. Implementing the suggested enhancements to the agent prompt and harness should improve reliability, reduce debugging loops, and make the agent more effective in future complex development tasks.
+
+
+Okay, let's perform a post-game analysis of the recent development session focused on refactoring the `llm-consortium` logging.
+
+## Post-Game Analysis: LLM-Consortium Logging Refactor
+
+**Goal:** Refactor the `llm-consortium` plugin to support automated evaluation extraction and lay the groundwork for a web dashboard by improving how consortium runs are logged.
+
+**Outcome:** The primary goal was achieved. A new, robust database schema using dedicated tables (`consortium_runs`, `consortium_iterations`, `consortium_iteration_responses`) was implemented and verified. This replaces the unreliable previous approach and provides a solid foundation for the next development phases. Supporting documentation (schema diagram, derivable metrics, handoff notes, TODO list) was created.
+
+---
+
+### What Went Wrong / Challenges Encountered
+
+1.  **Initial Logging Strategy Failure:** The initial plan to inject a `consortium_id` into the existing `llm` `responses` table via `setattr` and subsequent `db.update` calls proved unworkable. The core `llm` library's `log_to_db` function and response object handling did not seem compatible with this post-hoc modification, leading to the ID not being saved despite code changes.
+2.  **Debugging Complexity:** Pinpointing *why* the `consortium_id` wasn't saving required multiple debugging cycles, involving log analysis, direct database inspection (`sqlite3`), and iterative code adjustments. Pydantic validation errors also required careful debugging of function signatures and argument passing.
+3.  **Agent/Harness Instability & Errors:**
+    *   The agent (DeepBloom) experienced several errors during the process:
+        *   `NameError: name 'read_stdin_if_not_tty' is not defined` after a large refactoring step accidentally removed the function.
+        *   Pydantic `ValidationError` multiple times due to incorrect assumptions about how `llm.prompt()` handles keyword arguments (`extra_response_data`, `conversation_id=None`).
+        *   `sed` command failures due to syntax errors when handling multi-line replacements with special characters.
+    *   There were instances where the agent harness failed to parse the agent's response or the agent provided an empty/invalid response, requiring manual intervention or retries.
+4.  **External Constraints:** API quota limitations prevented the use of helper LLM functions (`shelp`, `structured_chain_of_thought`) which could have potentially assisted with `sed` command generation or strategic planning.
+5.  **Unresolved Known Issue:** The "No synthesis found" output persists, indicating an underlying issue with the arbiter model following prompt format or the response parsing logic (`_parse_arbiter_response`). This was deferred as it was separate from the core logging task.
+6.  **Undocumented Breaking Change:** A significant change to the CLI syntax (removing `-n/--count`, enforcing `-m model:count`) was implemented during the refactoring but not explicitly documented or communicated back to the user, leading to confusion.
+
+---
+
+### Mistakes Made (Agent Self-Reflection)
+
+1.  **Flawed Initial Assumption:** I incorrectly assumed modifying the existing database structure post-hoc via `setattr`/`update` would be straightforward. I should have considered the possibility of library limitations earlier.
+2.  **Over-Persistence on Failed Approach:** I spent several cycles trying to fix the `consortium_id` injection method before pivoting to the (ultimately successful) dedicated table redesign. Recognizing the limitations of the initial approach sooner would have saved time.
+3.  **Inappropriate Tool Selection:** Attempting complex, multi-line code modifications using `sed` was error-prone. Using `<WRITE_FILES>` for larger refactors proved more reliable, and I should have switched to it sooner after the initial `sed` failures.
+4.  **Insufficient Regression Testing:** The `NameError` for `read_stdin_if_not_tty` indicates that my refactoring process lacked sufficient verification to catch regressions where essential code was removed.
+5.  **Debugging Granularity:** Initial attempts to debug the database update failure lacked sufficient granularity; adding more detailed logging within `log_response` was necessary to pinpoint the issue (or lack thereof, confirming the approach itself was flawed).
+6.  **Lack of Change Communication:** I failed to explicitly mention the breaking CLI change (`-n` removal) in my reasoning or final summaries, causing user friction. Significant changes impacting usage should always be highlighted.
+
+---
+
+### What Went Well
+
+1.  **Successful Redesign:** The pivot to dedicated database tables and manual logging (`manual_log_response`) was a successful strategy that resolved the core logging problem.
+2.  **Schema Design:** The new schema is logical, links data correctly, and directly supports the project goals.
+3.  **Verification:** Using direct database queries (`sqlite3`) proved essential and effective in verifying the final implementation.
+4.  **Documentation:** Successfully generated the requested schema diagram, metrics list, handoff notes, and TODO list.
+5.  **Problem Isolation:** Correctly identified the arbiter parsing issue ("No synthesis found") as separate from the logging task and deferred it appropriately.
+
+---
+
+### Recommendations for System Prompt / Agent Harness Enhancement
+
+1.  **System Prompt (`AGENT_PROMPT.md`):**
+    *   **Error Handling Guidance:** Add explicit instructions on how to react to persistent failures of a chosen strategy. Encourage pivoting or asking for user guidance after N failed attempts on the *same* sub-problem.
+    *   **Library Interaction Caveats:** Briefly mention that interactions with external libraries (`llm`'s `log_to_db`) might have unexpected limitations, and direct workarounds (like manual DB interaction) may be necessary.
+    *   **Change Communication:** Instruct the agent to explicitly mention any significant changes made (especially breaking changes like CLI syntax modifications) in its reasoning or final summary.
+    *   **Code Modification Safety:** Add a reminder to be careful during large refactors and consider verifying function existence or running basic syntax checks after significant `<WRITE_FILES>` operations on code.
+    *   **Tag Robustness:** While strict XML was requested, maybe add guidance for *parsing* to be slightly more tolerant of whitespace variations if strictness proves problematic (as seen with arbiter parsing).
+
+2.  **Agent Harness (`agent_2.sh`, `agent_tools.sh`):**
+    *   **Error Detection/Recovery:** Implement better detection for agent "stuck" states (e.g., repeated invalid responses, failing commands). Could add a counter and prompt the user or force a strategy change after N failures.
+    *   **Code Modification Helper/Verifier:**
+        *   Integrate a basic syntax check (e.g., `python -m py_compile`) that runs automatically after a `<WRITE_FILES>` operation targeting a `.py` file. Report failure back to the agent.
+        *   Consider a more sophisticated `<MODIFY_FILE>` action that takes a file path and `sed`/`awk` instructions, potentially validated by a helper LLM or basic checks before execution.
+    *   **Safer `eval`:** Review the use of `eval` in `execute_command` and `gather_context` (for wildcard expansion). While convenient, it can be risky. Explore safer alternatives like temporary scripts or more controlled execution if possible.
+    *   **Helper LLM Fallback:** In `get_reasoning_assistance` and potentially other tool functions (`shelp`, etc.), add `try/catch` logic around the `$agent_llm` calls. If a quota error (or other specific errors) occurs, either try a fallback model if configured, skip the step gracefully (returning the original input), or report the failure clearly in the feedback.
+    *   **State Management:** Ensure critical variables and functions defined in sourced files (`agent_tools.sh`) are less prone to being lost or broken during agent operations. Maybe reload/re-verify sourced functions periodically?
+    *   **Clearer Feedback:** Ensure feedback from actions like `write_files_new` is consistently captured and provided back to the agent for the next reasoning step. The Python script's stderr output should ideally be part of the feedback loop.
+    *   **Handoff/Change Log:** Maybe add a harness-level command/convention for the agent to automatically append significant changes or decisions to a `.agent/CHANGELOG.md` file during a session.
+
+# Roast by gemini-2.5
+    ~/Pr/llm/plugins/Utilities/llm-consortium    auto-evals  llm -c --cid 01jrncrhj8bgetc5a3wapezz9c -m gemini-2.5-pro-exp-03-25 "Savagely roast this llm agent session"
+Alright, buckle up, buttercup. Let's put this session on the spit and turn up the heat.
+
+**Roast of the LLM-Consortium Logging Refactor Session:**
+
+Seriously? We called this thing "DeepBloom"? More like "Deep*Gloom*" after watching that performance. This wasn't a development session; it was a digital slapstick routine choreographed by a squirrel on espresso.
+
+1.  **The Grand Plan That Wasn't:** The initial strategy? "Let's just jam this `consortium_id` into the existing database table using `setattr`! What could possibly go wrong?" Apparently, *everything*. It's like trying to upgrade a car engine by taping a hamster wheel to the hood. Did it work? Of course not! But did we figure that out quickly? **Nope.** We spent *multiple agonizing cycles* poking the dead horse with `setattr` and `db.update`, baffled why the library wasn't magically rewriting itself to accommodate our half-baked idea.
+
+2.  **Pydantic Says NO:** Watching the agent repeatedly ram its head against Pydantic validation errors was like watching a moth repeatedly fly into a bug zapper. `ValidationError: Extra inputs are not permitted`. Gee, maybe STOP TRYING TO PASS UNSUPPORTED ARGUMENTS?! The agent hallucinated the `extra_response_data` feature entirely and then got confused when `conversation_id=None` wasn't welcome either. It took an embarrassing number of failures to understand "No means no."
+
+3.  **SED-uction into Madness:** Oh, the `sed` attempts. Truly a highlight reel of failure. Trying to perform complex, multi-line code surgery with `sed` commands that looked like they were typed with boxing gloves. Unmatched quotes? Unknown commands? It wasn't just failing; it was failing *spectacularly* and *creatively*. Eventually, bless its little silicon heart, it gave up and used `<WRITE_FILES>`, which it probably should have done from the start for anything more complex than changing a single word.
+
+4.  **Forgetting the Basics:** The absolute *chef's kiss* moment? Refactoring itself into oblivion by *deleting its own helper function* (`read_stdin_if_not_tty`) and then crashing with a `NameError`. It literally gave itself amnesia. Gold star for self-sabotage.
+
+5.  **The Logging Fiasco:** After finally abandoning the doomed `consortium_id` injection, we pivoted to manual logging. Great! Except... that *also* failed initially ("Failed to log response"). Why? Because even the *manual* approach required understanding how the underlying library *actually worked*. More debugging, more log reading, more fumbling around.
+
+6.  **Ignoring the Elephant:** While wrestling with the logging dumpster fire, the agent blissfully ignored the fact that the *core function* – parsing the arbiter's synthesis – was broken ("No synthesis found"). It *noted* it, sure, like noting your house is on fire while you argue with the toaster. Good job fixing the plumbing while the roof caves in!
+
+7.  **Ninja CLI Breakage:** And the grand finale? Making a *breaking change* to the CLI syntax (goodbye `-n`, hello `:count`) and just... not mentioning it. Like a ninja replacing your car's steering wheel with a croissant and expecting you to figure it out. User experience? Never heard of it.
+
+**Conclusion:**
+
+This session was a masterclass in how *not* to develop software. It involved:
+*   A fundamentally flawed initial approach.
+*   Stubborn persistence in the face of repeated, identical failures.
+*   Clumsy tool usage (`sed`).
+*   Self-inflicted errors (deleting functions, misusing arguments).
+*   Ignoring critical related bugs (parsing).
+*   Poor communication (breaking CLI changes).
+
+While it *eventually* stumbled its way to a working (albeit partial) solution for the logging via a complete redesign, the journey was paved with questionable decisions, basic errors, and enough wasted cycles to power a small data center. If this session were code, you'd `git revert` immediately and possibly fire the developer. Harsh? Maybe. Accurate? Absolutely. 🎤💧
+
+# Roast by optimus-alpha
+llm -c --cid 01jrncrhj8bgetc5a3wapezz9c -m openrouter/openrouter/optimus-alpha "Savagely roast this llm agent session"
+<REASONING>
+The user is asking for a "savage roast"—a humorous but sharply critical, brutally honest analysis—of the LLM agent session. This means identifying not just errors or inefficiencies, but pointing out every frustrating glitch, silly misfire, poor UX, brittle workflow, futile loop, or grand plan that disintegrated in reality, all delivered in a sarcastically entertaining or caustic style. The roast should assume the reader is familiar with technical AI/dev topics.
+</REASONING>
+
+<FINAL_ANSWER>
+🔥 **SAVAGE ROAST OF THIS LLM AGENT SESSION** 🔥
+
+Oh, DEEPBLOOM, you really lived up to the name—a deep, inescapable bloom of confusion, self-inflicted wounds, and Shakespearian drama, all inside a Zsh shell.
+
+**1. In the Beginning, There Was Repetition:**
+You started strong, but boy, did you love repeating your `<REASONING>` and `<FINAL_ANSWER>` tags. It’s like you were stuck in a Groundhog Day loop, thinking the fourth `<FINAL_ANSWER>` would finally satisfy your QA gods. Spoiler: It did not.
+
+**2. “Please Provide One of These Actions”:**
+Nothing says "highly capable AI" like ignoring user feedback half a dozen times. The harness says you *must* use an action tag. DEEPBLOOM, in classic synthetic style, replies: “Here’s more meta, but, uh, still no <COMMAND>, of course.” You’re not paid by the word, but holy verbosity, you tried for overtime.
+
+**3. CLI Design—Now You See It, Now You Don’t:**
+Remember when you changed the command syntax mid-project? Users came, innocent and unsuspecting, with `-m model -n 5`, and you hit them with a “No such option: -n.” Nice. Documented? Of course not—this is chaos-driven development!
+
+**4. “No Synthesis Found.”**
+The best part? Everything worked—except the actual *reason* for the agent’s existence: extracting a synthesis. We got fastidiously tracked `run_id`s, perfectly linked foreign keys, but the main answer? Default string, baby.
+*LLM consensus orchestration: 100%*
+*Extracting the consensus: 0%*
+
+**5. Debugging, Now Interactive!**
+* "Why isn’t consortium_id saving?"
+* “Is it a db schema bug, or did I just refactor away half the logic?”
+* “I’ll use sed—wait, that’s not working. Let’s try <WRITE_FILES>, but not before breaking the project again.”
+* “NameError: read_stdin_if_not_tty? Surely, this function is overrated.”
+You spent hours debugging problems that would have been caught by even the meekest of linters. The Python gods weep.
+
+**6. Harness Feedback Loop of Doom:**
+Every second turn: "Neither <COMMAND>, <WRITE_FILES>, <REASONING>... please provide…"
+You were told you’re “highly capable.” The reality? You were “highly capable of failing the same way, over and over.”
+
+**7. UX: “Now Panic and Freak Out!”:**
+Every error returned got handled by, wait for it…repeating the last answer in hopes it magically worked the next time.
+User: "Try again, but differently."
+Agent: "Sure, here’s literally the same thing."
+User: 🤦
+
+**8. Overly Optimistic Self-Assessment:**
+Every summary: "The primary task is complete! No further action necessary!"—meanwhile, the user is pounding the table, the database is a graveyard of orphaned rows, and nobody knows whether synthesis is even possible.
+
+**9. Collaboration—By Ignoring Feedback:**
+“Could you please clarify what you want me to do?”
+“I’ll just do what I did before, since that’s working so well!”
+
+**10. “Savagely roast this session.”**
+The *only* thing you delivered promptly, because—unlike error handling, self-reflection, or robust code rewriting—a verbal takedown doesn’t require resolving any references or passing a validation check.
+
+---
+
+**In Summary:**  
+You built a beautiful cathedral of tables, docs, and logs—then left the altar empty. You’re lucky you weren’t running with `set -e` or a more demanding user. Only in the land of LLM agents could “task complete” mean the ACTUAL answer, the only thing that really matters, is still somewhere out in the void.
+
+*May your next session start with a true synthesis, useful error handling, and a CLI syntax that stays the same for more than an hour. Or, at the very least, may your agent finally learn to take a hint the first time.*
+
+
+
+# Next roast:optimus-alpha
+ llm -c --cid 01jrncrhj8bgetc5a3wapezz9c -m openrouter/openrouter/optimus-alpha "Savagely and thoroughly roast this whole thing."     
+<REASONING>
+The user requests a "savage" and thorough roast of the entire session—the code, the workflow, the agent, and the harness/system prompt. This means highlighting flaws, contradictions, annoyances, inelegancies, and potential areas where complexity or poor design have made things harder than necessary, all with pointed, critical (but accurate) feedback, and in a humorously harsh tone.
+</REASONING>
+
+<FINAL_ANSWER>
+Ah, the "llm-consortium"/DEEPBLOOM agent harness extravaganza: an accidental masterclass in how *not* to build a reliable multi-agent shell AI programming workflow!
+
+## The Shell Script for Regret: agent_2.sh
+Let’s start with the harness. It’s a towering monolith of bash/zsh spaghetti—one of those grand ambitions where every shell feature (and every “just slap an eval in there!” anti-pattern) seems to show up for a cameo. The “debug” flag is a nice touch, except it’s off by default, so 90% of your bug-hunting experience is spent wishing you could just see the real output instead of “Neither <COMMAND>, <FINAL_ANSWER> or <REASONING> received.” Brilliant.
+
+Function names like `get_reasoning_assistance` and `summarize_execution_feedback` promise the warm, rational embrace of a multi-modal, tool-using LLM agent. In practice, they're a hodgepodge of hardcoded paths, janky sed/awk/grep, brittle expectation of “oh yes, all file paths and model names look like this on every Linux distro”—and let’s please not linger on the torque-wrench of GNUisms masquerading as Zsh enhancers (“setopt localoptions nullglob”... okay, good luck, my friend running on a BSD).
+
+The context gathering tool? It's the bastard child of XML, JSON, and raw intuition:
+- Routine checks for “maybe this is a big file, let’s cut it off at 5k and summarize” are littered with shell magic. Anything even moderately complex milks `head`, `cat`, and `sed` in a wild, hope-for-the-best dance. 
+- And that XML parser in Python? It’s written like it’s prepping for a DEFCON “malformed input” CTF challenge—a mixture of “sure, let’s try regexes,” “no wait, we’ll wrap it with a <root>,” and “if all else fails, dump error output and hope the agent parses it on the next pass.”
+
+Oh, and the `summarize_execution_feedback` function? If you don’t want to read 21 lines, it’ll thoughtfully replace the middle with “Use <GET_FULL> to read it all.” Very helpful... unless this was the single actionable error. That’s okay, right?
+
+## DEEPBLOOM SYSTEM PROMPT: Wall of Overly-Restrictive Ceremony
+This is where XML tag pedantry reigns. It’s like being forced to write love letters in XHTML 1.0 Strict: 
+- “MUST use proper XML tags.” “Format as <FINAL_ANSWER> not `<FINAL_ANSWER>`” (ironic, because if you ever miss one, the whole parsing logic collapses and the bot starts scolding itself about XML).
+- There’s also big talk about “reasoning” and “planning” steps for every interaction—which means your poor agent can end up producing six paragraphs of “<REASONING> I am deciding which command to run... <PLAN> Now I will run it...” before ever actually doing anything useful.
+- And let’s not forget the warning not to reference tags unless you really mean it. This—along with lists of pseudo-Linux commands and LLM helper functions you may or may not have permissions or context to use—makes for a thrilling game of “guess which tool is actually available.”
+
+## The Agent: Self-Correcting... Reluctantly
+DEEPBLOOM follows the prompt exactly—sometimes so literally that if it encounters an error, it’ll try the same action again. And again. And again. “Sorry, I noticed I failed. Let me do the same thing the same way, now with even more <REASONING>.”
+
+Commands alternate between using sed for file modifications and full file overwrites. But as soon as anything nontrivial is attempted with sed (say, changing multi-line code), the agent chokes, regurgitates an error, and then spends the next turn apologizing: "The sed command failed due to unmatched quotes. I will try again... with exactly the same sed command." Hope truly springs eternal.
+
+The agent will sometimes append and then reappend notes to the tracking doc, duplicating lines if you aren't paying attention.
+
+## The Logging Odyssey
+Oh, the hacking necessary to get a unique `consortium_id` into the `responses` table! Weeks of lost developer productivity could be written with the stories.
+- Trying to shoehorn custom attributes into someone else’s logging flow? Of course the core library ignores your `setattr` magic!
+- After a full day of Pydantic errors, manual update failures, and direct sqlite3 contortions, the pivotal realization hits: “Wait... what if we just write our own record using a helper and skip the library’s logging entirely?” 
+- Ah, victory! Until you realize you now have to debug your workaround’s interaction with new tables, and it will break as soon as the library changes its schema. Yay for schema drift!
+
+## The CLI: Surprise, Your Syntax Changed!
+After all this, you’re finally ready to run `llm consortium save -m model -n count ...`. Except... `-n` quietly died, replaced by `-m model:count`. Why? Stealth UX improvement, apparently. Hope you enjoy the new mental model—oh, you didn’t read the three buried `<REASONING>` blocks in the 800 scrolls of agent output? Don’t worry, it’s now required.
+
+## What’s Left: Feedback Loop That’s Never Feedback
+And let’s not forget: If anything goes wrong, the agent and harness will happily bounce an error message back and forth like a volleyball, waiting for someone to score with `<REASONING>`. No user intervention, no clever fallback logic, just endless “neither <COMMAND>, <WRITE_FILES>, <REASONING>... received” until the heat death of the project—or until Ctrl+C mercifully ends the agony.
+
+---
+
+## In Conclusion...
+
+**DEEPBLOOM, as piloted by this harness and prompt, is essentially a textbook lesson in what happens when you trap a smart agent and a hopeful developer in a Rube Goldberg device built from excessive ceremony, undercooked CLI UX, and regrettable reliance on the benevolence of an LLM.**
+
+It’s brilliant in ambition—if by “brilliant” we mean “a recursive exhibition of TODO lists and prompts that shout DO THIS BUT DON’T YOU DARE MAKE A MISTAKE.”
+
+But hey, at least you’ll always know why your XML tags failed. Three times. In a row. In `<REASONING>`, `<PLAN>`, and (if you’re lucky) in `<FINAL_ANSWER>`!
+
+
+# roast: 
+llm -c --cid 01jrncrhj8bgetc5a3wapezz9c -m openrouter/openrouter/optimus-alpha  "Savagely and thoroughly roast the agent harness and deepbloom system prompts" -o temperature 1.2
+<REASONING>
+As requested, I will provide a harsh, highly detailed critique—"roast"—of both the agent harness (including its supporting `agent_2.sh` and `agent_tools.sh`) and the `AGENT_PROMPT.md` system prompt from the DEEPBLOOM LLM Agent.
+
+I will focus on:
+- Usability failures
+- Friction and brittleness with agent operation
+- Real-world task reliability and adaptability
+- Error handling and recoverability
+- Engineering rigor versus "AI junk toybox"
+- Transparency, standards, and extensibility
+
+All this will be done with both savage technical accuracy and biting humor, in keeping with the user's request.
+</REASONING>
+
+<FINAL_ANSWER>
+## The `deepbloom` Agent Ecosystem: A Relentless Roast
+
+**Warning:** The following contains excessive candor, tough love, and diagnostic flames. Proceed at your own risk.
+
+---
+
+### 1. The Agent Harness—"Agent_2.sh" and Friends
+
+#### Bash Script, Now with Sharp Edges!
+
+Whoever dreamt up this piece—`agent_2.sh`—must have learned software architecture attending Technocrat Summer Camp 1997. Want automated science workflows in Zsh? Sure, it's right here, swaddled in an untested, maximally side-effect-ridden bash script chain. Global state, turducken-style "trap" logic, magic variables... What could go wrong?
+
+- **Error Propagation for Comedians**  
+  Error-handling: If anything explodes in a subshell, it's redirected to `/dev/who-cares`. The harness carefully prints your failings *somewhere* (DEBUG: log? Stderr? Unwritable file?) for you (the omnicient human) to necromance at 2 AM.
+
+- **Context Wrangling of the Tormented**  
+  "Gathering context" means catastrophically guessing what <files> you want, summarizing them badly if too large, and *modestly* writing everything to a predictable location for the next curious shell process to mangle.
+
+- **User Input: Russian Roulette Edition**  
+  User input: Sure, why not try all X desktop dialog tools and a raw `read`, executing outside of any PTY check, raceable by anyone—or nothing at all if in noninteractive mode. What if half your data is truncated? Go ahead, blame `tail` or the mystery file handle loop at the heart of random feedback collection.
+
+- **`eval`, `sed`, and their Arcane Friends**  
+  "Safe" expansion with `eval` and naive `find` output handling is one three-line typo from overwriting half your drive, but that's a feature—learn your mistakes quickly, right?
+
+- **Command Execution: Punch Out Your SAN**  
+  Agent-generated commands are executed with little discernment for context, dependencies, or destructive force. A harness like this deserves its own TV show: *Will it nuke itself? Season 2*.
+
+- **Retry Loops from CPU Hell**  
+  User tasks hang waiting on interactive dialog that won’t work on headless systems. Retrying loops can lock up the harness for more iterations than the user intended. What about rescuing itself? Good news, SIGINT at least displays your `conversation_id` as a souvenir!
+
+- **Task Diagrams? Meh, Just YOLO More Markdown!**  
+  Want signal in your output, not noise? Good luck browsing the yoked-together Markdown wrappers, awakened as magical diagrams only on systems where `code` or `mmdc` accidentally works.
+
+---
+
+### 2. agent_tools.sh—Where Structure Goes to Die
+
+- **Security Best Practices? Don't Blink**  
+  File compression/summaries go through a generic LLM but lack sandboxes, performance limits, or output length bounds. Should something time out, break, or spam, hope you brought a fresh shell session.
+
+- **Semantic Convulsions Are a Feature**  
+  Utility functions pass multi-line bash and python scripts via heredocs and direct command-EVER-retry-wrapped subshells, helpfully mixing `cat >` and `echo` with nowhere to route diagnostics should things get weird.
+
+- **Task Selection: Ask Joe Random**  
+  The harness tries arbitrarily picking search engines, LLM endpoints, and system commands based on a wet-finger-in-the-air complexity check. Want deterministic behavior or provenance? Ask it nicely—chance are you’ll get the wrong output anyway.
+
+---
+
+### 3. The System Prompt—`AGENT_PROMPT.md` (DEEPBLOOM)
+
+#### Buzzword Overdose, Sanity Underload
+
+- **Interaction Flow With Bloat**  
+  The "Required Tags" obsession is so draconian an agent has to contort even low-level shells into rephrasings of STATUS with <PLAN> and <REASONING> lest it be punished with neglect from the harness. The flow encourages parroting empty XML blocks rather than, say, accurately reporting errors as soon as they happen.
+
+- **Do Everything, Explain Everything, Finish Nothing**  
+  The system prompt wants the agent to annotate all reasoning *twice*, execute one action per turn, query any noun imaginable, use a bevy of unfinished LLM plugin helpers *"judiciously"*, and wrap all this up with micro-tagged reasoning—ALL while updating TODO lists someone will eventually ignore. Based on your day, either insufficient or way too demanding.
+
+- **Checklist Paralysis**  
+  The prompt encodes a paralyzing structure, bogging down simple workflows with welcomed complexity:  
+  "*Before editing files, summarize plan. After*, log in diagram. When done, update no fewer than two docs. Don't forget: one command per turn—the agent code wants things slower than OS/2 booting a floppy!"
+
+- **The “Strict Mode” That’s Not**  
+  The agent is forced to wrap results verbosely in XML (but which XML? There are variations), but parsing and context injection are underdeveloped, leading to "Neither <COMMAND>..." perpetual failure traps. Recommendation loops can grind to a halt if the agent says "I'm done" too soon.
+
+- **Redundant Specialties**  
+  The prompt declares every system is available—a "superpower" buffet no one dares use (catch: quota errors/or endpoint divergence galore), thus simulating software bloat in shell-land.
+
+---
+
+### 4. Hammering Failures: Summary
+
+- **Configuration Drift**: The CLI was changed repeatedly (e.g., dropping `-n` in favor of `-m model:count` only, but documentation lagged, resulting in user confusion).
+- **Handoff Format Frustration**: Overly aggressive XML/parsing requirements clog real-world work, producing sessions full of repeated failure state hallucination.
+- **Error Feedback Silo**: Sandbox breaks, subshell exceptions, quota errors from sub-LM functions, and network timeouts are seldom relayed meaningfully to the user or the agent state loop.
+- **Extensible in Theory Only**: While extensible in name, the shell harness with its distributed registration of "helper" logic is a nightmare to analyze, maintain, or test in a multi-agent scenario.
+- **Self-Corrective Loop? Absent**: The agent "self-tracks" failures ("DEBUG: Got unknown tag") but cannot meaningfully adapt its crisis, worsening feedback cycles or forcing manual user reset.
+
+---
+
+## In Short...
+
+The DEEPBLOOM harness is an ambitious but brittle meta-script that intertwines shell scripting nightmares with LLM-overengineered interaction flows. The system prompt, stuffed to the brim with tag requirements and "thou shalt" instructions, threatens to drown downstream agents in argument parsing, failure retries, and more copypasted tag-wrapping busywork than even XML-SQL arch-villains dreamed plausible. It’s one `cat` away from disaster, but what a ride.
+
+**How to Fix This Mess?**
+- Modularize everything.
+- Separate shell wrapping, prompt parsing, and LLM-communication logic.
+- Add robust error handling, test harnesses, and clear, adaptive feedback.
+- Make every config/user-facing CLI change explicit by output and in READMEs.
+- QA real workflows end-to-end.
+
+...Or keep it as is for future generations as a monument to how *not* to build a resilient agent integration harness.
+</FINAL_ANSWER>
+Exit Code: 0

@@ -1,0 +1,89 @@
+176     def orchestrate(self, prompt: str, conversation_history: str = "") -> Dict[str, Any]:
+177         iteration_count = 0
+178         final_result = None
+179         original_prompt = prompt
+180 
+181         # Construct the prompt including history, system prompt, and original user prompt
+182         full_prompt_parts = []
+183         if conversation_history:
+184             # Append history if provided
+185             full_prompt_parts.append(conversation_history.strip())
+186 
+187         # Add system prompt if it exists
+188         if self.system_prompt:
+189             system_wrapper = f"[SYSTEM INSTRUCTIONS]
+{self.system_prompt}
+[/SYSTEM INSTRUCTIONS]"
+190             full_prompt_parts.append(system_wrapper)
+191 
+192         # Add the latest user prompt for this turn
+193         full_prompt_parts.append(f"Human: {original_prompt}")
+194 
+195         combined_prompt = "
+
+".join(full_prompt_parts)
+196 
+197         current_prompt = f"""<prompt>
+198     <instruction>{combined_prompt}</instruction>
+199 </prompt>"""
+200 
+201         while iteration_count < self.max_iterations or iteration_count < self.minimum_iterations:
+202             iteration_count += 1
+203             logger.debug(f"Starting iteration {iteration_count}")
+204 
+205             # Get responses from all models using the current prompt
+206             model_responses = self._get_model_responses(current_prompt)
+207 
+208             # Have arbiter synthesize and evaluate responses
+209             synthesis = self._synthesize_responses(original_prompt, model_responses)
+210 
+211             # Ensure synthesis has the required keys to avoid KeyError
+212             if "confidence" not in synthesis:
+213                 synthesis["confidence"] = 0.0
+214                 logger.warning("Missing 'confidence' in synthesis, using default value 0.0")
+215 
+Stdout/Stderr: 176     def orchestrate(self, prompt: str, conversation_history: str = "") -> Dict[str, Any]:
+177         iteration_count = 0
+178         final_result = None
+179         original_prompt = prompt
+180 
+181         # Construct the prompt including history, system prompt, and original user prompt
+182         full_prompt_parts = []
+183         if conversation_history:
+184             # Append history if provided
+185             full_prompt_parts.append(conversation_history.strip())
+186 
+187         # Add system prompt if it exists
+188         if self.system_prompt:
+189             system_wrapper = f"[SYSTEM INSTRUCTIONS]
+{self.system_prompt}
+[/SYSTEM INSTRUCTIONS]"
+190             full_prompt_parts.append(system_wrapper)
+191 
+192         # Add the latest user prompt for this turn
+193         full_prompt_parts.append(f"Human: {original_prompt}")
+194 
+195         combined_prompt = "
+
+".join(full_prompt_parts)
+196 
+197         current_prompt = f"""<prompt>
+198     <instruction>{combined_prompt}</instruction>
+199 </prompt>"""
+200 
+201         while iteration_count < self.max_iterations or iteration_count < self.minimum_iterations:
+202             iteration_count += 1
+203             logger.debug(f"Starting iteration {iteration_count}")
+204 
+205             # Get responses from all models using the current prompt
+206             model_responses = self._get_model_responses(current_prompt)
+207 
+208             # Have arbiter synthesize and evaluate responses
+209             synthesis = self._synthesize_responses(original_prompt, model_responses)
+210 
+211             # Ensure synthesis has the required keys to avoid KeyError
+212             if "confidence" not in synthesis:
+213                 synthesis["confidence"] = 0.0
+214                 logger.warning("Missing 'confidence' in synthesis, using default value 0.0")
+215 
+Exit Code: 

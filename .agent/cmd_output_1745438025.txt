@@ -1,0 +1,25 @@
+--- NEW ITEM ---
+Wow thanks. But next time add a new comment too. I didn't notice you had updated the diagram originally. 
+Was the consortium (sonnet-gem-pro-4.1) helpful with that, or did you figure it out yourself? (just note this for the post-game).
+
+Regarding the topic of the issue. I looked at your last consortium prompt and notice that final parsed synthesis WAS recorded properly.
+So the issue must be that some llm responses to the arbiter prompt are not in the exact format expected. 
+We should apply a quick to fallback to recording the full arbiter model response when it cannot be parsed.
+We should make a todo item to explore making this more robust. Either by simplifying the xml format, or using json schema mode. JSON schema mode improves reliability in parsing, but might reduce quality of the response. Probably worth building json schema mode support and then using a consortium of consortiums to compare the quality of final parsed response when using XML vs JSON schema.
+
+For now, just add a quick fix to fall back to storing the whole arbiter response, when parsing fails or 'synthesis' is not found. BE CAREFUL that the prompt which is recorded is the original user input prompt, NOT the prompt sent to the arbiter, which includes both the user prompt and the consortium member responses. We only want to record, in that final response log, the orignal user prompt, and the final arbiter synthesis or full response.
+
+Let me know here if you need me to clarify anything.
+Stdout/Stderr: --- NEW ITEM ---
+Wow thanks. But next time add a new comment too. I didn't notice you had updated the diagram originally. 
+Was the consortium (sonnet-gem-pro-4.1) helpful with that, or did you figure it out yourself? (just note this for the post-game).
+
+Regarding the topic of the issue. I looked at your last consortium prompt and notice that final parsed synthesis WAS recorded properly.
+So the issue must be that some llm responses to the arbiter prompt are not in the exact format expected. 
+We should apply a quick to fallback to recording the full arbiter model response when it cannot be parsed.
+We should make a todo item to explore making this more robust. Either by simplifying the xml format, or using json schema mode. JSON schema mode improves reliability in parsing, but might reduce quality of the response. Probably worth building json schema mode support and then using a consortium of consortiums to compare the quality of final parsed response when using XML vs JSON schema.
+
+For now, just add a quick fix to fall back to storing the whole arbiter response, when parsing fails or 'synthesis' is not found. BE CAREFUL that the prompt which is recorded is the original user input prompt, NOT the prompt sent to the arbiter, which includes both the user prompt and the consortium member responses. We only want to record, in that final response log, the orignal user prompt, and the final arbiter synthesis or full response.
+
+Let me know here if you need me to clarify anything.
+Exit Code: 

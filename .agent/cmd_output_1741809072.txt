@@ -1,0 +1,21 @@
+Stdout/Stderr: Usage: llm consortium run [OPTIONS] [PROMPT]
+
+  Run prompt through a consortium of models and synthesize results.
+
+Options:
+  -m, --models TEXT             Models to include in consortium (can specify
+                                multiple, e.g., 'model:count' or '-m model1 -m
+                                model2')
+  -n, --count INTEGER           Number of instances to run for each model
+                                (used with separate -m flags)
+  --arbiter TEXT                Model to use as arbiter
+  --confidence-threshold FLOAT  Minimum confidence threshold
+  --max-iterations INTEGER      Maximum number of iteration rounds
+  --minimum-iterations INTEGER  Minimum number of iterations to perform
+  --system TEXT                 System prompt to use
+  --output FILE                 Save full results to this JSON file
+  --stdin / --no-stdin          Read additional input from stdin and append to
+                                prompt
+  --raw                         Output raw response from arbiter model
+  --help                        Show this message and exit.
+Exit Code: 0

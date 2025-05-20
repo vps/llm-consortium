@@ -1,0 +1,40 @@
+Stdout/Stderr: #!/bin/bash
+
+# Generic GitHub Monitoring Script (v3 - Corrected Initial Marker)
+# Monitors either new comments on a specific issue OR new issues in a repository.
+# Usage: ./monitor_issue.sh --mode <issue-comments|new-issues> --repo <owner/name> [options]
+
+# Configuration Defaults
+POLL_INTERVAL=15 # seconds
+FETCH_COUNT=100 # Fetch up to 100 items per poll
+
+# Variables to be set by arguments
+MODE=""
+REPO=""
+ISSUE_NUM=""
+TARGET_USER=""
+LABEL=""
+
+# --- Argument Parsing ---
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --mode) MODE="$2"; shift ;;
+        --repo) REPO="$2"; shift ;;
+        --issue) ISSUE_NUM="$2"; shift ;;
+        --user) TARGET_USER="$2"; shift ;;
+        --label) LABEL="$2"; shift ;;
+        *) echo "Unknown parameter passed: $1" >&2; exit 1 ;;
+    esac
+    shift
+done
+
+# --- Validation ---
+if [[ -z "$MODE" ]]; then
+    echo "Error: --mode <issue-comments|new-issues> is required." >&2
+    exit 1
+fi
+if [[ -z "$REPO" ]]; then
+    echo "Error: --repo <owner/name> is required." >&2
+    exit 1
+fi
+Exit Code: 0

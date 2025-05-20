@@ -1,0 +1,75 @@
+   161	</prompt>"""
+       
+   162	        while iteration_count < self.max_iterations or iteration_count < self.minimum_iterations:
+   163	            iteration_count += 1
+   164	            logger.debug(f"Starting iteration {iteration_count}")
+       
+   165	            # Get responses from all models using the current prompt
+   166	            model_responses = self._get_model_responses(current_prompt)
+       
+   167	            # Have arbiter synthesize and evaluate responses
+   168	            synthesis = self._synthesize_responses(original_prompt, model_responses)
+       
+   169	            # Ensure synthesis has the required keys to avoid KeyError
+   170	            if "confidence" not in synthesis:
+   171	                synthesis["confidence"] = 0.0
+   172	                logger.warning("Missing 'confidence' in synthesis, using default value 0.0")
+       
+   173	            # Store iteration context
+   174	            self.iteration_history.append(IterationContext(synthesis, model_responses))
+       
+   175	            if synthesis["confidence"] >= self.confidence_threshold and iteration_count >= self.minimum_iterations:
+   491	                updated_config = ConsortiumConfig(**self.config.to_dict())
+   492	                updated_config.system_prompt = prompt.system
+   493	                # Create a new orchestrator with the updated config
+   494	                orchestrator = ConsortiumOrchestrator(updated_config)
+   495	                result = orchestrator.orchestrate(prompt.prompt, conversation_history=conversation_history)
+   496	            else:
+   497	                # Use the default orchestrator with the original config
+   498	                result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+   499	                
+   500	            response.response_json = result
+   501	            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+       
+   502	        except Exception as e:
+   503	            logger.exception(f"Consortium execution failed: {e}")
+   504	            raise llm.ModelError(f"Consortium execution failed: {e}")
+       
+Stdout/Stderr:    161	</prompt>"""
+       
+   162	        while iteration_count < self.max_iterations or iteration_count < self.minimum_iterations:
+   163	            iteration_count += 1
+   164	            logger.debug(f"Starting iteration {iteration_count}")
+       
+   165	            # Get responses from all models using the current prompt
+   166	            model_responses = self._get_model_responses(current_prompt)
+       
+   167	            # Have arbiter synthesize and evaluate responses
+   168	            synthesis = self._synthesize_responses(original_prompt, model_responses)
+       
+   169	            # Ensure synthesis has the required keys to avoid KeyError
+   170	            if "confidence" not in synthesis:
+   171	                synthesis["confidence"] = 0.0
+   172	                logger.warning("Missing 'confidence' in synthesis, using default value 0.0")
+       
+   173	            # Store iteration context
+   174	            self.iteration_history.append(IterationContext(synthesis, model_responses))
+       
+   175	            if synthesis["confidence"] >= self.confidence_threshold and iteration_count >= self.minimum_iterations:
+   491	                updated_config = ConsortiumConfig(**self.config.to_dict())
+   492	                updated_config.system_prompt = prompt.system
+   493	                # Create a new orchestrator with the updated config
+   494	                orchestrator = ConsortiumOrchestrator(updated_config)
+   495	                result = orchestrator.orchestrate(prompt.prompt, conversation_history=conversation_history)
+   496	            else:
+   497	                # Use the default orchestrator with the original config
+   498	                result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+   499	                
+   500	            response.response_json = result
+   501	            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+       
+   502	        except Exception as e:
+   503	            logger.exception(f"Consortium execution failed: {e}")
+   504	            raise llm.ModelError(f"Consortium execution failed: {e}")
+       
+Exit Code: 

@@ -1,0 +1,141 @@
+.
+├── build
+│   ├── bdist.linux-x86_64
+│   └── lib
+│       └── llm_consortium
+│           ├── arbiter_prompt.xml
+│           ├── __init__.py
+│           ├── iteration_prompt.txt
+│           ├── protocol.py
+│           └── system_prompt.txt
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── examples
+│   ├── cfr-example.md
+│   ├── consortium_diagram.md
+│   ├── demo.py
+│   ├── example.md
+│   └── README.md
+├── IDEAS.md
+├── llm_consortium
+│   ├── arbiter_prompt.xml
+│   ├── __init__.py
+│   ├── iteration_prompt.txt
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   └── __init__.cpython-313.pyc
+│   ├── strategies
+│   │   ├── base.py
+│   │   ├── default.py
+│   │   ├── factory.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       ├── base.cpython-313.pyc
+│   │       ├── default.cpython-313.pyc
+│   │       ├── factory.cpython-313.pyc
+│   │       └── __init__.cpython-313.pyc
+│   └── system_prompt.txt
+├── llm_consortium.egg-info
+│   ├── dependency_links.txt
+│   ├── entry_points.txt
+│   ├── PKG-INFO
+│   ├── requires.txt
+│   ├── SOURCES.txt
+│   └── top_level.txt
+├── monitor_issue.sh
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+├── run_tests.sh
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── test_cli.cpython-312-pytest-8.3.4.pyc
+│   │   ├── test_cli.cpython-313-pytest-8.3.4.pyc
+│   │   ├── test_llm_consortium.cpython-312.pyc
+│   │   ├── test_llm_consortium.cpython-312-pytest-8.3.4.pyc
+│   │   ├── test_llm_consortium.cpython-313.pyc
+│   │   └── test_llm_consortium.cpython-313-pytest-8.3.4.pyc
+│   ├── test_arbiter_parsing.py
+│   ├── test_cli.py
+│   ├── test_confidence_parsing.py
+│   ├── test_file_readers.py
+│   ├── test_llm_consortium.py
+│   └── test_model_parsing.py
+├── TODO.md
+└── uv.lock
+
+13 directories, 55 files
+Stdout/Stderr: .
+├── build
+│   ├── bdist.linux-x86_64
+│   └── lib
+│       └── llm_consortium
+│           ├── arbiter_prompt.xml
+│           ├── __init__.py
+│           ├── iteration_prompt.txt
+│           ├── protocol.py
+│           └── system_prompt.txt
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── examples
+│   ├── cfr-example.md
+│   ├── consortium_diagram.md
+│   ├── demo.py
+│   ├── example.md
+│   └── README.md
+├── IDEAS.md
+├── llm_consortium
+│   ├── arbiter_prompt.xml
+│   ├── __init__.py
+│   ├── iteration_prompt.txt
+│   ├── __pycache__
+│   │   ├── __init__.cpython-311.pyc
+│   │   └── __init__.cpython-313.pyc
+│   ├── strategies
+│   │   ├── base.py
+│   │   ├── default.py
+│   │   ├── factory.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       ├── base.cpython-313.pyc
+│   │       ├── default.cpython-313.pyc
+│   │       ├── factory.cpython-313.pyc
+│   │       └── __init__.cpython-313.pyc
+│   └── system_prompt.txt
+├── llm_consortium.egg-info
+│   ├── dependency_links.txt
+│   ├── entry_points.txt
+│   ├── PKG-INFO
+│   ├── requires.txt
+│   ├── SOURCES.txt
+│   └── top_level.txt
+├── monitor_issue.sh
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+├── run_tests.sh
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── __init__.cpython-313.pyc
+│   │   ├── test_cli.cpython-312-pytest-8.3.4.pyc
+│   │   ├── test_cli.cpython-313-pytest-8.3.4.pyc
+│   │   ├── test_llm_consortium.cpython-312.pyc
+│   │   ├── test_llm_consortium.cpython-312-pytest-8.3.4.pyc
+│   │   ├── test_llm_consortium.cpython-313.pyc
+│   │   └── test_llm_consortium.cpython-313-pytest-8.3.4.pyc
+│   ├── test_arbiter_parsing.py
+│   ├── test_cli.py
+│   ├── test_confidence_parsing.py
+│   ├── test_file_readers.py
+│   ├── test_llm_consortium.py
+│   └── test_model_parsing.py
+├── TODO.md
+└── uv.lock
+
+13 directories, 55 files
+Exit Code: 

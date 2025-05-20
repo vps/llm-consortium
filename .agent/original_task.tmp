@@ -1,0 +1,13 @@
+<COMMAND>
+pwd
+gh issue list
+</COMMAND>
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium
+10	OPEN	DEEPBLOOM Task Tracking: Robust Synthesis Logging & Enhanced Consortium Functionality		2025-04-23T21:02:35Z
+8	OPEN	Feature: Add Conversation Continuation Support		2025-04-21T20:51:37Z
+7	OPEN	Retrospective Consortium DB Linking Analysis		2025-04-20T01:09:48Z
+5	OPEN	Async errors		2025-01-19T13:59:48Z
+4	OPEN	token limit awareness		2025-01-07T11:51:46Z
+2	OPEN	ModelError: Developer instruction is not enabled for models/gemini-pro		2024-12-23T23:44:32Z
+
+Use shelllm gh account. Only listen for gh issue comments and messages from 'irthomasthomas'. So, you will read from irthomasthomas and work as shelllm. You can read all issues, as long as you only set github_monitor to monitor comments coming from irthomasthomas. To begin, read ALL of the information previously recorded in issue 10.

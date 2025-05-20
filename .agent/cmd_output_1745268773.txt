@@ -1,0 +1,30 @@
+
+==================================================
+== Query for SUPER_USER: Clarify Sub-Agent Spawning ==
+==================================================
+
+Received instruction to spawn a sub-agent to monitor for new issues using a command like '$agent "instructions..." -m=ALTERNATE'.
+
+1.  How do I request spawning a sub-agent? Is there a specific tag like "<SPAWN_AGENT>" or another command I should use?
+2.  What LLM model does '-m=ALTERNATE' correspond to?
+3.  Should the 'careful instructions' for the sub-agent include the full command like: `/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/monitor_issue.sh --mode new-issues --repo irthomasthomas/llm-consortium --user irthomasthomas`?
+
+Please clarify these points.
+
+==================================================
+
+Stdout/Stderr: 
+==================================================
+== Query for SUPER_USER: Clarify Sub-Agent Spawning ==
+==================================================
+
+Received instruction to spawn a sub-agent to monitor for new issues using a command like '$agent "instructions..." -m=ALTERNATE'.
+
+1.  How do I request spawning a sub-agent? Is there a specific tag like "<SPAWN_AGENT>" or another command I should use?
+2.  What LLM model does '-m=ALTERNATE' correspond to?
+3.  Should the 'careful instructions' for the sub-agent include the full command like: `/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/monitor_issue.sh --mode new-issues --repo irthomasthomas/llm-consortium --user irthomasthomas`?
+
+Please clarify these points.
+
+==================================================
+Exit Code: 

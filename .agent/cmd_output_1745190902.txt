@@ -1,0 +1,51 @@
+Stdout/Stderr:     help="Fragment to add to system prompt",
+)
+@click.option("-t", "--template", help="Template to use")
+@click.option(
+    "-p",
+    "--param",
+    multiple=True,
+    type=(str, str),
+    help="Parameters for template",
+)
+@click.option("--no-stream", is_flag=True, help="Do not stream output")
+@click.option("-n", "--no-log", is_flag=True, help="Don't log to database")
+@click.option("--log", is_flag=True, help="Log prompt and response to the database")
+@click.option(
+    "_continue",
+    "-c",
+    "--continue",
+    is_flag=True,
+    flag_value=-1,
+    help="Continue the most recent conversation.",
+)
+@click.option(
+    "conversation_id",
+    "--cid",
+    "--conversation",
+    help="Continue the conversation with the given ID.",
+)
+@click.option("--key", help="API key to use")
+@click.option("--save", help="Save prompt with this template name")
+@click.option("async_", "--async", is_flag=True, help="Run prompt asynchronously")
+@click.option("-u", "--usage", is_flag=True, help="Show token usage")
+@click.option("-x", "--extract", is_flag=True, help="Extract first fenced code block")
+@click.option(
+    "extract_last",
+    "--xl",
+    "--extract-last",
+    is_flag=True,
+    help="Extract last fenced code block",
+)
+def prompt(
+    prompt,
+    system,
+    model_id,
+    database,
+    queries,
+    attachments,
+    attachment_types,
+    options,
+    schema_input,
+    schema_multi,
+Exit Code: 0

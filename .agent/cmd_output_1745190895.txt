@@ -1,0 +1,62 @@
+Stdout/Stderr: @cli.command(name="prompt")
+@click.argument("prompt", required=False)
+@click.option("-s", "--system", help="System prompt to use")
+@click.option("model_id", "-m", "--model", help="Model to use")
+@click.option(
+    "-d",
+    "--database",
+    type=click.Path(readable=True, dir_okay=False),
+    help="Path to log database",
+)
+@click.option(
+    "queries",
+    "-q",
+    "--query",
+    multiple=True,
+    help="Use first model matching these strings",
+)
+@click.option(
+    "attachments",
+    "-a",
+    "--attachment",
+    type=AttachmentType(),
+    multiple=True,
+    help="Attachment path or URL or -",
+)
+@click.option(
+    "attachment_types",
+    "--at",
+    "--attachment-type",
+    type=(str, str),
+    multiple=True,
+    callback=attachment_types_callback,
+    help="
+Attachment with explicit mimetype,
+--at image.jpg image/jpeg",
+)
+@click.option(
+    "options",
+    "-o",
+    "--option",
+    type=(str, str),
+    multiple=True,
+    help="key/value options for the model",
+)
+@schema_option
+@click.option(
+    "--schema-multi",
+    help="JSON schema to use for multiple results",
+)
+@click.option(
+    "fragments",
+    "-f",
+    "--fragment",
+    multiple=True,
+    help="Fragment (alias, URL, hash or file path) to add to the prompt",
+)
+@click.option(
+    "system_fragments",
+    "--sf",
+    "--system-fragment",
+    multiple=True,
+Exit Code: 0

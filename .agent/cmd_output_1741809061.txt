@@ -1,0 +1,13 @@
+Stdout/Stderr: Usage: llm consortium [OPTIONS] COMMAND [ARGS]...
+
+  Commands for managing and running model consortiums
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  run*    Run prompt through a consortium of models and synthesize results.
+  list    List all saved consortiums with their details.
+  remove  Remove a saved consortium.
+  save    Save a consortium configuration.
+Exit Code: 0

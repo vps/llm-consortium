@@ -1,0 +1,618 @@
+Stdout/Stderr: Available consortiums:
+
+Consortium: gbloom
+  Models: deepseek-chat:5, deepseek-reasoner:5
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: bigdogs
+  Models: minimax:1, gemini-exp-1206:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: minimax
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gemclaude
+  Models: gemini-exp-1206:2, claude-3.5-sonnet:2
+  Arbiter: gemini-exp-1206
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: oracle
+  Models: deepseek-chat:1, gemini-2:1
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gems
+  Models: gemini-2:2, gemini-exp-1206:2
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: deepllama
+  Models: deepseek-chat:2, deepseek-ai/DeepSeek-R1-Distill-Llama-70B:2, openrouter/deepseek/deepseek-r1:2
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gem2
+  Models: gemini-2:2
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: deep2
+  Models: deepseek-chat:2
+  Arbiter: deepseek-chat
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: bigdogs-c1
+  Models: minimax:1, gemini-exp-1206:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: gbloom-c1
+  Models: deepseek-chat:5, deepseek-reasoner:5
+  Arbiter: gemini-2
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: oracle-c1
+  Models: deepseek-chat:2, gthink:2
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: madmax-c1
+  Models: minimax:2, gemini-2:2, gemini-exp-1206:2
+  Arbiter: gemini-exp-1206
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: madmax
+  Models: minimax:2, gemini-2:2, gemini-exp-1206:2
+  Arbiter: gemini-exp-1206
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: haikuflash
+  Models: gemini-2:1, claude-3.5-haiku:1
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: haikuflash-c2
+  Models: gemini-2:1, claude-3.5-haiku:1
+  Arbiter: gemini-2
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: gemclaude-c1
+  Models: gemini-exp-1206:2, claude-3.5-sonnet:2
+  Arbiter: gemini-exp-1206
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: haikugem
+  Models: claude-3.5-haiku:5, gemini-2:2
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: big-claudes
+  Models: claude-3.5-haiku:3, claude-3.5-sonnet-old:3, claude-3.5-sonnet-new:3
+  Arbiter: claude-3.5-haiku
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: reasoners-minimax
+  Models: deepseek-reasoner:1, o3-mini:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: minimax
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: reasoners-minimax-c1
+  Models: deepseek-reasoner:1, o3-mini:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 2
+  Min Iterations: 1
+
+Consortium: haiku-n3-sonnet-old-sonnet-new
+  Models: claude-3.5-haiku:3, anthropic/claude-3-5-sonnet-20240620:3, anthropic/claude-3-5-sonnet-20241022:3
+  Arbiter: claude-3.5-haiku
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gem-pro-sonnet-new-arb-gem2flash-lite
+  Models: gemini-2.0-pro-exp-02-05:1, claude-3.5-sonnet-latest:1
+  Arbiter: gemini-2.0-flash-lite-preview-02-05
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gem-pro-sonnet-new-arb-gem2flash
+  Models: gemini-2.0-pro-exp-02-05:1, claude-3.5-sonnet-latest:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gem2pro-haiku-deepseek-minimax-arb-gem2flash
+  Models: gemini-2.0-pro-exp-02-05:1, claude-3.5-haiku:1, deepseek-chat:1, minimax:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 90.0
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gem2pro-haiku-deepseek-minimax-arb-gem2pro
+  Models: gemini-2.0-pro-exp-02-05:1, claude-3.5-haiku:1, deepseek-chat:1, gemini-2.0-flash:1
+  Arbiter: gemini-2.0-pro-exp-02-05
+  Confidence Threshold: 90.0
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: flash-haiku-flash
+  Models: gemini-2.0-flash:1, claude-3.5-haiku:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: flash-haiku-deepseekr170b-flash
+  Models: gemini-2.0-flash:1, claude-3.5-haiku:1, cerebras-deepseek-r1-distill-llama-70b:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: BIGBRAIN
+  Models: anthropic/claude-3-5-sonnet-20241022:1, groq/deepseek-r1-distill-llama-70b:1, deepseek-reasoner:1, gemini-2.0-pro-exp-02-05:1, openrouter/openai/o3-mini:1, learnlm-1.5-pro-experimental:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 3
+
+Consortium: LITTLEBRAIN
+  Models: anthropic/claude-3-5-sonnet-20241022:1, groq/deepseek-r1-distill-llama-70b:1, deepseek-reasoner:1, gemini-2:1, claude-3.5-haiku:1, o3-mini:1
+  Arbiter: gemini-2.0-pro-exp-02-05
+  Confidence Threshold: 90.0
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: BIGREASON
+  Models: openrouter/deepseek/deepseek-r1-distill-qwen-32b:1, groq/deepseek-r1-distill-llama-70b:1, cerebras-deepseek-r1-distill-llama-70b:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/deepseek/deepseek-r1:1, o3-mini:1
+  Arbiter: gemini-2
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: quick-think-i3
+  Models: deepseek-ai/DeepSeek-R1:1, cerebras-llama3.3-70b:1, groq/deepseek-r1-distill-llama-70b:1, groq/llama-3.3-70b-specdec:1, deepseek-reasoner:1
+  Arbiter: gemini-2.0-pro-exp-02-05
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 3
+
+Consortium: quick-think-i
+  Models: deepseek-ai/DeepSeek-R1:1, cerebras-llama3.3-70b:1, groq/deepseek-r1-distill-llama-70b:1, groq/llama-3.3-70b-specdec:1, deepseek-reasoner:1
+  Arbiter: gemini-2.0-pro-exp-02-05
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 3
+
+Consortium: quick-think
+  Models: deepseek-ai/DeepSeek-R1:1, cerebras-llama3.3-70b:1, groq/deepseek-r1-distill-llama-70b:1, groq/llama-3.3-70b-versatile:1, deepseek-reasoner:1
+  Arbiter: gemini-2.0-pro-exp-02-05
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 3
+
+Consortium: o3-haiku-dsr1-CT1
+  Models: o3-mini-copilot:1, claude-3.5-haiku:1, deepseek-r1:1, deepseek-R1:1
+  Arbiter: gemini-2
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: o3-haiku-dsr1-CT09
+  Models: o3-mini-copilot:1, claude-3.5-haiku:1, deepseek-r1:1, deepseek-R1:1
+  Arbiter: gemini-2
+  Confidence Threshold: 90.0
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: quick-think-i4
+  Models: deepseek-ai/DeepSeek-R1:1, deepseek-reasoner:1
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 4
+
+Consortium: BIGREASON-3
+  Models: openrouter/deepseek/deepseek-r1-distill-qwen-32b:1, groq/deepseek-r1-distill-llama-70b:1, openrouter/deepseek/deepseek-r1:1, o3-mini:1, openrouter/qwen/qwen-plus:1
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 5
+
+Consortium: BIGREASON-3-ar-g2ft
+  Models: openrouter/deepseek/deepseek-r1-distill-qwen-32b:1, groq/deepseek-r1-distill-llama-70b:1, openrouter/deepseek/deepseek-r1:1, o3-mini:1, openrouter/qwen/qwen-plus:1
+  Arbiter: gemini-2.0-flash-thinking-exp-01-21
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 5
+
+Consortium: BIGREASON-6-ar-g2ft
+  Models: openrouter/deepseek/deepseek-r1-distill-qwen-32b:1, sambanova/DeepSeek-R1-Distill-Llama-70B:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: gemini-2
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 6
+
+Consortium: BIGREASON-2
+  Models: openrouter/deepseek/deepseek-r1-distill-qwen-32b:1, groq/deepseek-r1-distill-llama-70b:1, cerebras-deepseek-r1-distill-llama-70b:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/deepseek/deepseek-r1:1, o3-mini:1, minimax:1, gemini-2.0-pro-exp-02-05:1
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: BIGREASON-5
+  Models: openrouter/deepseek/deepseek-r1-distill-qwen-32b:1, groq/deepseek-r1-distill-llama-70b:1, cerebras-deepseek-r1-distill-llama-70b:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/deepseek/deepseek-r1:1, o3-mini:1, minimax:1, gemini-2.0-pro-exp-02-05:1
+  Arbiter: minimax
+  Confidence Threshold: 1.0
+  Max Iterations: 4
+  Min Iterations: 4
+
+Consortium: test-consortium
+  Models: dummy:1
+  Arbiter: dummy
+  Confidence Threshold: 0.9
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: flash-lite
+  Models: gemini-2.0-flash-lite-preview-02-05:10
+  Arbiter: gemini-2.0-flash-lite-preview-02-05
+  Confidence Threshold: 1.0
+  Max Iterations: 10
+  Min Iterations: 3
+
+Consortium: gemini-or-free
+  Models: gemini-2.0-flash-thinking-exp-01-21:3, learnlm-1.5-pro-experimental:3, gemini-2.0-pro-exp-02-05:3, gemini-2.0-flash-exp:3
+  Arbiter: gemini-2.0-flash-exp
+  Confidence Threshold: 1.0
+  Max Iterations: 10
+  Min Iterations: 5
+
+Consortium: free-reasoners-i2
+  Models: openrouter/google/gemma-3-27b-it:free:1, openrouter/deepseek/deepseek-r1-zero:free:1, openrouter/qwen/qwq-32b:free:1, gemini-2.0-pro-exp-02-05:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: gemini-2.0-flash-exp
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: free-reasoners
+  Models: openrouter/google/gemma-3-27b-it:free:1, openrouter/deepseek/deepseek-r1-zero:free:1, openrouter/qwen/qwq-32b:free:1, gemini-2.0-pro-exp-02-05:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: gemini-2.0-flash-exp
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: fast-reasoners
+  Models: gemini-2.0-flash:1, openrouter/qwen/qwq-32b:free:1, gemini-2.0-pro-exp-02-05:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: fast-reasoners-i2
+  Models: gemini-2.0-flash:1, openrouter/qwen/qwq-32b:free:1, gemini-2.0-pro-exp-02-05:1, gemini-2.0-flash-thinking-exp-01-21:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: fast-coders-i5
+  Models: gemini-2.0-flash:1, openrouter/qwen/qwq-32b:free:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/mistralai/codestral-2501:1, openrouter/rekaai/reka-flash-3:free:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 5
+
+Consortium: big-coders-i2
+  Models: gemini-2.0-flash:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/mistralai/codestral-2501:1, gemini-2.5-pro-exp-03-25:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: deep-coders-i2
+  Models: openrouter/allenai/olmo-2-0325-32b-instruct:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, gemini-2.5-pro-exp-03-25:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: fast-coders-i2
+  Models: gemini-2.0-flash:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/mistralai/codestral-2501:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: fast-coders
+  Models: gemini-2.0-flash:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, gemini-2.0-flash-thinking-exp-01-21:1, openrouter/mistralai/codestral-2501:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: deep-coders-i2-gem2.5p
+  Models: openrouter/allenai/olmo-2-0325-32b-instruct:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: deep-coders-i2-gem2flash
+  Models: openrouter/allenai/olmo-2-0325-32b-instruct:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: deep-coders-gem2flash
+  Models: openrouter/allenai/olmo-2-0325-32b-instruct:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: gemini-2.0-flash
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: deep-coders-gem2.5p
+  Models: openrouter/allenai/olmo-2-0325-32b-instruct:1, openrouter/deepseek/deepseek-chat-v3-0324:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: sonnet-gemini
+  Models: gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: llama4
+  Models: openrouter/meta-llama/llama-4-scout:5, openrouter/meta-llama/llama-4-maverick:5
+  Arbiter: openrouter/meta-llama/llama-4-maverick
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: all-free-i2
+  Models: openrouter/meta-llama/llama-4-maverick:free:1, openrouter/meta-llama/llama-4-scout:free:1, openrouter/deepseek/deepseek-v3-base:free:1, gemini-2.5-pro-exp-03-25:1, openrouter/open-r1/olympiccoder-32b:free:1, openrouter/featherless/qwerky-72b:free:1, openrouter/deepseek/deepseek-r1-zero:free:1, openrouter/qwen/qwq-32b:free:1, openrouter/google/learnlm-1.5-pro-experimental:free:1
+  Arbiter: gemini-2.0-flash-exp
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: all-free
+  Models: openrouter/meta-llama/llama-4-maverick:free:1, openrouter/meta-llama/llama-4-scout:free:1, openrouter/deepseek/deepseek-v3-base:free:1, gemini-2.5-pro-exp-03-25:1, openrouter/open-r1/olympiccoder-32b:free:1, openrouter/featherless/qwerky-72b:free:1, openrouter/deepseek/deepseek-r1-zero:free:1, openrouter/qwen/qwq-32b:free:1, openrouter/google/learnlm-1.5-pro-experimental:free:1
+  Arbiter: gemini-2.0-flash-exp
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gemini-sonnet-i2
+  Models: gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: claude-3.7-sonnet
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: gemini-sonnet
+  Models: gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: claude-3.7-sonnet
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: or-scout-gemini
+  Models: scout-groq-online:1, gemini-2:1
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: groq-gemini-online
+  Models: scout-groq-online:1, gemini-2.5-t0:1, gemini-2.5-t2:1
+  Arbiter: gemini-2.5-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: consortium_1
+  Models: openrouter/openrouter/optimus-alpha:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, openrouter/amazon/nova-micro-v1:1, openrouter/aion-labs/aion-1.0-mini:1, scout-lambda:1
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: consortium_1_i2
+  Models: openrouter/openrouter/optimus-alpha:1, openrouter/qwen/qwq-32b:1, openrouter/mistralai/codestral-2501:1, openrouter/amazon/nova-micro-v1:1, openrouter/aion-labs/aion-1.0-mini:1, scout-lambda:1
+  Arbiter: gemini-2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: sonnet-gemini-i2
+  Models: gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: sonnet-gemini-4o
+  Models: gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1, openrouter/openai/chatgpt-4o-latest:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: sonnet-gemini-4o-i2
+  Models: gemini-2.5-pro-exp-03-25:1, claude-3.7-sonnet:1, openrouter/openai/chatgpt-4o-latest:1
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: gemini-n3
+  Models: gemini-2:3
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gemini-n2
+  Models: gemini-2:2
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gemini-arb
+  Models: gemini-2:2
+  Arbiter: gemini-n2
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: gemini-n5
+  Models: gemini-2:5
+  Arbiter: gemini-2.5-pro-exp-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: 4.1-mini-n9
+  Models: 4.1-mini-t0:3, 4.1-mini-t0.4:3, 4.1-mini-t0.7:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: 4.1-mini-n9-t1+
+  Models: 4.1-mini-t1:3, 4.1-mini-t1.2:3, 4.1-mini-t1.4:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: 4.1-mini-n9-i2-t1+
+  Models: 4.1-mini-t1:3, 4.1-mini-t1.2:3, 4.1-mini-t1.4:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: 4.1-mini-n9-i2
+  Models: 4.1-mini-t0:3, 4.1-mini-t0.4:3, 4.1-mini-t0.7:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: 4.1-n9-i2
+  Models: 4.1-t0:3, 4.1-t0.4:3, 4.1-t0.7:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: 4.1-n9-i2-t1+
+  Models: 4.1-t1:3, 4.1-t1.2:3, 4.1-t1.4:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: 4.1-n9-t1+
+  Models: 4.1-t1:3, 4.1-t1.2:3, 4.1-t1.4:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: 4.1-n9
+  Models: 4.1-t0:3, 4.1-t0.4:3, 4.1-t0.7:3
+  Arbiter: 4.1-t0
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: fast-gemini-2.5
+  Models: fast-qwq:1, fast-deepseek-v3:1, fast-maverick-4:1
+  Arbiter: openrouter/google/gemini-2.5-pro-preview-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: fast-gemini-2.5-i2
+  Models: fast-qwq:1, fast-deepseek-v3:1, fast-maverick-4:1
+  Arbiter: openrouter/google/gemini-2.5-pro-preview-03-25
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: gemini-2.5-gpt-4.1-i2
+  Models: 4.1-t0.7:1, gemini-2.5-t1:1, gemini-2.5-t1.4:1, 4.1-t1:1
+  Arbiter: gemini-2.5-t1
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 2
+
+Consortium: con-qwq3mav
+  Models: fast-qwq:3
+  Arbiter: fast-maverick-4
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: con-qwq3qwq
+  Models: fast-qwq:3
+  Arbiter: fast-qwq
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+
+Consortium: qwq-consortium
+  Models: fast-qwq:1
+  Arbiter: fast-qwq
+  Confidence Threshold: 0.8
+  Max Iterations: 3
+  Min Iterations: 1
+Exit Code: 0

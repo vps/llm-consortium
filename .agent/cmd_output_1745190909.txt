@@ -1,0 +1,51 @@
+Stdout/Stderr:     fragments,
+    system_fragments,
+    template,
+    param,
+    no_stream,
+    no_log,
+    log,
+    _continue,
+    conversation_id,
+    key,
+    save,
+    async_,
+    usage,
+    extract,
+    extract_last,
+):
+    """
+    Execute a prompt
+
+    Documentation: https://llm.datasette.io/en/stable/usage.html
+
+    Examples:
+
+    
+        llm 'Capital of France?'
+        llm 'Capital of France?' -m gpt-4o
+        llm 'Capital of France?' -s 'answer in Spanish'
+
+    Multi-modal models can be called with attachments like this:
+
+    
+        llm 'Extract text from this image' -a image.jpg
+        llm 'Describe' -a https://static.simonwillison.net/static/2024/pelicans.jpg
+        cat image | llm 'describe image' -a -
+        # With an explicit mimetype:
+        cat image | llm 'describe image' --at - image/jpeg
+
+    The -x/--extract option returns just the content of the first ``` fenced code
+    block, if one is present. If none are present it returns the full response.
+
+    
+        llm 'JavaScript function for reversing a string' -x
+    """
+    if log and no_log:
+        raise click.ClickException("--log and --no-log are mutually exclusive")
+
+    log_path = pathlib.Path(database) if database else logs_db_path()
+    (log_path.parent).mkdir(parents=True, exist_ok=True)
+    db = sqlite_utils.Database(log_path)
+    migrate(db)
+Exit Code: 0

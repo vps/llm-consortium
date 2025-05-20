@@ -1,0 +1,71 @@
+## Handoff Document Update: Additional Tasks & New Interaction Tool
+
+**Ref:** Previous Handoff: [https://github.com/irthomasthomas/llm-consortium/issues/8#issuecomment-2819243279](https://github.com/irthomasthomas/llm-consortium/issues/8#issuecomment-2819243279)
+
+**Current Status:**
+*   Conversation continuation feature implemented and basic tests passed.
+*   `ask_superuser.sh` script created as a replacement for `kdialog`.
+
+**ADDED TASKS for Next Agent Session:**
+
+1.  **Enhanced Keyword Memory Testing:**
+    *   Perform the keyword memory test (like the 'HONEYBADGER' test) again for **both** `4.1-n1` and `qwq-consortium`.
+    *   Use a **new, unique keyword** for each test run (e.g., 'PLATYPUS', 'ECHIDNA'). Do *not* reuse keywords.
+    *   Immediately after each initial prompt, capture the `conversation_id` (e.g., `test_cid=$(llm logs list -n 1 --json | jq -r '.[].conversation_id')`).
+    *   Use the captured ID for the follow-up prompt (`llm -c --cid $test_cid "What word..."`).
+    *   **Verify Logs:** After *each* successful test run (both initial and follow-up), run `llm logs -n 3` (or more if needed) and confirm the expected 3 log entries are present (member model, arbiter model, final synthesized log with consortium name as model).
+    *   **Report Results:** Create a *new* GitHub comment summarizing the test outcomes (pass/fail for recall) and the log verification results for each consortium and keyword. Include relevant log fields (e.g., `id`, `model`, `prompt`, `response`, `conversation_id`, `datetime_utc` - *exclude* large JSON fields for brevity) for the 3 key log entries per run.
+
+2.  **Robust Synthesis Logging:** (Task defined in previous handoff) Implement the logic to ensure the final synthesized log entry's `response` field contains clean synthesis text or fallback raw arbiter text, and the `prompt` field contains only the original user prompt.
+
+3.  **Update General Tests:**
+    *   Locate existing unit/integration tests (e.g., in `tests/`).
+    *   Add specific tests covering the conversation continuation functionality.
+    *   Ensure all tests (new and existing) pass.
+
+**UPDATED Interaction Instructions:**
+
+*   **GitHub Issues:** Use for standard project communication, updates, and reporting results.
+
+*   **`monitor_issue.sh`:** Use this script after completing a task or posting a significant update to GitHub to wait for new instructions from `irthomasthomas`.
+    ```bash
+    /home/thomas/Projects/llm/plugins/Utilities/llm-consortium/monitor_issue.sh
+    ```
+
+**Next Action:** The next agent session should start with Task #1 (Enhanced Keyword Memory Testing).
+Stdout/Stderr: ## Handoff Document Update: Additional Tasks & New Interaction Tool
+
+**Ref:** Previous Handoff: [https://github.com/irthomasthomas/llm-consortium/issues/8#issuecomment-2819243279](https://github.com/irthomasthomas/llm-consortium/issues/8#issuecomment-2819243279)
+
+**Current Status:**
+*   Conversation continuation feature implemented and basic tests passed.
+*   `ask_superuser.sh` script created as a replacement for `kdialog`.
+
+**ADDED TASKS for Next Agent Session:**
+
+1.  **Enhanced Keyword Memory Testing:**
+    *   Perform the keyword memory test (like the 'HONEYBADGER' test) again for **both** `4.1-n1` and `qwq-consortium`.
+    *   Use a **new, unique keyword** for each test run (e.g., 'PLATYPUS', 'ECHIDNA'). Do *not* reuse keywords.
+    *   Immediately after each initial prompt, capture the `conversation_id` (e.g., `test_cid=$(llm logs list -n 1 --json | jq -r '.[].conversation_id')`).
+    *   Use the captured ID for the follow-up prompt (`llm -c --cid $test_cid "What word..."`).
+    *   **Verify Logs:** After *each* successful test run (both initial and follow-up), run `llm logs -n 3` (or more if needed) and confirm the expected 3 log entries are present (member model, arbiter model, final synthesized log with consortium name as model).
+    *   **Report Results:** Create a *new* GitHub comment summarizing the test outcomes (pass/fail for recall) and the log verification results for each consortium and keyword. Include relevant log fields (e.g., `id`, `model`, `prompt`, `response`, `conversation_id`, `datetime_utc` - *exclude* large JSON fields for brevity) for the 3 key log entries per run.
+
+2.  **Robust Synthesis Logging:** (Task defined in previous handoff) Implement the logic to ensure the final synthesized log entry's `response` field contains clean synthesis text or fallback raw arbiter text, and the `prompt` field contains only the original user prompt.
+
+3.  **Update General Tests:**
+    *   Locate existing unit/integration tests (e.g., in `tests/`).
+    *   Add specific tests covering the conversation continuation functionality.
+    *   Ensure all tests (new and existing) pass.
+
+**UPDATED Interaction Instructions:**
+
+*   **GitHub Issues:** Use for standard project communication, updates, and reporting results.
+
+*   **`monitor_issue.sh`:** Use this script after completing a task or posting a significant update to GitHub to wait for new instructions from `irthomasthomas`.
+    ```bash
+    /home/thomas/Projects/llm/plugins/Utilities/llm-consortium/monitor_issue.sh
+    ```
+
+**Next Action:** The next agent session should start with Task #1 (Enhanced Keyword Memory Testing).
+Exit Code: 

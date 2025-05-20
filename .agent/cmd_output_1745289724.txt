@@ -1,0 +1,22 @@
+        self.max_iterations = config.max_iterations
+        self.minimum_iterations = config.minimum_iterations
+        self.arbiter = config.arbiter or "gemini-2.0-flash"
+        self.iteration_history: List[IterationContext] = []
+            if synthesis is None:
+                logger.error("Arbiter synthesis failed or returned invalid data. Aborting iteration.")
+                final_result = None # Indicate failure
+                break
+        # New: Dictionary to track conversation IDs for each model instance
+        # self.conversation_ids: Dict[str, str] = {}
+
+Stdout/Stderr:         self.max_iterations = config.max_iterations
+        self.minimum_iterations = config.minimum_iterations
+        self.arbiter = config.arbiter or "gemini-2.0-flash"
+        self.iteration_history: List[IterationContext] = []
+            if synthesis is None:
+                logger.error("Arbiter synthesis failed or returned invalid data. Aborting iteration.")
+                final_result = None # Indicate failure
+                break
+        # New: Dictionary to track conversation IDs for each model instance
+        # self.conversation_ids: Dict[str, str] = {}
+Exit Code: 

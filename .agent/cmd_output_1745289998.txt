@@ -1,0 +1,42 @@
+                result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+                
+            response.response_json = result
+            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+
+        except Exception as e:
+            logger.exception(f"Consortium execution failed: {e}")
+            raise llm.ModelError(f"Consortium execution failed: {e}")
+
+def _get_consortium_configs() -> Dict[str, ConsortiumConfig]:
+    """Fetch saved consortium configurations from the database."""
+    db = DatabaseConnection.get_connection()
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS consortium_configs (
+            name TEXT PRIMARY KEY,
+            config TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+Stdout/Stderr:                 result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+                
+            response.response_json = result
+            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+
+        except Exception as e:
+            logger.exception(f"Consortium execution failed: {e}")
+            raise llm.ModelError(f"Consortium execution failed: {e}")
+
+def _get_consortium_configs() -> Dict[str, ConsortiumConfig]:
+    """Fetch saved consortium configurations from the database."""
+    db = DatabaseConnection.get_connection()
+
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS consortium_configs (
+            name TEXT PRIMARY KEY,
+            config TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+Exit Code: 

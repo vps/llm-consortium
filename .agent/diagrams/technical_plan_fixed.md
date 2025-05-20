@@ -1,0 +1,19 @@
+```mermaid
+graph TD
+    A[Start Investigation: Synthesis Logging] --> B[Locate 'log_response' function in __init__.py];
+    B --> C[Analyze call stack: Where is it called for the *final* synthesis?];
+    C --> D[Examine 'ConsortiumOrchestrator.orchestrate' return value & handling];
+    D --> E[Trace data flow: 'arbiter_response' object];
+    E --> F{Does 'arbiter_response' have '.log_to_db' method?};
+    F -- Yes --> G{"Is 'log_response(arbiter_response, ...)' called?"};
+    F -- No --> H[Hypothesize: Arbiter response object lacks method]; H --> K;
+    G -- Yes --> I[Check 'response.log_to_db' implementation in llm library]; I --> J{DB Schema Match?};
+    G -- No --> L[Hypothesize: Call missing]; L --> K;
+    J -- Yes --> M[Hypothesize: Logic error elsewhere / data loss]; M --> K;
+    J -- No --> N[Hypothesize: Schema mismatch]; N --> K;
+    K[Implement Fix: Add call/Modify object/Correct schema interaction];
+    K --> O[Write/Run Test Case: Verify final synthesis in logs.db];
+    O -- Pass --> P[Commit & Update Issue #10];
+    O -- Fail --> K;
+    P --> Z[End Investigation];
+```

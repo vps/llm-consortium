@@ -1,0 +1,98 @@
+Stdout/Stderr: 2025-03-12 20:04:14,863 - llm_consortium - ERROR - Error getting response from claude-3-sonnet instance 1
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 232, in _get_model_response
+    text = response.text()
+           ^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 424, in text
+    self._force()
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 421, in _force
+    list(self)
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 467, in __iter__
+    for chunk in self.model.execute(
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_anthropic.py", line 431, in execute
+    with messages_client.stream(**kwargs) as stream:
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/lib/streaming/_messages.py", line 149, in __enter__
+    raw_stream = self.__api_request()
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/_base_client.py", line 1336, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/_base_client.py", line 1013, in request
+    return self._request(
+           ^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/_base_client.py", line 1117, in _request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': "'claude-3-sonnet-20240229' does not support cache_control."}}
+2025-03-12 20:04:14,863 - llm_consortium - ERROR - Error getting response from claude-3-sonnet instance 1
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 232, in _get_model_response
+    text = response.text()
+           ^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 424, in text
+    self._force()
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 421, in _force
+    list(self)
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm/models.py", line 467, in __iter__
+    for chunk in self.model.execute(
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_anthropic.py", line 431, in execute
+    with messages_client.stream(**kwargs) as stream:
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/lib/streaming/_messages.py", line 149, in __enter__
+    raw_stream = self.__api_request()
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/_base_client.py", line 1336, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/_base_client.py", line 1013, in request
+    return self._request(
+           ^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/anthropic/_base_client.py", line 1117, in _request
+    raise self._make_status_error_from_response(err.response) from None
+anthropic.BadRequestError: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': "'claude-3-sonnet-20240229' does not support cache_control."}}
+Here are three interesting ways that large language models could be used to help software engineers write better code:
+
+1. Contextual code generation: An LLM-powered coding assistant that understands the programmer's intent and generates code snippets that fit intelligently into the specific context of the codebase, such as function names, variables, and adjacent files. This goes beyond simple pattern matching to provide tailored suggestions.
+
+2. Smart code refactoring: An AI tool that analyzes existing code and suggests optimizations to improve performance, readability and maintainability. It could identify opportunities to extract methods, rename variables, simplify logic, or modernize syntax based on best practices learned from high-quality open source code.  
+
+3. Interactive coding walkthroughs: An LLM-based interactive tutorial system that guides engineers step-by-step through implementing features or fixing bugs, adapting to their skill level. It would break down tasks, explain concepts, suggest implementations, and provide feedback to aid learning and productivity.
+
+Individual model responses:
+
+Model: claude-3-opus (Instance 1)
+Confidence: 0.8
+Response: Here is my thought process and response:
+
+<thought_process>
+Key aspects relevant to using large language models to help software engineers write better code:
+- Code autocompletion and generation: Suggesting code snippets or generating code based on natural language prompts
+- Code error checking and debugging: Identifying potential bugs, security vulnerabilities, or coding best practice violations
+- Code documentation generation: Automatically generating code comments, docstrings, or API documentation
+- Code search and discovery: Enabling search of code snippets or open source libraries based on natural language queries
+
+Potential challenges and limitations:
+- Ensuring accuracy and reliability of generated code
+- Handling complex or specialized codebases and programming languages 
+- Integrating seamlessly into existing IDEs and developer workflows
+- Avoiding over-reliance on AI and ensuring engineer oversight
+
+The response instructions want me to focus on interesting and novel applications, not just standard uses. I'll aim to think of creative ways LLMs could augment the software development process that go beyond basic code completion.
+</thought_process>
+
+<answer>
+Here are three interesting ways large language models could be used to help software engineers write better code:
+
+1. Contextual code generation: An LLM-powered coding assistant that leverages the codebase context, such as function names, variables, and adjacent files, to intelligently generate code snippets. Rather than just pattern matching, it could understand the programmer's intent and generate code that fits the specific context.
+
+2. Smart code refactoring: An AI tool that suggests ways to refactor and optimize existing code for performance, readability and maintainability. It could highlight opportunities to extract methods, rename variables, simplify logic, or modernize syntax based on learned best practices from high-quality open source code.
+
+3. Interactive coding walkthroughs: An interactive tutorial system powered by an LLM that can guide engineers through implementing specific features or fixing bugs in a codebase. The AI could break down tasks into steps, explain relevant concepts, suggest implementations, and provide feedback, adapting to the engineer's skill level and learning style.
+</answer>
+
+<confidence>0.8</confidence>
+
+The use cases I proposed go beyond basic code completion to leverage the language understanding and generation capabilities of LLMs in novel ways to aid the software development process. However, implementing these would require significant engineering work and they may not be feasible or useful in all contexts. I'm quite confident in the ideas but there are still some uncertainties around their practicality.
+
+Model: claude-3-sonnet (Instance 1)
+Confidence: N/A
+Response: Error: Error code: 400 - {'type': 'error', 'error': {'type': 'invalid_request_error', 'message': "'claude-3-sonnet-20240229' does not support cache_control."}}
+Exit Code: 0

@@ -1,0 +1,173 @@
+Stdout/Stderr:     @click.option(
+        "-m",
+        "--model", "models",  # store values in 'models'
+        multiple=True,
+        help="Model to include in consortium (use format 'model -n count'; can specify multiple)",
+        default=["claude-3-opus-20240229", "claude-3-sonnet-20240229", "gpt-4", "gemini-pro"],
+    )
+    @click.option(
+        "-n",
+        "--count",
+        type=int,
+        default=1,
+        help="Number of instances (if count not specified per model)",
+    )
+    @click.option(
+        "--arbiter",
+        help="Model to use as arbiter",
+        default="claude-3-opus-20240229"
+    )
+    @click.option(
+        "--confidence-threshold",
+        type=float,
+        help="Minimum confidence threshold",
+        default=0.8
+    )
+    @click.option(
+        "--max-iterations",
+        type=int,
+        help="Maximum number of iteration rounds",
+        default=3
+    )
+    @click.option(
+        "--min-iterations",
+        type=int,
+        help="Minimum number of iterations to perform",
+        default=1
+    )
+    @click.option(
+        "--system",
+        help="System prompt to use",
+    )
+    @click.option(
+        "--output",
+        type=click.Path(dir_okay=False, writable=True),
+        help="Save full results to this JSON file",
+    )
+    @click.option(
+        "--stdin/--no-stdin",
+        default=True,
+        help="Read additional input from stdin and append to prompt",
+    )
+    @click.option(
+        "--raw",
+        is_flag=True,
+        default=False,
+        help="Output raw response from arbiter model",
+    )
+    def run_command(prompt, models, count, arbiter, confidence_threshold, max_iterations,
+                   min_iterations, system, output, stdin, raw):
+        """Run prompt through a consortium of models and synthesize results."""
+        # Parse models and counts
+        try:
+            model_dict = parse_models(models, count)
+        except ValueError as e:
+            raise click.ClickException(str(e))
+
+        # If no prompt is provided, read from stdin
+        if not prompt and stdin:
+            prompt = read_stdin_if_not_tty()
+            if not prompt:
+                raise click.UsageError("No prompt provided and no input from stdin")
+
+        # Convert percentage to decimal if needed
+        if confidence_threshold > 1.0:
+            confidence_threshold /= 100.0
+
+        if stdin:
+            stdin_content = read_stdin_if_not_tty()
+            if stdin_content:
+                prompt = f"{prompt}
+
+{stdin_content}"
+
+        logger.info(f"Starting consortium with {len(model_dict)} models")
+        logger.debug(f"Models: {', '.join(f'{k}:{v}' for k, v in model_dict.items())}")
+        logger.debug(f"Arbiter model: {arbiter}")
+
+        orchestrator = ConsortiumOrchestrator(
+            config=ConsortiumConfig(
+               models=model_dict,
+               system_prompt=system,
+               confidence_threshold=confidence_threshold,
+               max_iterations=max_iterations,
+               minimum_iterations=min_iterations,
+--
+    @click.option(
+        "-m",
+        "--model", "models",  # changed option name, storing in 'models'
+        multiple=True,
+        help="Model to include in consortium (use format 'model -n count')",
+        required=True,
+    )
+    @click.option(
+        "-n",
+        "--count",
+        type=int,
+        default=1,
+        help="Default number of instances (if count not specified per model)",
+    )
+    @click.option(
+        "--arbiter",
+        help="Model to use as arbiter",
+        required=True
+    )
+    @click.option(
+        "--confidence-threshold",
+        type=float,
+        help="Minimum confidence threshold",
+        default=0.8
+    )
+    @click.option(
+        "--max-iterations",
+        type=int,
+        help="Maximum number of iteration rounds",
+        default=3
+    )
+    @click.option(
+        "--min-iterations",
+        type=int,
+        help="Minimum number of iterations to perform",
+        default=1
+    )
+    @click.option(
+        "--system",
+        help="System prompt to use",
+    )
+    def save_command(name, models, count, arbiter, confidence_threshold, max_iterations,
+                     min_iterations, system):
+        """Save a consortium configuration."""
+        try:
+            model_dict = parse_models(models, count)
+        except ValueError as e:
+            raise click.ClickException(str(e))
+
+        config = ConsortiumConfig(
+            models=model_dict,
+            arbiter=arbiter,
+            confidence_threshold=confidence_threshold,
+            max_iterations=max_iterations,
+            minimum_iterations=min_iterations,
+            system_prompt=system,
+        )
+        _save_consortium_config(name, config)
+        click.echo(f"Consortium configuration '{name}' saved.")
+
+    @consortium.command(name="list")
+    def list_command():
+        """List all saved consortiums with their details."""
+        db = DatabaseConnection.get_connection()
+
+        db.execute("""
+        CREATE TABLE IF NOT EXISTS consortium_configs (
+            name TEXT PRIMARY KEY,
+            config TEXT NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """)
+
+        consortiums = list(db["consortium_configs"].rows)
+        if not consortiums:
+            click.echo("No consortiums found.")
+            return
+Exit Code: 0

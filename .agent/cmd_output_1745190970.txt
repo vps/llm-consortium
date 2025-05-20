@@ -1,0 +1,26 @@
+Stdout/Stderr: class Conversation(_BaseConversation):
+    def prompt(
+        self,
+        prompt: Optional[str] = None,
+        *,
+        fragments: Optional[List[str]] = None,
+        attachments: Optional[List[Attachment]] = None,
+        system: Optional[str] = None,
+        schema: Optional[Union[dict, type[BaseModel]]] = None,
+        system_fragments: Optional[List[str]] = None,
+        stream: bool = True,
+        key: Optional[str] = None,
+        **options,
+    ) -> "Response":
+        return Response(
+            Prompt(
+                prompt,
+                model=self.model,
+                fragments=fragments,
+                attachments=attachments,
+                system=system,
+                schema=schema,
+                system_fragments=system_fragments,
+                options=self.model.Options(**options),
+            ),
+Exit Code: 0

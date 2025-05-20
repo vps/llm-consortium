@@ -1,0 +1,44 @@
+Stdout/Stderr: warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+Traceback (most recent call last):
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/bin/llm", line 8, in <module>
+    sys.exit(cli())
+             ^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click/core.py", line 1161, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click/core.py", line 1082, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click/core.py", line 1697, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click/core.py", line 1697, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click/core.py", line 1443, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click/core.py", line 788, in invoke
+    return __callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/llm/cli.py", line 1708, in models_list
+    for model_with_aliases in get_models_with_aliases():
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/llm/__init__.py", line 97, in get_models_with_aliases
+    pm.hook.register_models(register=register)
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/pluggy/_hooks.py", line 513, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/pluggy/_callers.py", line 139, in _multicall
+    raise exception.with_traceback(exception.__traceback__)
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/pluggy/_callers.py", line 103, in _multicall
+    res = hook_impl.function(*args)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/plugin.py", line 157, in register_models
+    logger = logging.getLogger("llm_consortium")
+             ^^^^^^^
+NameError: name 'logging' is not defined
+Exit Code: 0

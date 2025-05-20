@@ -1,0 +1,32 @@
+Stdout/Stderr: 498:class Response(_BaseResponse):
+499-    model: "Model"
+500-    conversation: Optional["Conversation"] = None
+501-
+502-    def on_done(self, callback):
+503-        if not self._done:
+504-            self.done_callbacks.append(callback)
+505-        else:
+506-            callback(self)
+507-
+508-    def _on_done(self):
+509-        for callback in self.done_callbacks:
+510-            callback(self)
+511-
+512-    def __str__(self) -> str:
+513-        return self.text()
+514-
+515-    def _force(self):
+516-        if not self._done:
+517-            list(self)
+518-
+519-    def text(self) -> str:
+520-        self._force()
+521-        return "".join(self._chunks)
+522-
+523-    def text_or_raise(self) -> str:
+524-        return self.text()
+525-
+526-    def json(self) -> Optional[Dict[str, Any]]:
+527-        self._force()
+528-        return self.response_json
+Exit Code: 0

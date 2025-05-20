@@ -1,0 +1,31 @@
+
+==================================================
+== Query for SUPER_USER: Clarify Monitoring Request ==
+==================================================
+
+I understand you want me to monitor the llm-consortium repo for comments by irthomasthomas. My refactored monitor_issue.sh script can monitor *comments on a specific issue* (like \#8) or *new issues* in the repo. It doesn`t currently support monitoring *all comments across all issues simultaneously*.
+
+Which type of monitoring do you intend for the next instructions?
+a) Monitor issue \#8 comments (defaulting to the current instruction thread)?
+b) Monitor for *new issues* created by irthomasthomas in this repo?
+c) A new, more complex 'monitor all comments in repo' mode is required?
+(Reply with 'a', 'b', or 'c' or provide clarification)
+
+==================================================
+Your response: a
+Stdout/Stderr: 
+==================================================
+== Query for SUPER_USER: Clarify Monitoring Request ==
+==================================================
+
+I understand you want me to monitor the llm-consortium repo for comments by irthomasthomas. My refactored monitor_issue.sh script can monitor *comments on a specific issue* (like \#8) or *new issues* in the repo. It doesn`t currently support monitoring *all comments across all issues simultaneously*.
+
+Which type of monitoring do you intend for the next instructions?
+a) Monitor issue \#8 comments (defaulting to the current instruction thread)?
+b) Monitor for *new issues* created by irthomasthomas in this repo?
+c) A new, more complex 'monitor all comments in repo' mode is required?
+(Reply with 'a', 'b', or 'c' or provide clarification)
+
+==================================================
+Your response: a
+Exit Code: 

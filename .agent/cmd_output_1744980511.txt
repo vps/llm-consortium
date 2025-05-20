@@ -1,0 +1,34 @@
+Stdout/Stderr: import click
+import json
+import llm
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
+import logging
+import sys
+import re
+import os
+import pathlib
+import sqlite_utils
+from pydantic import BaseModel
+import time
+import concurrent.futures
+import threading
+
+# Correct import/fallback logic for strategy helpers
+try:
+    from .strategies import ConsortiumStrategy, create_strategy, DefaultStrategy
+except ImportError as e:
+    print(f"FATAL ERROR: Could not import strategy components. Ensure 'strategies' directory and '__init__.py' exist relative to this file. Error: {e}", file=sys.stderr)
+    raise
+
+try:
+    from llm.utils import escape_xml
+except ImportError:
+    def escape_xml(text):
+        return text.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+
+# ... rest of the file unchanged (class definitions, helpers, CLI, etc.) ...
+
+def get_default_system_prompt():
+    return DEFAULT_SYSTEM_PROMPT
+Exit Code: 0

@@ -1,0 +1,34 @@
+Stdout/Stderr: 118:    def __init__(
+119-        self,
+120-        prompt,
+121-        model,
+122-        *,
+123-        fragments=None,
+124-        attachments=None,
+125-        system=None,
+126-        system_fragments=None,
+127-        prompt_json=None,
+128-        options=None,
+--
+284-
+285-
+286-class _BaseResponse:
+287-    """Base response class shared between sync and async responses"""
+288-
+289-    prompt: "Prompt"
+290-    stream: bool
+291-    conversation: Optional["_BaseConversation"] = None
+292-    _key: Optional[str] = None
+293-
+294:    def __init__(
+295-        self,
+296-        prompt: Prompt,
+297-        model: "_BaseModel",
+298-        stream: bool,
+299-        conversation: Optional[_BaseConversation] = None,
+300-        key: Optional[str] = None,
+301-    ):
+302-        self.prompt = prompt
+303-        self._prompt_json = None
+304-        self.model = model
+Exit Code: 0

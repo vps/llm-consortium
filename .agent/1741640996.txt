@@ -1,0 +1,43 @@
+Stdout/Stderr:     def _get_model_responses(self, prompt: str) -> List[Dict[str, Any]]:
+        responses = []
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            for model, count in self.models.items():
+                for instance in range(count):
+                    futures.append(
+                        executor.submit(self._get_model_response, model, prompt, instance)
+                    )
+            
+            # Gather all results as they complete
+            for future in concurrent.futures.as_completed(futures):
+                responses.append(future.result())
+                
+        return responses
+
+    def _get_model_response(self, model: str, prompt: str, instance: int) -> Dict[str, Any]:
+        logger.debug(f"Getting response from model: {model} instance {instance + 1}")
+        attempts = 0
+        max_retries = 3
+        
+        # Generate a unique key for this model instance
+        instance_key = f"{model}-{instance}"
+        
+        while attempts < max_retries:
+            try:
+                xml_prompt = f"""<prompt>
+    <instruction>{prompt}</instruction>
+</prompt>"""
+                
+                # Check if we have an existing conversation for this model instance
+                conversation_id = self.conversation_ids.get(instance_key)
+                
+                # If we have a conversation_id, continue that conversation
+                if conversation_id:
+                    response = llm.get_model(model).prompt(
+                        xml_prompt,
+                        conversation_id=conversation_id
+                    )
+                else:
+                    # Start a new conversation
+                    response = llm.get_model(model).prompt(xml_prompt)
+Exit Code: 0

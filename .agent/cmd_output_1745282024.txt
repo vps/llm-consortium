@@ -1,0 +1,182 @@
+Stdout/Stderr: #!/bin/bash
+
+# Generic GitHub Monitoring Script (v3 - Corrected Initial Marker)
+# Monitors either new comments on a specific issue OR new issues in a repository.
+# Usage: ./monitor_issue.sh --mode <issue-comments|new-issues> --repo <owner/name> [options]
+
+# Configuration Defaults
+POLL_INTERVAL=15 # seconds
+FETCH_COUNT=100 # Fetch up to 100 items per poll
+
+# Variables to be set by arguments
+MODE=""
+REPO=""
+ISSUE_NUM=""
+TARGET_USER=""
+LABEL=""
+
+# --- Argument Parsing ---
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --mode) MODE="$2"; shift ;;
+        --repo) REPO="$2"; shift ;;
+        --issue) ISSUE_NUM="$2"; shift ;;
+        --user) TARGET_USER="$2"; shift ;;
+        --label) LABEL="$2"; shift ;;
+        *) echo "Unknown parameter passed: $1" >&2; exit 1 ;;
+    esac
+    shift
+done
+
+# --- Validation ---
+if [[ -z "$MODE" ]]; then
+    echo "Error: --mode <issue-comments|new-issues> is required." >&2
+    exit 1
+fi
+if [[ -z "$REPO" ]]; then
+    echo "Error: --repo <owner/name> is required." >&2
+    exit 1
+fi
+
+if [[ "$MODE" == "issue-comments" ]]; then
+    if [[ -z "$ISSUE_NUM" ]]; then
+        echo "Error: --issue <NUM> is required for mode issue-comments." >&2
+        exit 1
+    fi
+    # User is optional for filtering, but required for the previous flawed logic, now optional.
+elif [[ "$MODE" == "new-issues" ]]; then
+    true # Valid mode
+else
+    echo "Error: Invalid mode '$MODE'. Must be issue-comments or new-issues." >&2
+    exit 1
+fi
+
+# --- Initial State Determination (Corrected Logic) ---
+# Get marker for the latest processed item. Fetch the ABSOLUTE LATEST item marker at startup.
+# The loop logic will then handle filtering for target user and newer items.
+
+last_processed_marker=""
+
+if [[ "$MODE" == "issue-comments" ]]; then
+    echo "[DEBUG] Mode: issue-comments. Repo: $REPO Issue: $ISSUE_NUM. User: $TARGET_USER. Label: $LABEL" >&2
+    # Get the ID of the absolute latest comment initially
+    echo "[DEBUG] Fetching initial LATEST comment ID..." >&2
+    last_processed_marker=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json comments --jq '.comments[-1].id? // "0"' 2>/dev/null || echo "0")
+
+    if [[ "$last_processed_marker" == "0" ]]; then
+        echo "[DEBUG] No comments found on issue $REPO#$ISSUE_NUM or error fetching. Will monitor for first comment from '$TARGET_USER'." >&2
+    else
+        echo "[DEBUG] Initial latest comment ID (any user): $last_processed_marker" >&2
+    fi
+
+elif [[ "$MODE" == "new-issues" ]]; then
+    echo "[DEBUG] Mode: new-issues. Repo: $REPO. User: $TARGET_USER. Label: $LABEL" >&2
+    # Get the creation timestamp of the absolute latest issue initially
+    label_filter_arg=""
+    if [[ -n "$LABEL" ]]; then
+        label_filter_arg="--label $LABEL"
+    fi
+    echo "[DEBUG] Fetching initial LATEST issue created_at timestamp..." >&2
+    last_processed_marker=$(gh issue list --repo "$REPO" $label_filter_arg --state open --json number,createdAt --limit 1 --jq '.[0].createdAt? // "1970-01-01T00:00:00Z"' 2>/dev/null || echo "1970-01-01T00:00:00Z")
+
+    if [[ "$last_processed_marker" == "1970-01-01T00:00:00Z" ]]; then
+        echo "[DEBUG] No recent open issues matching criteria found for $REPO. Will monitor for the first." >&2
+    else
+        echo "[DEBUG] Initial latest issue created_at (any user): $last_processed_marker" >&2
+    fi
+fi
+
+echo "[DEBUG] Monitoring will begin for new items from '$TARGET_USER' newer than marker: $last_processed_marker" >&2
+
+
+# --- Monitoring Loop ---
+while true; do
+    new_item_body="" # Variable to hold the body of the new item found
+    latest_item_marker_found_in_loop="" # Marker of the newest item found *in this loop iteration*
+
+    if [[ "$MODE" == "issue-comments" ]]; then
+        echo "[DEBUG] Loop: Fetching latest $FETCH_COUNT comments on $REPO#$ISSUE_NUM..." >&2
+        items_json=$(gh issue view "$ISSUE_NUM" --repo "$REPO" --json comments --jq ".comments | reverse | .[:$FETCH_COUNT]" 2>/dev/null)
+
+        if ! echo "$items_json" | jq -e '. | type == "array"' > /dev/null; then
+             echo "[DEBUG] Failed to fetch comments or invalid JSON. Retrying..." >&2
+             sleep "$POLL_INTERVAL"
+             continue
+        fi
+        echo "[DEBUG] Comments fetched successfully ($(echo "$items_json" | jq 'length') items). Processing..." >&2
+
+        echo "[DEBUG] Filtering for new comments from '$TARGET_USER' newer than ID '$last_processed_marker'..." >&2
+        # Process comments using jq: Filter for user, filter for newer ID, select first (newest), output body and ID
+        jq_result=$(echo "$items_json" | jq -r --arg last_marker "$last_processed_marker" --arg user "$TARGET_USER" '
+            # Filter by user if specified, otherwise match any user if --user wasn'\''t provided
+            (if $user == "" then . else map(select(.author.login == $user)) end) |
+            # Filter for items with an ID lexicographically greater than the last processed marker
+            map(select(.id > $last_marker)) |
+            # Get the *newest* item from the filtered list (which is the first due to reverse sort)
+            first |
+            # Output the body and the ID, separated by a delimiter, if an item was found
+            if . then "\(.body? // "")
+--ITEM-MARKER--\(.id)" else "" end
+        ')
+
+        if [[ -n "$jq_result" ]]; then
+             new_item_body=$(echo "$jq_result" | sed -n '1,/--ITEM-MARKER--/ { /--ITEM-MARKER--/!p }')
+             latest_item_marker_found_in_loop=$(echo "$jq_result" | sed -n '/--ITEM-MARKER--/ s/--ITEM-MARKER--//p')
+        fi
+
+    elif [[ "$MODE" == "new-issues" ]]; then
+        echo "[DEBUG] Loop: Fetching latest $FETCH_COUNT open issues in $REPO (Label: '$LABEL', User: '$TARGET_USER')..." >&2
+        label_filter_arg=""
+        if [[ -n "$LABEL" ]]; then
+            label_filter_arg="--label $LABEL"
+        fi
+        # Fetch issues, sorted newest first.
+        items_json=$(gh issue list --repo "$REPO" $label_filter_arg --state open --json number,title,body,author,createdAt --limit $FETCH_COUNT --jq '.' 2>/dev/null)
+
+        if ! echo "$items_json" | jq -e '. | type == "array"' > /dev/null; then
+             echo "[DEBUG] Failed to fetch issues or invalid JSON. Retrying..." >&2
+             sleep "$POLL_INTERVAL"
+             continue
+        fi
+        echo "[DEBUG] Issues fetched successfully ($(echo "$items_json" | jq 'length') items). Processing..." >&2
+
+        echo "[DEBUG] Filtering for new issues from '$TARGET_USER' newer than timestamp '$last_processed_marker'..." >&2
+        # Process issues using jq: Filter for timestamp, filter for user (optional), select first, output body and timestamp
+        jq_result=$(echo "$items_json" | jq -r --arg last_marker "$last_processed_marker" --arg user "$TARGET_USER" '
+            # Filter for issues with creation timestamp > last processed marker
+            map(select(.createdAt > $last_marker)) |
+            # Filter by user if specified
+            (if $user == "" then . else map(select(.author.login == $user)) end) |
+            # Get the *newest* issue from the filtered list (which is the first)
+            first |
+            # Output the formatted issue body and the marker (created timestamp), separated by a delimiter
+            if . then "# Issue #\(.number): \(.title)
+
+\(.body? // "")
+--ITEM-MARKER--\(.createdAt)" else "" end
+        ')
+
+        if [[ -n "$jq_result" ]]; then
+             new_item_body=$(echo "$jq_result" | sed -n '1,/--ITEM-MARKER--/ { /--ITEM-MARKER--/!p }')
+             latest_item_marker_found_in_loop=$(echo "$jq_result" | sed -n '/--ITEM-MARKER--/ s/--ITEM-MARKER--//p')
+        fi
+    fi # End of MODE check
+
+    # Check if a new item body was found AND a valid marker was extracted
+    if [[ -n "$new_item_body" && -n "$latest_item_marker_found_in_loop" ]]; then
+        echo "[DEBUG] New item found! Outputting body and updating marker..." >&2
+        # Update the last_processed_marker to the marker of the item we just found.
+        # This prevents re-detecting the same item if the script is restarted quickly.
+        last_processed_marker="$latest_item_marker_found_in_loop"
+        echo "[DEBUG] Updated last_processed_marker internally to: $last_processed_marker" >&2
+
+        echo "--- NEW ITEM ---" >&2 # Separator on stderr
+        echo "$new_item_body" # Output item body to stdout
+        exit 0 # Exit successfully
+    fi
+
+    # No new relevant item found, wait before polling again
+    echo "[DEBUG] No new relevant items found. Sleeping for $POLL_INTERVAL seconds..." >&2
+    sleep "$POLL_INTERVAL"
+done
+Exit Code: 0

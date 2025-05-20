@@ -1,0 +1,23 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+id|model|consortium_id|is_arbiter_response
+01jjwzpdzgb5d12v3t9cgfxr23|gemini-2.0-flash-exp||
+01jjx3yhqy9dg2hx49cfse47jx|openrouter/minimax/minimax-01||
+01jjyd53sgy9ebmf942anwdcc4|openrouter/minimax/minimax-01||
+01jjydppgwnmr4q5g950ebp544|gemini-2.0-flash-exp||
+01jjye4zpx5nn4k27jmydg05bd|openrouter/minimax/minimax-01||
+01jjyf2mq8pv6c652bs3e2csj9|gemini-2.0-flash-exp||
+01jjyp86np54s9zk7sts6hzdz6|openrouter/minimax/minimax-01||
+01jjypd38th8245zey9ng31avg|openrouter/minimax/minimax-01||
+01jjz0skx8bq92ck3j0d5xe6jt|gemini-2.0-flash-exp||
+01jjz1t4zgcztv9hv905cg43wj|gemini-2.0-flash-exp||
+01jjz3mtbf0996pg49w61mkrfw|gemini-2.0-flash-exp||
+01jjz4kg29tv5hen5rh36my92w|gemini-2.0-flash-exp||
+01jjz5ab3y3e260hyzw70kfqt5|gemini-2.0-flash-exp||
+01jjz7s7epx1z18j9cnaenfzzf|gemini-2.0-flash-exp||
+01jjz8v0qrwntvg9pga8a8xhv7|gemini-2.0-flash-exp||
+01jjz8tvsjccba7y6er5heaphc|deepseek-chat||
+01jjz90a1h5aqtecs2qmm3qtft|gemini-2.0-flash-exp||
+01jjz8zwxcwg97jx8es9tkz60d|oracle||
+01jjz8xpxetqey3qnhsh1s792n|deepllama||
+01jjz9413jkte66yxe2pm10b0p|gemini-2.0-flash-exp||
+Exit Code: 0

@@ -1,0 +1,40 @@
+Stdout/Stderr: def log_response(response, model):
+    """Log model response to database and log file."""
+    try:
+        db = DatabaseConnection.get_connection()
+        response.log_to_db(db)
+        logger.debug(f"Response from {model} logged to database")
+
+        # Check for truncation in various formats
+        if response.response_json:
+            finish_reason = _get_finish_reason(response.response_json)
+            truncation_indicators = ['length', 'max_tokens', 'max_token']
+--
+                log_response(response, f"{model}-{instance + 1}")
+                return {
+                    "model": model,
+                    "instance": instance + 1,
+                    "response": text,
+                    "confidence": self._extract_confidence(text),
+                    "conversation_id": getattr(response, 'conversation_id', None)
+                }
+            except Exception as e:
+                # Check if the error is a rate-limit error
+                if "RateLimitError" in str(e):
+--
+        log_response(arbiter_response, arbiter)
+
+        try:
+            return self._parse_arbiter_response(arbiter_response.text())
+        except Exception as e:
+            logger.error(f"Error parsing arbiter response: {e}")
+            return {
+                "synthesis": arbiter_response.text(),
+                "confidence": 0.0,
+                "analysis": "Parsing failed - see raw response",
+                "dissent": "",
+--
+__all__ = ['KarpathyConsortiumPlugin', 'log_response', 'DatabaseConnection', 'logs_db_path', 'user_dir', 'ConsortiumModel']
+
+__version__ = "0.3.1"
+Exit Code: 0

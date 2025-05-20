@@ -1,0 +1,35 @@
+Stdout/Stderr: GitHub Monitoring Script v4.0
+
+USAGE:
+    ./monitor_issue.sh --mode <MODE> --repo <OWNER/REPO> [options]
+
+MODES:
+    issue-comments    Monitor comments on a specific issue
+    new-issues        Monitor new issues in a repository
+
+REQUIRED ARGUMENTS:
+    --mode MODE       Monitoring mode (issue-comments or new-issues)
+    --repo OWNER/REPO GitHub repository in the format owner/repo
+
+MODE-SPECIFIC REQUIRED ARGUMENTS:
+    For --mode issue-comments:
+        --issue NUM   Issue number to monitor
+
+OPTIONAL ARGUMENTS:
+    --user USERNAME   Only show items from this GitHub username
+    --label LABEL     Only show issues with this label (only for new-issues mode)
+    --interval SEC    Polling interval in seconds (default: 15)
+    --count NUM       Maximum number of items to fetch per poll (default: 100)
+    --debug           Enable verbose debug output
+    --background      Run in background (detached process)
+    --output FILE     Write output to file instead of stdout (useful with --background)
+
+ADVANCED USAGE:
+    --spawn-agent "INSTRUCTIONS"  Spawn a new agent with the given instructions
+                                  (all subsequent args will be passed to the agent)
+
+EXAMPLES:
+    ./monitor_issue.sh --mode issue-comments --repo irthomasthomas/llm-consortium --issue 9 --user irthomasthomas
+    ./monitor_issue.sh --mode new-issues --repo irthomasthomas/llm-consortium --user irthomasthomas --label "bug"
+    ./monitor_issue.sh --mode new-issues --repo irthomasthomas/llm-consortium --background --output /tmp/gh-monitor.log
+Exit Code: 0

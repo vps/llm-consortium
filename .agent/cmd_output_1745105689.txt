@@ -1,0 +1,25 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+cid|name|type|notnull|dflt_value|pk
+0|id|TEXT|0||1
+1|model|TEXT|0||0
+2|prompt|TEXT|0||0
+3|system|TEXT|0||0
+4|prompt_json|TEXT|0||0
+5|options_json|TEXT|0||0
+6|response|TEXT|0||0
+7|response_json|TEXT|0||0
+8|conversation_id|TEXT|0||0
+9|duration_ms|INTEGER|0||0
+10|datetime_utc|TEXT|0||0
+11|input_tokens|INTEGER|0||0
+12|output_tokens|INTEGER|0||0
+13|token_details|TEXT|0||0
+14|human_vote|TEXT|0||0
+15|human_note|TEXT|0||0
+16|bookmark|INTEGER|0||0
+17|session_id|INTEGER|0||0
+18|schema_id|TEXT|0||0
+19|consortium_id|TEXT|0||0
+20|is_arbiter_response|INTEGER|0|0|0
+21|consortium_group_id|TEXT|0||0
+Exit Code: 0

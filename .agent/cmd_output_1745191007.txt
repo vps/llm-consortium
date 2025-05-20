@@ -1,0 +1,33 @@
+Stdout/Stderr: 
+
+class _BaseResponse:
+    """Base response class shared between sync and async responses"""
+
+    prompt: "Prompt"
+    stream: bool
+    conversation: Optional["_BaseConversation"] = None
+    _key: Optional[str] = None
+
+    def __init__(
+        self,
+        prompt: Prompt,
+        model: "_BaseModel",
+        stream: bool,
+        conversation: Optional[_BaseConversation] = None,
+        key: Optional[str] = None,
+    ):
+        self.prompt = prompt
+        self._prompt_json = None
+        self.model = model
+        self.stream = stream
+        self._key = key
+        self._chunks: List[str] = []
+        self._done = False
+        self.response_json = None
+        self.conversation = conversation
+        self.attachments: List[Attachment] = []
+        self._start: Optional[float] = None
+        self._end: Optional[float] = None
+        self._start_utcnow: Optional[datetime.datetime] = None
+        self.input_tokens: Optional[int] = None
+Exit Code: 0

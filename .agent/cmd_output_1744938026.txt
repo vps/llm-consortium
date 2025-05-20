@@ -1,0 +1,449 @@
+Stdout/Stderr: import llm
+from llm import Model, Response, hookimpl
+import click
+import asyncio
+import json
+import pathlib
+import yaml
+from pydantic import Field, field_validator
+from typing import List, Dict, Any, Optional
+
+DEFAULT_CONFIDENCE_THRESHOLD = 0.7
+DEFAULT_MAX_ITERATIONS = 3
+CONSORTIUM_CONFIG_DIR = pathlib.Path(llm.user_dir()) / "consortiums"
+
+# --- Pydantic Models for Configuration ---
+
+class ModelConfig(llm.Model):
+    model_id: str = Field(..., description="ID of the LLM model to use")
+    options: Optional[Dict[str, Any]] = Field(default=None, description="Specific options for this model")
+
+class ConsortiumConfig(llm.Model):
+    name: str = Field(..., description="Unique name for the consortium")
+    models: List[ModelConfig] = Field(..., description="List of models in the consortium")
+    confidence_threshold: float = Field(DEFAULT_CONFIDENCE_THRESHOLD, description="Confidence threshold for consensus")
+    max_iterations: int = Field(DEFAULT_MAX_ITERATIONS, description="Maximum iterations for refinement")
+    arbiter: Optional[ModelConfig] = Field(default=None, description="Model acting as the arbiter")
+
+    @field_validator('models')
+    def check_models_non_empty(cls, v):
+        if not v:
+            raise ValueError('Consortium must include at least one model.')
+        return v
+
+# --- Helper Functions ---
+
+def get_config_path(name: str) -> pathlib.Path:
+    """Get the path to the configuration file for a given consortium name."""
+    CONSORTIUM_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+    return CONSORTIUM_CONFIG_DIR / f"{name}.yaml"
+
+def load_consortium_config(name: str) -> ConsortiumConfig:
+    """Load consortium configuration from a YAML file."""
+    config_path = get_config_path(name)
+    if not config_path.exists():
+        raise click.ClickException(f"Consortium configuration '{name}' not found at {config_path}")
+    try:
+        with open(config_path, 'r') as f:
+            config_data = yaml.safe_load(f)
+        return ConsortiumConfig(**config_data)
+    except Exception as e:
+        raise click.ClickException(f"Error loading configuration for '{name}': {e}")
+
+def save_consortium_config(config: ConsortiumConfig):
+    """Save consortium configuration to a YAML file."""
+    config_path = get_config_path(config.name)
+    try:
+        with open(config_path, 'w') as f:
+            yaml.dump(config.dict(exclude_none=True), f, indent=2)
+    except Exception as e:
+        raise click.ClickException(f"Error saving configuration for '{config.name}': {e}")
+
+def list_consortium_configs() -> List[str]:
+    """List available consortium configuration files."""
+    if not CONSORTIUM_CONFIG_DIR.exists():
+        return []
+    return [p.stem for p in CONSORTIUM_CONFIG_DIR.glob("*.yaml")]
+
+def select_model_instance(model_config: ModelConfig) -> Model:
+    """Get an instance of the specified model."""
+    try:
+        model_instance = llm.get_model(model_config.model_id)
+        if model_config.options:
+            # Apply options if the model instance supports them
+            # Basic check: does the model instance have an 'options' attribute?
+            # More robust: Use inspect or check for specific setters if needed.
+            if hasattr(model_instance, 'options') and isinstance(model_instance.options, dict):
+                 # Create a copy or update carefully to avoid modifying the global model registry's options
+                cloned_instance = llm.get_model(model_config.model_id) # Get a fresh instance
+                cloned_instance.options = {**cloned_instance.options, **model_config.options}
+                return cloned_instance
+            else:
+                 # Optionally log a warning if options are provided but cannot be applied
+                # print(f"Warning: Model {model_config.model_id} does not seem to support custom options directly. Ignoring.")
+                 pass # Fall through to return the basic instance
+        return model_instance
+    except llm.UnknownModelError:
+        raise click.ClickException(f"Model '{model_config.model_id}' not found.")
+    except Exception as e:
+        raise click.ClickException(f"Error selecting model '{model_config.model_id}': {e}")
+
+# --- Orchestration Logic ---
+
+class ConsortiumOrchestrator:
+    def __init__(self, config: ConsortiumConfig):
+        self.config = config
+        self.models = [select_model_instance(mc) for mc in self.config.models]
+        self.arbiter = select_model_instance(self.config.arbiter) if self.config.arbiter else None
+
+    def _format_conversation_history(self, history: List[Dict[str, str]]) -> str:
+        """Formats conversation history into a simple string preamble."""
+        formatted = "Conversation History:
+"
+        for message in history:
+            role = message.get("role", "unknown").capitalize()
+            content = message.get("content", "")
+            formatted += f"- {role}: {content}
+"
+        formatted += "
+---
+
+Current Task:
+"
+        return formatted
+
+    async def orchestrate(self, initial_prompt: str, history: Optional[List[Dict[str, str]]] = None) -> str:
+        """
+        Orchestrates the consortium models to generate a consensus response.
+
+        Args:
+            initial_prompt: The user's current prompt.
+            history: Optional list of previous messages [{'role': 'user'/'assistant', 'content': '...'}, ...].
+        """
+        current_prompt = initial_prompt
+        if history:
+            history_preamble = self._format_conversation_history(history)
+            current_prompt = history_preamble + current_prompt
+
+        print(f"DEBUG: Initial Orchestrator Prompt (with history if provided):
+{current_prompt}
+---") # Debugging
+
+        responses = {}
+        for iteration in range(self.config.max_iterations):
+            print(f"--- Iteration {iteration + 1} ---") # Debugging
+
+            # Gather responses from member models
+            tasks = []
+            model_names = []
+            for model in self.models:
+                model_names.append(model.model_id)
+                # Adapt prompt for specific model if needed (e.g., role hints)
+                # Pass previous response if available for refinement
+                prompt_to_send = current_prompt
+                if iteration > 0 and model.model_id in responses:
+                     prompt_to_send += f"
+
+Previous attempt:
+{responses[model.model_id]['text']}
+
+Please refine based on feedback or provide an alternative."
+
+                # Create the Prompt object expected by model.prompt() if needed by the model
+                llm_prompt_obj = llm.Prompt(prompt_to_send)
+
+                tasks.append(self._run_model(model, llm_prompt_obj, model.options if hasattr(model,'options') else None))
+
+            results = await asyncio.gather(*tasks, return_exceptions=True)
+
+            responses = {}
+            valid_responses = []
+            for i, result in enumerate(results):
+                model_id = model_names[i]
+                if isinstance(result, Exception):
+                    print(f"Error from model {model_id}: {result}")
+                    responses[model_id] = {"text": f"[Error: {result}]", "confidence": 0.0}
+                elif result is None or not result.text.strip():
+                    print(f"Empty response from model {model_id}")
+                    responses[model_id] = {"text": "[No Response]", "confidence": 0.0}
+                else:
+                    # Simple confidence: 1.0 for now, could be enhanced
+                    responses[model_id] = {"text": result.text.strip(), "confidence": 1.0}
+                    valid_responses.append(responses[model_id]["text"])
+
+            print(f"Responses gathered: {json.dumps(responses, indent=2)}") # Debugging
+
+            if not valid_responses:
+                return "[Consortium Error: No valid responses received from member models]"
+
+            # Check for consensus or use arbiter
+            if self.arbiter:
+                arbiter_prompt_text = self._build_arbiter_prompt(current_prompt, responses, history) # Pass history to arbiter
+                print(f"DEBUG: Arbiter Prompt:
+{arbiter_prompt_text}
+---") # Debugging
+                arbiter_prompt_obj = llm.Prompt(arbiter_prompt_text)
+                arbiter_response = await self._run_model(self.arbiter, arbiter_prompt_obj, self.arbiter.options if hasattr(self.arbiter,'options') else None)
+
+                if isinstance(arbiter_response, Exception):
+                     print(f"Error from arbiter {self.arbiter.model_id}: {arbiter_response}")
+                     # Fallback: return best guess from member models if arbiter fails
+                     if valid_responses:
+                         return valid_responses[0] # Or implement a different fallback
+                     else:
+                         return "[Consortium Error: Arbiter failed and no member responses]"
+                elif arbiter_response and arbiter_response.text.strip():
+                    print(f"Arbiter synthesized response: {arbiter_response.text.strip()}") # Debugging
+                    # Consider the arbiter's response as the final one for this iteration
+                    # Check if refinement is needed based on arbiter output (complex logic, TBD)
+                    # For now, assume arbiter's response is final.
+                    return arbiter_response.text.strip()
+                else:
+                     print("Arbiter returned empty response. Falling back...")
+                     # Fallback if arbiter gives empty response
+                     if valid_responses:
+                         return valid_responses[0] # Or implement a different fallback
+                     else:
+                         return "[Consortium Error: Arbiter empty and no member responses]"
+
+            else:
+                # Simple consensus (e.g., return first valid response if no arbiter)
+                # TODO: Implement better consensus logic (e.g., similarity check)
+                final_response = valid_responses[0]
+                print(f"No arbiter, returning first valid response: {final_response}") # Debugging
+                return final_response
+
+        # Max iterations reached
+        print("Max iterations reached.") # Debugging
+        if self.arbiter and responses:
+            # Give arbiter one last chance if it exists
+            arbiter_prompt_text = self._build_arbiter_prompt(current_prompt, responses, history) # Pass history
+            arbiter_prompt_obj = llm.Prompt(arbiter_prompt_text)
+            arbiter_response = await self._run_model(self.arbiter, arbiter_prompt_obj, self.arbiter.options if hasattr(self.arbiter,'options') else None)
+            if arbiter_response and not isinstance(arbiter_response, Exception) and arbiter_response.text.strip():
+                return arbiter_response.text.strip()
+            elif valid_responses: # Fallback from failed final arbiter attempt
+                 return valid_responses[0]
+            else:
+                 return "[Consortium Error: Max iterations reached, final arbiter attempt failed]"
+
+        elif valid_responses: # No arbiter, max iterations reached
+             return valid_responses[0] # Return best guess
+        else: # No valid responses even after iterations
+             return "[Consortium Error: Max iterations reached, no valid responses generated]"
+
+
+    async def _run_model(self, model: Model, prompt: llm.Prompt, options: Optional[Dict] = None) -> Optional[Response]:
+        """Helper to run a model and handle potential errors."""
+        try:
+            # Ensure options are passed correctly if they exist
+            if options:
+                 # The llm core handles merging options passed here with model default options
+                response = await model.prompt(prompt.prompt, **options) # Pass prompt string and options
+            else:
+                response = await model.prompt(prompt.prompt) # Pass only prompt string
+            return response
+        except Exception as e:
+            print(f"Error running model {model.model_id}: {e}")
+            return e # Return exception to be handled in gather
+
+    def _build_arbiter_prompt(self, original_prompt: str, responses: Dict[str, Dict], history: Optional[List[Dict[str, str]]] = None) -> str:
+        """Constructs the prompt for the arbiter model."""
+        prompt = "You are an arbiter reviewing responses from multiple AI models.
+"
+        if history:
+             prompt += self._format_conversation_history(history) # Add history here too
+        else:
+             prompt += "
+---
+
+Current Task:
+"
+
+        prompt += f"Original Prompt: {original_prompt}
+
+"
+        prompt += "Responses Received:
+"
+        for model_id, resp_data in responses.items():
+            prompt += f"--- Model: {model_id} ---
+"
+            prompt += f"{resp_data['text']}
+"
+            # prompt += f"Confidence: {resp_data.get('confidence', 'N/A')}
+" # Confidence not really used yet
+            prompt += "---
+"
+
+        prompt += "
+Instructions:
+"
+        prompt += "1. Analyze the original prompt and the provided responses.
+"
+        prompt += "2. Synthesize the best possible response based on the inputs. You can combine ideas, correct errors, or select the single best response if appropriate.
+"
+        prompt += "3. Ensure your final response directly addresses the original prompt.
+"
+        prompt += "4. If all responses are inadequate, explain why and attempt to provide a better answer yourself.
+"
+        prompt += "5. Output ONLY the final synthesized response, without any preamble or explanation of your process.
+
+"
+        prompt += "Synthesized Response:"
+        return prompt
+
+
+# --- LLM Plugin Integration ---
+
+class ConsortiumModel(Model):
+    model_id: str # Will be set dynamically (e.g., "qwq-consortium")
+    can_stream = False # Consortium logic doesn't support streaming easily
+    _config: Optional[ConsortiumConfig] = None # Cache loaded config
+
+    def __init__(self, model_id: str):
+        self.model_id = model_id
+        self._config = None # Initialize cache
+
+    def load_config(self) -> ConsortiumConfig:
+        """Loads the config for this specific consortium model ID."""
+        if self._config is None:
+            # Assumes model_id matches the consortium name (e.g., "qwq-consortium")
+            consortium_name = self.model_id
+            self._config = load_consortium_config(consortium_name)
+        return self._config
+
+    async def execute(self, prompt: llm.Prompt, conversation: Optional[llm.Conversation] = None) -> Response:
+        """
+        Executes the prompt using the configured consortium.
+
+        Args:
+            prompt: The llm.Prompt object containing the user's input.
+            conversation: The llm.Conversation object, potentially containing history.
+        """
+        config = self.load_config()
+        orchestrator = ConsortiumOrchestrator(config)
+
+        # --- FIX: Extract history from conversation object ---
+        history = None
+        if conversation and conversation.messages:
+            # Format messages as needed by orchestrator (list of dicts)
+            history = [
+                {"role": msg.actor, "content": msg.prompt if msg.actor == 'user' else msg.response}
+                for msg in conversation.messages # Assuming structure of llm.Conversation.messages
+                 # Filter out system prompts if necessary, or adjust roles
+                 if (msg.actor == 'user' and msg.prompt) or (msg.actor == 'assistant' and msg.response)
+            ]
+            print(f"DEBUG: Extracted History ({len(history)} messages): {history}") # Debugging
+
+        # --- FIX: Pass history to orchestrator ---
+        final_text = await orchestrator.orchestrate(prompt.prompt, history=history)
+
+        response = Response.fake(self) # Create a basic Response object shell
+        response._prompt = prompt # Store the original prompt object
+        response.text = final_text # Set the final text
+
+        # We might want to store more details from the orchestration in response.response_json if needed
+        # response.response_json = {"orchestration_details": ...}
+
+        return response # Return the Response object
+
+
+@hookimpl
+def register_models(register):
+    """Register saved consortium configurations as models."""
+    configs = list_consortium_configs()
+    for name in configs:
+        register(ConsortiumModel(name))
+
+
+@hookimpl
+def register_commands(cli):
+    @cli.group(name="consortiums")
+    def consortiums_group():
+        """Manage LLM Consortium configurations."""
+        pass
+
+    @consortiums_group.command(name="list")
+    def list_consortia():
+        """List saved consortium configurations."""
+        configs = list_consortium_configs()
+        if not configs:
+            click.echo("No consortium configurations found.")
+            return
+        click.echo("Available consortiums:")
+        for name in configs:
+            click.echo(f"- {name}")
+
+    @consortiums_group.command(name="show")
+    @click.argument("name")
+    def show_consortium(name):
+        """Show details of a specific consortium configuration."""
+        try:
+            config = load_consortium_config(name)
+            click.echo(yaml.dump(config.dict(exclude_none=True), indent=2))
+        except click.ClickException as e:
+            click.echo(str(e), err=True)
+
+    @consortiums_group.command(name="create")
+    @click.option("-n", "--name", prompt="Consortium name", help="Unique name for the consortium.")
+    @click.option("-m", "--model", "models", multiple=True, required=True, help="Model ID to include (e.g., gpt-4, claude-3-opus). Use multiple times.")
+    @click.option("-a", "--arbiter", help="Model ID for the arbiter model (optional).")
+    @click.option("-t", "--threshold", type=float, default=DEFAULT_CONFIDENCE_THRESHOLD, help="Confidence threshold.")
+    @click.option("-i", "--iterations", type=int, default=DEFAULT_MAX_ITERATIONS, help="Maximum iterations.")
+    # TODO: Add way to specify model-specific options if needed
+    def create_consortium(name, models, arbiter, threshold, iterations):
+        """Create a new consortium configuration."""
+        if not name.isidentifier():
+              click.echo(f"Error: Name '{name}' is not a valid identifier.", err=True)
+              return
+
+        if get_config_path(name).exists():
+            click.echo(f"Error: Consortium '{name}' already exists.", err=True)
+            return
+
+        model_configs = []
+        registered_models = llm.get_models_dict()
+        for model_id in models:
+            if model_id not in registered_models:
+                click.echo(f"Warning: Model '{model_id}' is not currently registered with LLM.", err=True)
+            # Basic model config for now
+            model_configs.append(ModelConfig(model_id=model_id))
+
+        arbiter_config = None
+        if arbiter:
+             if arbiter not in registered_models:
+                 click.echo(f"Warning: Arbiter model '{arbiter}' is not currently registered with LLM.", err=True)
+             arbiter_config = ModelConfig(model_id=arbiter)
+
+
+        config = ConsortiumConfig(
+            name=name,
+            models=model_configs,
+            arbiter=arbiter_config,
+            confidence_threshold=threshold,
+            max_iterations=iterations
+        )
+
+        try:
+            save_consortium_config(config)
+            click.echo(f"Consortium '{name}' created successfully at {get_config_path(name)}")
+            click.echo("Run 'llm register-models' if llm-consortium is installed via 'pip install -e'.")
+        except click.ClickException as e:
+            click.echo(str(e), err=True)
+
+
+    @consortiums_group.command(name="delete")
+    @click.argument("name")
+    @click.confirmation_option(prompt='Are you sure you want to delete this consortium configuration?')
+    def delete_consortium(name):
+        """Delete a consortium configuration."""
+        config_path = get_config_path(name)
+        if not config_path.exists():
+            click.echo(f"Error: Consortium '{name}' not found.", err=True)
+            return
+        try:
+            config_path.unlink()
+            click.echo(f"Consortium '{name}' deleted successfully.")
+        except Exception as e:
+            click.echo(f"Error deleting consortium '{name}': {e}", err=True)
+Exit Code: 0

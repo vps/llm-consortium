@@ -1,0 +1,42 @@
+Stdout/Stderr: warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+DEBUG: ConsortiumModel.prompt called with conversation_id: test-cid
+DEBUG: Retrieved conversation object: <MagicMock name='llm.get_conversation()' id='128024095226320'>
+DEBUG: Conversation messages count: 2
+DEBUG: Prepared history context:
+user: Hello there.
+user: Can you explain quantum tunneling?
+
+---
+
+
+DEBUG: Running orchestrator with final prompt:
+user: Hello there.
+user: Can you explain quantum tunneling?
+
+---
+
+user: Summarize your last answer.
+DEBUG: Adding prompt and response to conversation object.
+DEBUG: Returning llm.Response object: <MagicMock name='llm.Response.fake()' id='128024094925072'>
+F
+======================================================================
+FAIL: test_conversation_history_is_prepended (tests.test_llm_consortium.TestConsortiumModelConversationPersistence.test_conversation_history_is_prepended)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/python/cpython-3.11.7-linux-x86_64-gnu/lib/python3.11/unittest/mock.py", line 1375, in patched
+    return func(*newargs, **newkeywargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/tests/test_llm_consortium.py", line 46, in test_conversation_history_is_prepended
+    self.assertIn("assistant: Hi! How can I help?", full_prompt_arg)
+AssertionError: 'assistant: Hi! How can I help?' not found in 'user: Hello there.
+user: Can you explain quantum tunneling?
+
+---
+
+user: Summarize your last answer.'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+FAILED (failures=1)
+Exit Code: 0

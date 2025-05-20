@@ -1,0 +1,44 @@
+Stdout/Stderr: diff --git a/llm_consortium/__init__.py b/llm_consortium/__init__.py
+index befca2e..85085f1 100644
+--- a/llm_consortium/__init__.py
++++ b/llm_consortium/__init__.py
+@@ -10,6 +10,7 @@ import os
+ import pathlib
+ import sqlite_utils
+ from pydantic import BaseModel
++from .strategies.default import DefaultStrategy # Import the strategy
+ import time  # added import for time
+ import concurrent.futures  # Add concurrent.futures for parallel processing
+ import threading  # Add threading for thread-local storage
+@@ -165,11 +166,19 @@ class ConsortiumOrchestrator:
+         self.minimum_iterations = config.minimum_iterations
+         self.arbiter = config.arbiter or "gemini-2.0-flash"
+         self.iteration_history: List[IterationContext] = []
++        # TODO: Make strategy selection dynamic 
++        strategy_params = {"conversation_id": self.conversation_id} # Pass conv id here eventually 
++        self.strategy = DefaultStrategy(self, params=strategy_params) 
++        self.conversation_id = None # Initialize conversation_id
+         # New: Dictionary to track conversation IDs for each model instance
+         self.conversation_ids: Dict[str, str] = {}
+ 
+-    def orchestrate(self, prompt: str) -> Dict[str, Any]:
++    def orchestrate(self, prompt: str, conversation_id: Optional[str] = None) -> Dict[str, Any]:
+         iteration_count = 0
++        self.conversation_id = conversation_id # Store conversation_id
++        # Update the strategy conversation ID if it exists
++        if hasattr(self, "strategy") and self.strategy:
++            self.strategy.set_conversation_id(conversation_id)
+         final_result = None
+         original_prompt = prompt
+         # Incorporate system instructions into the user prompt if available.
+@@ -534,7 +543,8 @@ class ConsortiumModel(llm.Model):
+                 result = orchestrator.orchestrate(prompt.prompt)
+             else:
+                 # Use the default orchestrator with the original config
+-                result = self.get_orchestrator().orchestrate(prompt.prompt)
++                conversation_id = conversation.id if conversation else None
++                result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_id=conversation_id)
+                 
+             response.response_json = result
+             return result["synthesis"]["synthesis"]
+Exit Code: 0

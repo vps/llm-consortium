@@ -1,0 +1,91 @@
+Stdout/Stderr: OpenAI Chat: gpt-4o (aliases: 4o)
+OpenAI Chat: chatgpt-4o-latest (aliases: chatgpt-4o)
+OpenAI Chat: gpt-4o-mini (aliases: 4o-mini)
+OpenAI Chat: gpt-4o-audio-preview
+OpenAI Chat: gpt-4o-audio-preview-2024-12-17
+OpenAI Chat: gpt-4o-audio-preview-2024-10-01
+OpenAI Chat: gpt-4o-mini-audio-preview
+OpenAI Chat: gpt-4o-mini-audio-preview-2024-12-17
+OpenAI Chat: gpt-3.5-turbo (aliases: 3.5, chatgpt)
+OpenAI Chat: gpt-3.5-turbo-16k (aliases: chatgpt-16k, 3.5-16k)
+OpenAI Chat: gpt-4 (aliases: 4, gpt4)
+OpenAI Chat: gpt-4-32k (aliases: 4-32k)
+OpenAI Chat: gpt-4-1106-preview
+OpenAI Chat: gpt-4-0125-preview
+OpenAI Chat: gpt-4-turbo-2024-04-09
+OpenAI Chat: gpt-4-turbo (aliases: gpt-4-turbo-preview, 4-turbo, 4t)
+OpenAI Chat: gpt-4.5-preview-2025-02-27
+OpenAI Chat: gpt-4.5-preview (aliases: gpt-4.5)
+OpenAI Chat: o1
+OpenAI Chat: o1-2024-12-17
+OpenAI Chat: o1-preview
+OpenAI Chat: o1-mini
+OpenAI Chat: o3-mini
+OpenAI Completion: gpt-3.5-turbo-instruct (aliases: 3.5-instruct, chatgpt-instruct)
+OpenAI Completion: sqlcoder-7b-2
+OpenAI Chat: groq
+OpenAI Chat: groq-llama
+OpenAI Chat: o3-mini-copilot
+OpenAI Chat: sonnet-3.5-copilot
+OpenAI Chat: o1-copilot
+OpenAI Chat: gemini-2.0-flash-copilot
+OpenAI Chat: claude-3.7-sonnet-copilot
+OpenAI Chat: claude-3.7-sonnet-thinking-copilot
+Consortium Model: gbloom (aliases: gbloom)
+Consortium Model: bigdogs (aliases: bigdogs)
+Consortium Model: gemclaude (aliases: gemclaude)
+Consortium Model: oracle (aliases: oracle)
+Consortium Model: gems (aliases: gems)
+Consortium Model: deepllama (aliases: deepllama)
+Consortium Model: gem2 (aliases: gem2)
+Consortium Model: deep2 (aliases: deep2)
+Consortium Model: bigdogs-c1 (aliases: bigdogs-c1)
+Consortium Model: gbloom-c1 (aliases: gbloom-c1)
+Consortium Model: oracle-c1 (aliases: oracle-c1)
+Consortium Model: madmax-c1 (aliases: madmax-c1)
+Consortium Model: madmax (aliases: madmax)
+Consortium Model: haikuflash (aliases: haikuflash)
+Consortium Model: haikuflash-c2 (aliases: haikuflash-c2)
+Consortium Model: gemclaude-c1 (aliases: gemclaude-c1)
+Consortium Model: haikugem (aliases: haikugem)
+Consortium Model: big-claudes (aliases: big-claudes)
+Consortium Model: reasoners-minimax (aliases: reasoners-minimax)
+Consortium Model: reasoners-minimax-c1 (aliases: reasoners-minimax-c1)
+Consortium Model: haiku-n3-sonnet-old-sonnet-new (aliases: haiku-n3-sonnet-old-sonnet-new)
+Consortium Model: gem-pro-sonnet-new-arb-gem2flash-lite (aliases: gem-pro-sonnet-new-arb-gem2flash-lite)
+Consortium Model: gem-pro-sonnet-new-arb-gem2flash (aliases: gem-pro-sonnet-new-arb-gem2flash)
+Consortium Model: gem2pro-haiku-deepseek-minimax-arb-gem2flash (aliases: gem2pro-haiku-deepseek-minimax-arb-gem2flash)
+Consortium Model: gem2pro-haiku-deepseek-minimax-arb-gem2pro (aliases: gem2pro-haiku-deepseek-minimax-arb-gem2pro)
+Consortium Model: flash-haiku-flash (aliases: flash-haiku-flash)
+Consortium Model: flash-haiku-deepseekr170b-flash (aliases: flash-haiku-deepseekr170b-flash)
+Consortium Model: BIGBRAIN (aliases: BIGBRAIN)
+Consortium Model: LITTLEBRAIN (aliases: LITTLEBRAIN)
+Consortium Model: BIGREASON (aliases: BIGREASON)
+Consortium Model: quick-think-i3 (aliases: quick-think-i3)
+Consortium Model: quick-think-i (aliases: quick-think-i)
+Consortium Model: quick-think (aliases: quick-think)
+Consortium Model: o3-haiku-dsr1-CT1 (aliases: o3-haiku-dsr1-CT1)
+Consortium Model: o3-haiku-dsr1-CT09 (aliases: o3-haiku-dsr1-CT09)
+Consortium Model: quick-think-i4 (aliases: quick-think-i4)
+Consortium Model: BIGREASON-3 (aliases: BIGREASON-3)
+Consortium Model: BIGREASON-3-ar-g2ft (aliases: BIGREASON-3-ar-g2ft)
+Consortium Model: BIGREASON-6-ar-g2ft (aliases: BIGREASON-6-ar-g2ft)
+Consortium Model: BIGREASON-2 (aliases: BIGREASON-2)
+Consortium Model: BIGREASON-5 (aliases: BIGREASON-5)
+Consortium Model: test-consortium (aliases: test-consortium)
+Consortium Model: flash-lite (aliases: flash-lite)
+Consortium Model: gemini-or-free (aliases: gemini-or-free)
+Consortium Model: free-reasoners-i2 (aliases: free-reasoners-i2)
+Consortium Model: free-reasoners (aliases: free-reasoners)
+Anthropic Messages: anthropic/claude-3-opus-20240229
+Anthropic Messages: anthropic/claude-3-opus-latest (aliases: claude-3-opus)
+Anthropic Messages: anthropic/claude-3-sonnet-20240229 (aliases: claude-3-sonnet)
+Anthropic Messages: anthropic/claude-3-haiku-20240307 (aliases: claude-3-haiku)
+Anthropic Messages: anthropic/claude-3-5-sonnet-20240620
+Anthropic Messages: anthropic/claude-3-5-sonnet-20241022
+Anthropic Messages: anthropic/claude-3-5-sonnet-latest (aliases: claude-3.5-sonnet, claude-3.5-sonnet-latest)
+Anthropic Messages: anthropic/claude-3-5-haiku-latest (aliases: claude-3.5-haiku)
+Anthropic Messages: anthropic/claude-3-7-sonnet-20250219
+Anthropic Messages: anthropic/claude-3-7-sonnet-latest (aliases: claude-3.7-sonnet, claude-3.7-sonnet-latest)
+Default: gpt-4o-mini
+Exit Code: 0

@@ -1,0 +1,32 @@
+Stdout/Stderr: [
+  {
+    "name": "llm-cartographer",
+    "hooks": [
+      "register_commands"
+    ],
+    "version": "0.1.1"
+  },
+  {
+    "name": "llm-consortium",
+    "hooks": [
+      "register_commands",
+      "register_models"
+    ],
+    "version": "0.4"
+  },
+  {
+    "name": "llm-websearch",
+    "hooks": [
+      "register_commands"
+    ],
+    "version": "0.1.0"
+  },
+  {
+    "name": "llm-anthropic",
+    "hooks": [
+      "register_models"
+    ],
+    "version": "0.15a0"
+  }
+]
+Exit Code: 0

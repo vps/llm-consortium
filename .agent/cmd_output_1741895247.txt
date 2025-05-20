@@ -1,0 +1,31 @@
+Stdout/Stderr: def parse_models(models: List[str], count: int) -> Dict[str, int]:
+    """Parse models and counts from CLI arguments into a dictionary."""
+    model_dict = {}
+    
+    for item in models:
+        model_dict[item] = count
+    
+    return model_dict
+
+def read_stdin_if_not_tty() -> Optional[str]:
+    """Read from stdin if it's not a terminal."""
+    if not sys.stdin.isatty():
+        return sys.stdin.read().strip()
+    return None
+
+class ConsortiumModel(llm.Model):
+    can_stream = True
+
+    class Options(llm.Options):
+        confidence_threshold: Optional[float] = None
+        max_iterations: Optional[int] = None
+        system_prompt: Optional[str] = None  # Add support for system prompt as an option
+
+    def __init__(self, model_id: str, config: ConsortiumConfig):
+        self.model_id = model_id
+        self.config = config
+        self._orchestrator = None  # Lazy initialization
+
+    def __str__(self):
+        return f"Consortium Model: {self.model_id}"
+Exit Code: 0

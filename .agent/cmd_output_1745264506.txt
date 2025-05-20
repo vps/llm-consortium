@@ -1,0 +1,43 @@
+[DEBUG] Mode: issue-comments. Issue: irthomasthomas/llm-consortium#8. User: irthomasthomas. Label: 
+[DEBUG] Fetching initial latest comment ID...
+[DEBUG] Initial latest comment from 'irthomasthomas' ID: IC_kwDONgssgs6oC73X
+[DEBUG] Monitoring will begin for new items newer than marker: IC_kwDONgssgs6oC73X
+[DEBUG] Loop: Fetching latest 100 comments on irthomasthomas/llm-consortium#8...
+[DEBUG] Comments fetched successfully (22 items). Processing...
+[DEBUG] Filtering for new comments from 'irthomasthomas' newer than ID 'IC_kwDONgssgs6oC73X'...
+[DEBUG] Filtered item processing complete. Extracted body length: 875
+[DEBUG] New item found! Outputting body...
+Next, I want you to use a different needle/keyword for each run for each independent test.
+Then run the same tests again.
+Verify the results.
+Read the logs for each test and double check everything.
+
+Post the experiment results. Summarise the log results. And include the raw logs (just the most relevant fields - exclude json fields and etc).
+
+Note: Just add the above to the tasks list for the next agent to do.
+
+One more thing: I don't like the dialog boxes anymore. They are too small and hard to read. Can you code up, very quickly, a better solution. The dialog input boxes are currently used to get the immediate attention of and communicate with  SUPER_USER. Normally for quick clarifying questions or resolving immediate environment issues. Normal project comms will still be handled via gh issues.
+
+Ensure both unit and integration tests are up to date and passing.
+Stdout/Stderr: [DEBUG] Mode: issue-comments. Issue: irthomasthomas/llm-consortium#8. User: irthomasthomas. Label: 
+[DEBUG] Fetching initial latest comment ID...
+[DEBUG] Initial latest comment from 'irthomasthomas' ID: IC_kwDONgssgs6oC73X
+[DEBUG] Monitoring will begin for new items newer than marker: IC_kwDONgssgs6oC73X
+[DEBUG] Loop: Fetching latest 100 comments on irthomasthomas/llm-consortium#8...
+[DEBUG] Comments fetched successfully (22 items). Processing...
+[DEBUG] Filtering for new comments from 'irthomasthomas' newer than ID 'IC_kwDONgssgs6oC73X'...
+[DEBUG] Filtered item processing complete. Extracted body length: 875
+[DEBUG] New item found! Outputting body...
+Next, I want you to use a different needle/keyword for each run for each independent test.
+Then run the same tests again.
+Verify the results.
+Read the logs for each test and double check everything.
+
+Post the experiment results. Summarise the log results. And include the raw logs (just the most relevant fields - exclude json fields and etc).
+
+Note: Just add the above to the tasks list for the next agent to do.
+
+One more thing: I don't like the dialog boxes anymore. They are too small and hard to read. Can you code up, very quickly, a better solution. The dialog input boxes are currently used to get the immediate attention of and communicate with  SUPER_USER. Normally for quick clarifying questions or resolving immediate environment issues. Normal project comms will still be handled via gh issues.
+
+Ensure both unit and integration tests are up to date and passing.
+Exit Code: 

@@ -1,0 +1,41 @@
+[DEBUG] Script start. Monitoring issue irthomasthomas/llm-consortium#8 for new comments from 'irthomasthomas'...
+[DEBUG] Fetching initial latest comment ID...
+[DEBUG] Initial latest comment ID: IC_kwDONgssgs6oC73X
+[DEBUG] Loop start. Fetching latest 100 comments...
+[DEBUG] Comments fetched successfully (21 comments). Processing...
+[DEBUG] Running jq to find new comment from 'irthomasthomas' newer than ID 'IC_kwDONgssgs6oC73X'...
+[DEBUG] jq processing complete. Extracted body length: 875
+[DEBUG] New comment found!
+Next, I want you to use a different needle/keyword for each run for each independent test.
+Then run the same tests again.
+Verify the results.
+Read the logs for each test and double check everything.
+
+Post the experiment results. Summarise the log results. And include the raw logs (just the most relevant fields - exclude json fields and etc).
+
+Note: Just add the above to the tasks list for the next agent to do.
+
+One more thing: I don't like the dialog boxes anymore. They are too small and hard to read. Can you code up, very quickly, a better solution. The dialog input boxes are currently used to get the immediate attention of and communicate with  SUPER_USER. Normally for quick clarifying questions or resolving immediate environment issues. Normal project comms will still be handled via gh issues.
+
+Ensure both unit and integration tests are up to date and passing.
+Stdout/Stderr: [DEBUG] Script start. Monitoring issue irthomasthomas/llm-consortium#8 for new comments from 'irthomasthomas'...
+[DEBUG] Fetching initial latest comment ID...
+[DEBUG] Initial latest comment ID: IC_kwDONgssgs6oC73X
+[DEBUG] Loop start. Fetching latest 100 comments...
+[DEBUG] Comments fetched successfully (21 comments). Processing...
+[DEBUG] Running jq to find new comment from 'irthomasthomas' newer than ID 'IC_kwDONgssgs6oC73X'...
+[DEBUG] jq processing complete. Extracted body length: 875
+[DEBUG] New comment found!
+Next, I want you to use a different needle/keyword for each run for each independent test.
+Then run the same tests again.
+Verify the results.
+Read the logs for each test and double check everything.
+
+Post the experiment results. Summarise the log results. And include the raw logs (just the most relevant fields - exclude json fields and etc).
+
+Note: Just add the above to the tasks list for the next agent to do.
+
+One more thing: I don't like the dialog boxes anymore. They are too small and hard to read. Can you code up, very quickly, a better solution. The dialog input boxes are currently used to get the immediate attention of and communicate with  SUPER_USER. Normally for quick clarifying questions or resolving immediate environment issues. Normal project comms will still be handled via gh issues.
+
+Ensure both unit and integration tests are up to date and passing.
+Exit Code: 

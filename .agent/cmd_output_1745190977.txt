@@ -1,0 +1,22 @@
+Stdout/Stderr:             ),
+            self.model,
+            stream,
+            conversation=self,
+            key=key,
+        )
+
+    @classmethod
+    def from_row(cls, row):
+        from llm import get_model
+
+        return cls(
+            model=get_model(row["model"]),
+            id=row["id"],
+            name=row["name"],
+        )
+
+    def __repr__(self):
+        count = len(self.responses)
+        s = "s" if count == 1 else ""
+        return f"<{self.__class__.__name__}: {self.id} - {count} response{s}"
+Exit Code: 0

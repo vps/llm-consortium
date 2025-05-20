@@ -1,0 +1,50 @@
+On branch fix/conversations
+Your branch is ahead of 'origin/fix/conversations' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   build/lib/llm_consortium/__init__.py
+	modified:   llm_consortium.egg-info/PKG-INFO
+	modified:   llm_consortium/__init__.py
+	deleted:    llm_consortium/__init__.py.backup
+	modified:   llm_consortium/__pycache__/__init__.cpython-311.pyc
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	IDEAS.md
+	monitor_issue.sh
+	tests/__pycache__/test_llm_consortium.cpython-313.pyc
+
+no changes added to commit (use "git add" and/or "git commit -a")
+  auto-evals
+  feature/n-species
+* fix/conversations
+  main
+  strategies
+<CMD_OUTPUT>On branch fix/conversations
+Your branch is ahead of 'origin/fix/conversations' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   build/lib/llm_consortium/__init__.py
+	modified:   llm_consortium.egg-info/PKG-INFO
+	modified:   llm_consortium/__init__.py
+	deleted:    llm_consortium/__init__.py.backup
+	modified:   llm_consortium/__pycache__/__init__.cpython-311.pyc
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	IDEAS.md
+	monitor_issue.sh
+	tests/__pycache__/test_llm_consortium.cpython-313.pyc
+
+no changes added to commit (use "git add" and/or "git commit -a")
+  auto-evals
+  feature/n-species
+* fix/conversations
+  main
+  strategies</CMD_OUTPUT>

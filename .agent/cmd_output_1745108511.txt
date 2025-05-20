@@ -1,0 +1,173 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+prompt|response
+list the most recent ten entries in my kde clipboard.
+|```bash
+#!/bin/bash
+#
+# kde_clipboard_history.sh - Display recent KDE clipboard entries
+#
+# Description:
+#   This script retrieves and displays the most recent entries from the KDE
+#   clipboard history using the Klipper D-Bus interface.
+#
+# Requirements:
+#   - KDE Plasma desktop environment with Klipper running
+#   - qdbus command-line tool (part of qt5-tools or similar package)
+
+# Enable strict error handling
+set -eo pipefail
+
+# Configuration
+DEFAULT_NUM_ENTRIES=10
+SERVICE="org.kde.klipper"
+PATH_="/klipper"  # Using PATH_ to avoid conflict with environment variable
+INTERFACE="org.kde.klipper.klipper"
+
+# Script options
+num_entries=$DEFAULT_NUM_ENTRIES
+raw_output=false
+
+# Function to display script usage
+function show_usage() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS]
+
+Lists the most recent entries in your KDE clipboard history.
+
+Options:
+  -n, --number NUM   Show NUM most recent entries (default: $DEFAULT_NUM_ENTRIES)
+  -r, --raw          Display raw clipboard content without formatting
+  -h, --help         Show this help message and exit
+EOF
+    exit 0
+}
+
+# Function to check for required dependencies
+function check_dependencies() {
+    if ! command -v qdbus >/dev/null 2>&1; then
+        echo "Error: 'qdbus' command not found."
+        echo "Please install it (usually part of qt5-tools package)."
+        exit 1
+    fi
+}
+
+# Function to check if Klipper is running
+function check_klipper() {
+    # Check if the service exists
+    if ! qdbus | grep -q "^${SERVICE}$"; then
+        echo "Error: KDE Klipper D-Bus service not found."
+        echo "Please ensure that Klipper is running and clipboard history is enabled."
+        exit 1
+    fi
+    
+    # Try accessing the interface and test method
+    if ! qdbus "$SERVICE" "$PATH_" "$INTERFACE.getHistorySize" >/dev/null 2>&1; then
+        echo "Error: Cannot connect to KDE Klipper D-Bus interface."
+        echo "Klipper might be unresponsive or misconfigured."
+        exit 1
+    fi
+}
+
+# Function to display a clipboard entry with proper formatting
+function display_entry() {
+    local index=$1
+    local display_index=$((index + 1))  # Make display index 1-based for user readability
+    local content
+    
+    # Try to get the clipboard content
+    content=$(qdbus "$SERVICE" "$PATH_" "$INTERFACE.getClipboardHistoryItem" "$index" 2>/dev/null || true)
+    
+    # Skip empty entries
+    if [ -z "$content" ]; then
+        return 0
+    fi
+    
+    if $raw_output; then
+        # Just output the raw content without formatting
+        echo "$content"
+    else
+        # Formatted output with colors
+        local max_display_width=80
+        local separator
+        
+        # Create separator line
+        printf -v separator '%*s' "$max_display_width" ''
+        separator=${separator// /-}
+        
+        # Display the entry with a truncation indicator if needed
+        printf "[1;36m[%2d][0m " "$display_index"
+        
+        if [ ${#content} -gt $max_display_width ]; then
+            printf "[1;33m%.*s...[0m
+" "$((max_display_width - 3))" "$content"
+        else
+            printf "[1;33m%s[0m
+" "$content"
+        fi
+        
+        # Separator line in grey
+        printf "[90m%s[0m
+" "$separator"
+    fi
+}
+
+# Parse command-line arguments
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n|--number)
+            if [[ -n "$2" && "$2" =~ ^[1-9][0-9]*$ ]]; then
+                num_entries="$2"
+                shift
+            else
+                echo "Error: --number requires a positive integer argument."
+                exit 1
+            fi
+            ;;
+        -r|--raw)
+            raw_output=true
+            ;;
+        -h|--help)
+            show_usage
+            ;;
+        *)
+            echo "Error: Unknown option: $1"
+            show_usage
+            ;;
+    esac
+    shift
+done
+
+# Main execution
+check_dependencies
+check_klipper
+
+if ! $raw_output; then
+    echo -e "[1;32m===== KDE Clipboard History (Last $num_entries Entries) =====[0m"
+fi
+
+# Get the number of clipboard history items
+history_size=$(qdbus "$SERVICE" "$PATH_" "$INTERFACE.getHistorySize" 2>/dev/null || echo 0)
+
+if [[ "$history_size" -eq 0 ]]; then
+    if ! $raw_output; then
+        echo "No clipboard history entries found."
+    fi
+    exit 0
+fi
+
+# Determine how many entries to show
+entries_to_show=$((history_size < num_entries ? history_size : num_entries))
+
+# Display clipboard entries
+# Note: Klipper history items are 0-indexed, with 0 being the most recent item
+for ((i=0; i<entries_to_show; i++)); do
+    display_entry "$i"
+done
+
+if ! $raw_output; then
+    echo -e "[1;32m====================================================[0m"
+fi
+
+exit 0
+```
+Exit Code: 0

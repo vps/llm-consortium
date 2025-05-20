@@ -1,0 +1,45 @@
+Backup file 'llm_consortium/__init__.py.backup_task2' not found. Recovering llm_consortium/__init__.py by removing line 495 containing the simulated parsing error.
+diff --git a/llm_consortium/__init__.py b/llm_consortium/__init__.py
+index b8cf383..fe58689 100644
+--- a/llm_consortium/__init__.py
++++ b/llm_consortium/__init__.py
+@@ -492,7 +492,6 @@ Please improve your response based on this feedback."""
+             clean_text = re.sub(r"<[^>]+>", "", clean_text).strip()
+             result["clean_text"] = clean_text
+ 
+-        return result
+ 
+ def parse_models(models: List[str], count: int) -> Dict[str, int]:
+     """Parse models and counts from CLI arguments into a dictionary."""
+@@ -578,7 +577,7 @@ class ConsortiumModel(llm.Model):
+                 result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+                 
+             response.response_json = result
+-            return result["synthesis"]["synthesis"]
++            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+ 
+         except Exception as e:
+             logger.exception(f"Consortium execution failed: {e}")
+Stdout/Stderr: Backup file 'llm_consortium/__init__.py.backup_task2' not found. Recovering llm_consortium/__init__.py by removing line 495 containing the simulated parsing error.
+diff --git a/llm_consortium/__init__.py b/llm_consortium/__init__.py
+index b8cf383..fe58689 100644
+--- a/llm_consortium/__init__.py
++++ b/llm_consortium/__init__.py
+@@ -492,7 +492,6 @@ Please improve your response based on this feedback."""
+             clean_text = re.sub(r"<[^>]+>", "", clean_text).strip()
+             result["clean_text"] = clean_text
+ 
+-        return result
+ 
+ def parse_models(models: List[str], count: int) -> Dict[str, int]:
+     """Parse models and counts from CLI arguments into a dictionary."""
+@@ -578,7 +577,7 @@ class ConsortiumModel(llm.Model):
+                 result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+                 
+             response.response_json = result
+-            return result["synthesis"]["synthesis"]
++            clean_synthesis = result["synthesis"].get("synthesis", ""); raw_arbiter = result.get("raw_arbiter_response_final", ""); return clean_synthesis if clean_synthesis else raw_arbiter
+ 
+         except Exception as e:
+             logger.exception(f"Consortium execution failed: {e}")
+Exit Code: 

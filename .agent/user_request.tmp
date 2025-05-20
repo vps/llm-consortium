@@ -1,0 +1,36 @@
+tree -I .venv -I build -I dist
+.
+├── CHANGELOG.md
+├── consortium_id_changes.txt
+├── examples
+│   ├── cfr-example.md
+│   ├── consortium_diagram.md
+│   ├── demo.py
+│   ├── example.md
+│   └── README.md
+├── llm_consortium
+│   ├── arbiter_prompt.xml
+│   ├── __init__.py
+│   ├── iteration_prompt.txt
+│   ├── __pycache__
+│   │   └── __init__.cpython-313.pyc
+│   └── system_prompt.txt
+├── naming-things.png
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+├── tests
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── test_cli.cpython-312-pytest-8.3.4.pyc
+│   │   ├── test_llm_consortium.cpython-312.pyc
+│   │   └── test_llm_consortium.cpython-312-pytest-8.3.4.pyc
+│   ├── test_cli.py
+│   └── test_llm_consortium.py
+├── TODO.md
+└── uv.lock
+
+6 directories, 25 files
+<task>cat /home/thomas/Projects/claude.sh/copilot.md - learn to use copilot in vs code to work on the TODO. Use all of the tools at your disposal - write new tools as needed. ring a bell at each turn. If something is not right, use kdialog to get my help.
+You are operating within a terminal inside vs code alread. take a screenshot to make sure you can you view it. use Ctrl+L to start a new copilot chat or edit session when you have activated or moved to the copilot panel.</task> 

@@ -1,0 +1,11 @@
+Stdout/Stderr: Projects/label-maker/.venv/lib/python3.12/site-packages/llm_consortium/__init__.py
+Projects/label-maker/.venv/lib/python3.12/site-packages/llm_consortium/protocol.py
+Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py
+Projects/llm/plugins/Utilities/llm-consortium/tests/test_llm_consortium.py
+Projects/llm/plugins/Utilities/llm-consortium/tests/__init__.py
+Projects/llm/plugins/Utilities/llm-consortium/tests/test_cli.py
+Projects/llm/plugins/Utilities/llm-consortium/.venv/bin/activate_this.py
+Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/_virtualenv.py
+Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/click_default_group.py
+Projects/llm/plugins/Utilities/llm-consortium/.venv/lib/python3.11/site-packages/six.py
+Exit Code: 0

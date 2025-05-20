@@ -1,0 +1,23 @@
+total 32
+drwxr-xr-x 1 thomas thomas  290 Apr 20 22:07 .
+drwxr-xr-x 1 thomas thomas  382 Apr 21 16:19 ..
+-rw-r--r-- 1 thomas thomas    0 Jan  3 16:40 __init__.py
+drwxr-xr-x 1 thomas thomas  506 Apr 20 22:07 __pycache__
+-rw-r--r-- 1 thomas thomas 4598 Apr 20 22:07 test_arbiter_parsing.py
+-rw-r--r-- 1 thomas thomas 1995 Apr 16 21:36 test_cli.py
+-rw-r--r-- 1 thomas thomas 3081 Apr 20 22:07 test_confidence_parsing.py
+-rw-r--r-- 1 thomas thomas 1938 Apr 20 22:07 test_file_readers.py
+-rw-r--r-- 1 thomas thomas 4791 Apr 18 14:31 test_llm_consortium.py
+-rw-r--r-- 1 thomas thomas 2148 Apr 20 22:07 test_model_parsing.py
+Stdout/Stderr: total 32
+drwxr-xr-x 1 thomas thomas  290 Apr 20 22:07 .
+drwxr-xr-x 1 thomas thomas  382 Apr 21 16:19 ..
+-rw-r--r-- 1 thomas thomas    0 Jan  3 16:40 __init__.py
+drwxr-xr-x 1 thomas thomas  506 Apr 20 22:07 __pycache__
+-rw-r--r-- 1 thomas thomas 4598 Apr 20 22:07 test_arbiter_parsing.py
+-rw-r--r-- 1 thomas thomas 1995 Apr 16 21:36 test_cli.py
+-rw-r--r-- 1 thomas thomas 3081 Apr 20 22:07 test_confidence_parsing.py
+-rw-r--r-- 1 thomas thomas 1938 Apr 20 22:07 test_file_readers.py
+-rw-r--r-- 1 thomas thomas 4791 Apr 18 14:31 test_llm_consortium.py
+-rw-r--r-- 1 thomas thomas 2148 Apr 20 22:07 test_model_parsing.py
+Exit Code: 

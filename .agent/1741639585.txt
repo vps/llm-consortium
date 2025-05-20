@@ -1,0 +1,93 @@
+Stdout/Stderr: # VS Code Copilot Interaction Guide
+
+This guide documents how to interact with VS Code Copilot for code editing and assistance using an agent.
+
+## Key Shortcuts and Commands
+
+1. **Open Copilot Edits**: `Ctrl+Shift+Alt+i`
+   - Opens the main Copilot sidebar interface where you can ask questions and get responses
+
+2. **Focus Copilot Edit Input Box**: `Ctrl+Alt+H` 
+   - Custom keybinding that focuses the edit input box in Copilot's panel
+   - Defined in VS Code's keybindings.json as: `"workbench.panel.chat.view.edits.focus"`
+
+3. **Open Chat**: `Ctrl+Alt+I`
+   - Opens an inline chat interface directly in the editor
+   - Useful for quick questions and edits without switching focus
+
+4. **Command Palette Access**: `Ctrl+Shift+P` then type "Copilot"
+   - Reveals all available vs copilot commands
+
+5. **Accept Suggestions**: `Ctrl+Enter`
+   - Accepts Copilot's edit suggestions
+
+6. Accept Panel Suggestion: `Ctrl+/`
+   - Accepts the panel suggestion at the cursor
+
+## Workflow for Code Editing with Copilot
+
+1. **Opening Copilot Interface**:
+   - Use `Ctrl+Shift+Alt+i` to open the Copilot edits sidebar
+
+2. **Asking for Code Generation**:
+   - Type your request in the Copilot sidebar
+   - Be specific about what you want (language, functionality, etc.)
+   - Example: "Create a JavaScript function to calculate factorial"
+
+3. **Requesting Code Edits**:
+   - Focus the edit input box with `Ctrl+Alt+H`
+   - Describe the changes needed
+   - Example: "Add error handling for negative numbers and improve performance"
+   - Press Enter to submit
+
+4. **Reviewing and Accepting Suggestions**:
+   - Review Copilot's suggested code
+   - Press `Ctrl+Enter` to accept the changes
+   - Save the file with `Ctrl+S` to persist changes
+
+5. **A note from copilot - using slash commands in chat**:
+   You can ask me general programming questions, or chat with the following participants which have specialized expertise and can perform actions:
+
+- @workspace - Ask about your workspace
+	* /explain - Explain how the code in your active editor works
+	* /tests - Generate unit tests for the selected code
+	* /fix - Propose a fix for the problems in the selected code
+	* /new - Scaffold code for a new file or project in a workspace
+	* /newNotebook - Create a new Jupyter Notebook
+	* /setupTests - Set up tests in your project (Experimental)
+- @vscode - Ask questions about VS Code
+	* /search - Generate query parameters for workspace search
+	* /startDebugging - Generate launch config and start debugging in VS Code (Experimental)
+- @terminal - Ask how to do something in the terminal
+	* /explain - Explain something in the terminal
+- @github - Get answers grounded in web search, code search, and your enterprise's knowledge bases
+
+You can also help me understand your question by using the following variables to give me extra context:
+* `#file` - Choose a file in the workspace
+
+To have a great conversation, ask me questions as if I was a real programmer:
+
+* **Show me the code** you want to talk about by having the files open and selecting the most important lines.
+* **Make refinements** by asking me follow-up questions, adding clarifications, providing errors, etc.
+* **Review my suggested code** and tell me about issues or improvements, so I can iterate on it.
+
+
+## Prompt Template for VS Code Copilot Agent
+
+```
+I need help with [TASK_TYPE] in [LANGUAGE/FRAMEWORK]. 
+
+Specifically, I want to [DETAILED_DESCRIPTION_OF_TASK].
+
+The code should include:
+- [REQUIREMENT_1]
+- [REQUIREMENT_2]
+- [REQUIREMENT_3]
+
+Please provide a solution that is:
+- [QUALITY_ATTRIBUTE_1] (e.g., efficient, readable, well-documented)
+- [QUALITY_ATTRIBUTE_2] (e.g., handles edge cases, follows best practices)
+
+If possible, include comments explaining your approach and any important considerations.
+```
+Exit Code: 0

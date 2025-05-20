@@ -1,0 +1,23 @@
+            synthesis = self._synthesize_responses(original_prompt, model_responses)
+            # Check if synthesis failed (returned None)
+            if synthesis is None:
+                logger.error("Arbiter synthesis failed or returned None. Aborting orchestration.")
+                # Try to get the raw response from the failed synthesis attempt if possible
+                raw_response = "No raw response available"
+                if self.iteration_history and hasattr(self.iteration_history[-1], "raw_arbiter_response"):
+                     raw_response = self.iteration_history[-1].raw_arbiter_response or raw_response
+                return {"error": "Arbiter synthesis failed", "raw_arbiter_response_final": raw_response} # Return error dict
+
+            # Ensure synthesis has the required keys to avoid KeyError
+Stdout/Stderr:             synthesis = self._synthesize_responses(original_prompt, model_responses)
+            # Check if synthesis failed (returned None)
+            if synthesis is None:
+                logger.error("Arbiter synthesis failed or returned None. Aborting orchestration.")
+                # Try to get the raw response from the failed synthesis attempt if possible
+                raw_response = "No raw response available"
+                if self.iteration_history and hasattr(self.iteration_history[-1], "raw_arbiter_response"):
+                     raw_response = self.iteration_history[-1].raw_arbiter_response or raw_response
+                return {"error": "Arbiter synthesis failed", "raw_arbiter_response_final": raw_response} # Return error dict
+
+            # Ensure synthesis has the required keys to avoid KeyError
+Exit Code: 

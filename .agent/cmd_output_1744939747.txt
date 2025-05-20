@@ -1,0 +1,65 @@
+Stdout/Stderr: --- Section 1: Orchestrate Method ---
+
+    def orchestrate(self, prompt: str) -> Dict[str, Any]:
+        iteration_count = 0
+        final_result = None
+        original_prompt = prompt
+        # DEEPBLOOM: Prepend conversation history if available
+        history_preamble = ""
+        if history:
+            history_preamble = "Conversation History:
+"
+            for message in history:
+                role = message.get("role", "unknown").capitalize()
+                content = message.get("content", "")
+                history_preamble += f"- {role}: {content}
+"
+            history_preamble += "
+---
+
+"
+
+        # Modify the original_prompt *before* system prompt is added
+        original_prompt = history_preamble + original_prompt
+        # Incorporate system instructions into the user prompt if available.
+        if self.system_prompt:
+            combined_prompt = f"[SYSTEM INSTRUCTIONS]
+{self.system_prompt}
+[/SYSTEM INSTRUCTIONS]
+
+{original_prompt}"
+        else:
+            combined_prompt = original_prompt
+
+        current_prompt = f"""<prompt>
+    <instruction>{combined_prompt}</instruction>
+</prompt>"""
+
+--- Section 2: Execute Method ---
+
+    def execute(self, prompt, stream, response, conversation):
+        """Execute the consortium synchronously"""
+        # Extract conversation history if provided
+        history = None
+        if conversation and hasattr(conversation, "messages") and conversation.messages:
+            history = [
+                {"role": m.actor, "content": m.prompt if m.actor == "user" else m.response}
+                for m in conversation.messages
+                if (m.actor == "user" and m.prompt) or (m.actor == "assistant" and m.response)
+            ]
+
+        try:
+            # Check if a system prompt was provided via --system option
+            if hasattr(prompt, 'system') and prompt.system:
+                # Create a copy of the config with the updated system prompt
+                updated_config = ConsortiumConfig(**self.config.to_dict())
+                updated_config.system_prompt = prompt.system
+                # Create a new orchestrator with the updated config
+                orchestrator = ConsortiumOrchestrator(updated_config)
+                result = orchestrator.orchestrate(prompt.prompt, history=history)
+            else:
+                # Use the default orchestrator with the original config
+                result = self.get_orchestrator().orchestrate(prompt.prompt, history=history)
+                
+            response.response_json = result
+Exit Code: 0

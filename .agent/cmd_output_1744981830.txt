@@ -1,0 +1,122 @@
+Stdout/Stderr: def _get_finish_reason(response_json: Dict[str, Any]) -> Optional[str]:
+    """Extracts and normalizes the finish reason from various LLM response formats."""
+    if not isinstance(response_json, dict): return None
+    reason_keys = ['finish_reason', 'finishReason', 'stop_reason', 'completionReason', 'terminationReason']
+    lower_response = {str(k).lower(): v for k, v in response_json.items()}
+    for key in reason_keys:
+        value = lower_response.get(key.lower())
+        if value is not None:
+            norm_val = str(value).lower().replace("_", "").replace("-","")
+            if "stop" in norm_val: return "stop"
+            if "length" in norm_val: return "length"
+            if "max" in norm_val and ("token" in norm_val or "tok" in norm_val): return "length"
+            if "tool" in norm_val and "call" in norm_val: return "tool_call"
+            if "function" in norm_val and "call" in norm_val: return "tool_call"
+            return norm_val # Return normalized if specific cases don't match
+    return None
+
+def log_response(response, model_identifier: str):
+    """Logs an LLM response to the database and checks for truncation."""
+    logger.debug(f"Logging response for {model_identifier}")
+    try:
+def log_response(response, model_identifier: str):
+    """Logs an LLM response to the database and checks for truncation."""
+    logger.debug(f"Logging response for {model_identifier}")
+    try:
+        db = DatabaseConnection.get_connection()
+        if hasattr(response, 'log_to_db') and callable(response.log_to_db):
+             try: response.log_to_db(db); logger.debug(f"Logged via response.log_to_db for {model_identifier}")
+             except Exception as log_db_err: logger.error(f"Error calling response.log_to_db for {model_identifier}: {log_db_err}")
+        else: logger.warning(f"Response object for {model_identifier} lacks standard log_to_db method.")
+
+        response_data = None
+        if hasattr(response, 'response_json') and response.response_json: response_data = response.response_json
+        elif hasattr(response, 'json') and callable(response.json):
+             try: response_data = response.json()
+             except Exception as json_exc: logger.warning(f"Could not get JSON via response.json() for {model_identifier}: {json_exc}")
+
+        if isinstance(response_data, dict):
+            finish_reason = _get_finish_reason(response_data)
+            if finish_reason == "length": logger.warning(f"Response from {model_identifier} potentially truncated (reason: {finish_reason}).")
+            elif finish_reason: logger.debug(f"Finish reason for {model_identifier}: '{finish_reason}'")
+            else: logger.debug(f"No clear finish reason found for {model_identifier}.")
+        else: logger.debug(f"No response JSON found for {model_identifier}.")
+    except sqlite_utils.db.OperationalError as db_err: logger.error(f"DB locked/operational error logging {model_identifier}: {db_err}")
+    except Exception as e: logger.exception(f"Unexpected error logging response for {model_identifier}: {e}")
+
+
+def _ensure_config_table_exists(db: sqlite_utils.Database):
+    # (Implementation identical)
+    if CONSORTIUM_CONFIG_TABLE not in db.table_names():
+        logger.info(f"Creating table '{CONSORTIUM_CONFIG_TABLE}'"); db[CONSORTIUM_CONFIG_TABLE].create({"name":str, "config":str, "created_at":str}, pk="name")
+def _get_consortium_configs() -> Dict[str, ConsortiumConfig]:
+    # (Implementation identical)
+    cfgs = {};
+    try: db=DatabaseConnection.get_connection(); _ensure_config_table_exists(db)
+    except Exception as e: logger.exception(f"DB connection/table check failed: {e}"); return cfgs # Return empty on DB error
+    try:
+        for row in db[CONSORTIUM_CONFIG_TABLE].rows:
+            try: cfgs[row["name"]] = ConsortiumConfig.from_dict(json.loads(row["config"]))
+            except Exception as e: logger.error(f"Failed load config '{row['name']}': {e}. Skipping.")
+    except Exception as e: logger.exception(f"Failed reading configs table: {e}")
+    return cfgs
+def _save_consortium_config(name: str, config: ConsortiumConfig):
+    # (Implementation identical)
+    try: db=DatabaseConnection.get_connection(); _ensure_config_table_exists(db); db[CONSORTIUM_CONFIG_TABLE].insert({"name":name, "config":config.model_dump_json(indent=2), "created_at":datetime.utcnow().isoformat()+"Z"}, replace=True); logger.info(f"Saved config '{name}'.")
+    except Exception as e: logger.exception(f"Failed save config '{name}': {e}"); raise
+def _remove_consortium_config(name: str) -> bool:
+    # (Implementation identical)
+    try: db=DatabaseConnection.get_connection(); _ensure_config_table_exists(db)
+    except Exception as e: logger.exception(f"DB connection/table check failed for remove: {e}"); return False
+    try:
+        if db[CONSORTIUM_CONFIG_TABLE].get(name): db[CONSORTIUM_CONFIG_TABLE].delete(name); logger.info(f"Removed config '{name}'."); return True
+        else: logger.warning(f"Config '{name}' not found for removal."); return False
+    except Exception as e: logger.exception(f"Failed remove config '{name}': {e}"); return False
+
+from click_default_group import DefaultGroup # Assuming this utility is available
+class DefaultToRunGroup(DefaultGroup): # (Implementation identical)
+    def __init__(self,*a,**kw): super().__init__(*a,default_if_no_args=False,ignore_unknown_options=True,**kw); self.default_cmd_name='run'
+    def resolve_command(self,ctx,args):
+def _get_consortium_configs() -> Dict[str, ConsortiumConfig]:
+    # (Implementation identical)
+    cfgs = {};
+    try: db=DatabaseConnection.get_connection(); _ensure_config_table_exists(db)
+    except Exception as e: logger.exception(f"DB connection/table check failed: {e}"); return cfgs # Return empty on DB error
+    try:
+        for row in db[CONSORTIUM_CONFIG_TABLE].rows:
+            try: cfgs[row["name"]] = ConsortiumConfig.from_dict(json.loads(row["config"]))
+            except Exception as e: logger.error(f"Failed load config '{row['name']}': {e}. Skipping.")
+    except Exception as e: logger.exception(f"Failed reading configs table: {e}")
+    return cfgs
+def _save_consortium_config(name: str, config: ConsortiumConfig):
+    # (Implementation identical)
+    try: db=DatabaseConnection.get_connection(); _ensure_config_table_exists(db); db[CONSORTIUM_CONFIG_TABLE].insert({"name":name, "config":config.model_dump_json(indent=2), "created_at":datetime.utcnow().isoformat()+"Z"}, replace=True); logger.info(f"Saved config '{name}'.")
+    except Exception as e: logger.exception(f"Failed save config '{name}': {e}"); raise
+def _remove_consortium_config(name: str) -> bool:
+--
+        configs = _get_consortium_configs();
+        if not configs: click.echo("No saved consortiums."); return
+        click.echo("--- Saved Consortiums ---")
+        for name, cfg in configs.items(): click.echo(f"
+Name: {name}
+ Models: {cfg.models}
+ Arbiter: {cfg.arbiter}, Strategy: {cfg.strategy_name or 'default'}") # Basic info
+    @consortium.command(name="remove")
+    @click.argument("name")
+    def remove_cmd(name):
+        if not name.strip(): raise click.UsageError("Name empty.")
+        if _remove_consortium_config(name): click.echo(f"Consortium '{name}' removed.")
+        else: raise click.ClickException(f"Consortium '{name}' not found/failed.")
+
+@llm.hookimpl
+def register_models(register): # (Implementation identical)
+    logger.debug("Registering saved consortiums."); configs = _get_consortium_configs()
+    for name, config in configs.items():
+        try: register(ConsortiumModel(config_name=name, config=config))
+        except Exception as e: logger.error(f"Failed register '{name}': {e}")
+    logger.debug(f"Registered {len(configs)} consortiums.")
+
+__all__ = ['ConsortiumOrchestrator', 'ConsortiumConfig', 'create_consortium', 'ConsortiumStrategy', 'IterationContext']
+__version__ = "0.4.0" # Version reflects strategy integration
+logger.info(f"llm_consortium module v{__version__} loaded.")
+Exit Code: 0

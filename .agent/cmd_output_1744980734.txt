@@ -1,0 +1,30 @@
+Stdout/Stderr: warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+DEBUG: ConsortiumModel.prompt called with conversation_id: test-cid
+DEBUG: Retrieved conversation object: <MagicMock name='llm.get_conversation()' id='137704804657168'>
+DEBUG: Conversation messages count: 2
+DEBUG: Prepared history context:
+user: Hello there.
+assistant: Hi! How can I help?
+user: Can you explain quantum tunneling?
+assistant: It's when particles cross a barrier they shouldn't.
+
+---
+
+
+DEBUG: Running orchestrator with final prompt:
+user: Hello there.
+assistant: Hi! How can I help?
+user: Can you explain quantum tunneling?
+assistant: It's when particles cross a barrier they shouldn't.
+
+---
+
+user: Summarize your last answer.
+DEBUG: Adding prompt and response to conversation object.
+DEBUG: Returning llm.Response object: <MagicMock name='llm.Response.fake()' id='137704804414096'>
+.
+----------------------------------------------------------------------
+Ran 1 test in 0.002s
+
+OK
+Exit Code: 0

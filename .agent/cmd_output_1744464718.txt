@@ -1,0 +1,53 @@
+Stdout/Stderr: bing: Processing URL: https://arxiv.org/abs/2305.03111
+bing: Retrieved content from https://arxiv.org/abs/2305.03111
+bing: Converted content to text
+bing: Processing URL: https://github.com/xiyuanzh/awesome-llm-time-series
+bing: Retrieved content from https://github.com/xiyuanzh/awesome-llm-time-series
+bing: Converted content to text
+bing: Processing URL: https://github.com/EshantDazz/ML_FLow_LLM_Monitoring_and_Evaluation
+bing: Retrieved content from https://github.com/EshantDazz/ML_FLow_LLM_Monitoring_and_Evaluation
+bing: Converted content to text
+bing: Processing URL: https://github.com/openai/evals
+bing: Retrieved content from https://github.com/openai/evals
+bing: Converted content to text
+bing: Processing URL: https://github.com/confident-ai/deepeval
+bing: Retrieved content from https://github.com/confident-ai/deepeval
+bing: Converted content to text
+URL: https://arxiv.org/abs/2305.03111
+Relevant Quotes:
+This page describes a new benchmark called BIRD for large-scale database-grounded text-to-SQL tasks, designed to bridge the gap between academic research and real-world applications by focusing on large databases with complex data. The benchmark highlights challenges related to dirty database content and external knowledge, and it shows that even advanced models like ChatGPT struggle with the complexity of the task.
+
+There is no content about "database schema for tracking LLM model evaluations" on the page.
+--------------------------------------------------
+
+URL: https://github.com/xiyuanzh/awesome-llm-time-series
+Relevant Quotes:
+This page is a curated list of research papers, datasets, and models focusing on the application of Large Language Models (LLMs) in time series analysis. It categorizes these resources based on how LLMs are utilized in time series tasks, such as prompting, quantization, aligning, vision-based approaches, and tool integration.
+
+There is no database schema for tracking LLM model evaluations on this page.
+--------------------------------------------------
+
+URL: https://github.com/EshantDazz/ML_FLow_LLM_Monitoring_and_Evaluation
+Relevant Quotes:
+This project provides an MLflow-based framework for monitoring and evaluating Large Language Models (LLMs), offering examples for both real-time response generation and batch evaluation of existing responses. It covers installation, usage, key metrics, and instructions to visualize results using the MLflow UI dashboard.
+
+There is no information available on database schema for tracking LLM model evaluations.
+--------------------------------------------------
+
+URL: https://github.com/openai/evals
+Relevant Quotes:
+Evals is an open-source framework for evaluating large language models (LLMs) with a registry of benchmarks, offering tools to create and run custom evaluations. Users can contribute evaluations which OpenAI may use to improve their models.
+
+**Relevant Passages and Code:**
+
+We provide the option for you to log your eval results to a Snowflake database, if you have one or wish to set one up. For this option, you will further have to specify the `SNOWFLAKE_ACCOUNT`, `SNOWFLAKE_DATABASE`, `SNOWFLAKE_USERNAME`, and `SNOWFLAKE_PASSWORD` environment variables.
+--------------------------------------------------
+
+URL: https://github.com/confident-ai/deepeval
+Relevant Quotes:
+DeepEval is an open-source LLM evaluation framework for unit testing LLM outputs, incorporating metrics such as G-Eval, hallucination, and RAGAS. It integrates with tools like LangChain and LlamaIndex to evaluate RAG pipelines, chatbots, and AI agents, offering features like custom metrics, synthetic datasets, CI/CD integration, and red teaming for safety vulnerabilities.
+
+There is no information on database schema for tracking LLM model evaluations present on the current page.
+--------------------------------------------------
+Summary:
+Exit Code: 0

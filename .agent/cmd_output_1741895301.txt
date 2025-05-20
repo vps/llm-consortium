@@ -1,0 +1,38 @@
+Stdout/Stderr: ./llm_consortium/__init__.py:# Todo: setup continuation models: claude, deepseek etc.
+./llm_consortium/__init__.py:def log_response(response, model):
+./llm_consortium/__init__.py:                logger.warning(f"Response from {model} truncated. Reason: {finish_reason}")
+./llm_consortium/__init__.py:    def __init__(self, synthesis: Dict[str, Any], model_responses: List[Dict[str, Any]]):
+./llm_consortium/__init__.py:class ConsortiumConfig(BaseModel):
+./llm_consortium/__init__.py:    models: Dict[str, int]  # Maps model names to instance counts
+./llm_consortium/__init__.py:        # New: Dictionary to track conversation IDs for each model instance
+./llm_consortium/__init__.py:            "model_responses": model_responses,
+./llm_consortium/__init__.py:                "models_used": self.models,
+./llm_consortium/__init__.py:    def _get_model_responses(self, prompt: str) -> List[Dict[str, Any]]:
+./llm_consortium/__init__.py:            for model, count in self.models.items():
+./llm_consortium/__init__.py:    def _get_model_response(self, model: str, prompt: str, instance: int) -> Dict[str, Any]:
+./llm_consortium/__init__.py:        logger.debug(f"Getting response from model: {model} instance {instance + 1}")
+./llm_consortium/__init__.py:                    "model": model,
+./llm_consortium/__init__.py:                    return {"model": model, "instance": instance + 1, "error": str(e)}
+./llm_consortium/__init__.py:        return {"model": model, "instance": instance + 1, "error": "Rate limit exceeded after retries."}
+./llm_consortium/__init__.py:                f"<model_response>{r['model']}: {r.get('response', 'Error')}</model_response>"
+./llm_consortium/__init__.py:def parse_models(models: List[str], count: int) -> Dict[str, int]:
+./llm_consortium/__init__.py:    for item in models:
+./llm_consortium/__init__.py:class ConsortiumModel(llm.Model):
+./llm_consortium/__init__.py:    def __init__(self, model_id: str, config: ConsortiumConfig):
+./llm_consortium/__init__.py:        return f"Consortium Model: {self.model_id}"
+./llm_consortium/__init__.py:                raise llm.ModelError(f"Failed to initialize consortium: {e}")
+./llm_consortium/__init__.py:            raise llm.ModelError(f"Consortium execution failed: {e}")
+./llm_consortium/__init__.py:    models: list[str],
+./llm_consortium/__init__.py:    - models: list of model names. To specify instance counts, use the format "model:count".
+./llm_consortium/__init__.py:    for m in models:
+./llm_consortium/__init__.py:        logger.debug(f"Models: {', '.join(f'{k}:{v}' for k, v in model_dict.items())}")
+./llm_consortium/__init__.py:        logger.debug(f"Arbiter model: {arbiter}")
+./llm_consortium/__init__.py:        # click.echo(f"System prompt: {system}") # This is printed when we use consortium run, but not when we use a saved consortium model
+./llm_consortium/__init__.py:                click.echo("
+Individual model responses:")
+./llm_consortium/__init__.py:                for response in result["model_responses"]:
+./llm_consortium/__init__.py:                    click.echo(f"
+Model: {response['model']} (Instance {response.get('instance', 1)})")
+./llm_consortium/__init__.py:                click.echo(f"  Models: {', '.join(f'{k}:{v}' for k, v in config.models.items())}")
+./llm_consortium/__init__.py:def register_models(register):
+Exit Code: 0

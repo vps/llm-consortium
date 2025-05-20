@@ -1,0 +1,31 @@
+Stdout/Stderr: # LLM Consortium
+
+## Inspiration
+
+Based on Karpathy's observation:
+
+> "I find that recently I end up using all of the models and all the time. One aspect is the curiosity of who gets what, but the other is that for a lot of problems they have this 'NP Complete' nature to them, where coming up with a solution is significantly harder than verifying a candidate solution. So your best performance will come from just asking all the models, and then getting them to come to a consensus."
+
+This plugin for the `llm` package implements a model consortium system with iterative refinement and response synthesis. It orchestrates multiple language models to collaboratively solve complex problems through structured dialogue, evaluation, and arbitration.
+
+## Core Algorithm Flow
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Get Model Responses]
+    B --> C[Synthesize Responses]
+    C --> D{Check Confidence}
+    D -- Confidence ≥ Threshold --> E[Return Final Result]
+    D -- Confidence < Threshold --> F{Max Iterations Reached?}
+    F -- No --> G[Prepare Next Iteration]
+    G --> B
+    F -- Yes --> E
+```
+
+## Features
+
+- **Multi-Model Orchestration**: Coordinate responses from multiple models in parallel.
+- **Iterative Refinement**: Automatically refine output until a confidence threshold is achieved.
+- **Advanced Arbitration**: Uses a designated arbiter model to synthesize and evaluate responses.
+- **Database Logging**: SQLite-backed logging of all interactions.
+Exit Code: 0

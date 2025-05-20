@@ -1,0 +1,11 @@
+Stdout/Stderr: /home/thomas/Projects/label-maker/.venv/lib/python3.12/site-packages/llm_consortium
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium
+/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/build/lib/llm_consortium
+/home/thomas/Projects/llm/plugins/TODO/web-chat/web/venv/lib/python3.13/site-packages/llm_consortium
+/home/thomas/Projects/llm/plugins/llm-plugin-directory/cloned_repos/irthomasthomas/llm-consortium
+/home/thomas/Projects/llm/plugins/llm-plugin-directory/cloned_repos/irthomasthomas/llm-consortium/build/lib/llm_consortium
+/home/thomas/Projects/llm/plugins/llm-plugin-directory/cloned_repos/irthomasthomas/llm-consortium/build/lib/llm_consortium/llm_consortium
+/home/thomas/Projects/llm/plugins/llm-plugin-directory/cloned_repos/irthomasthomas/llm-consortium/llm_consortium
+/home/thomas/Projects/claude.sh/.artefacts/TESTS/LOGS_DB_MOVE/.venv/lib/python3.11/site-packages/llm_consortium
+Exit Code: 0

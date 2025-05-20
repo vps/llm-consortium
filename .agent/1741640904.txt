@@ -1,0 +1,22 @@
+Stdout/Stderr: total 308
+drwxr-xr-x 1 thomas root      356 Mar 10 20:54 .
+drwxr-xr-x 1 thomas root     1226 Mar  5 16:17 ..
+drwxr-xr-x 1 thomas thomas    910 Mar 10 21:08 .agent
+drwxr-xr-x 1 thomas thomas     42 Feb  1 23:00 build
+-rw-r--r-- 1 thomas thomas    477 Feb 24 02:17 CHANGELOG.md
+-rw-r--r-- 1 thomas thomas   9322 Mar 10 20:54 consortium_id_changes.txt
+drwxr-xr-x 1 thomas thomas    240 Feb 24 02:17 dist
+drwxr-xr-x 1 thomas thomas    122 Mar 10 20:58 examples
+drwxr-xr-x 1 thomas root      182 Mar 10 20:48 .git
+-rw-r--r-- 1 thomas thomas      7 Mar 10 20:32 .gitignore
+-rw-r--r-- 1 thomas root       35 Jan 13 12:26 .GITIGNORE
+drwxr-xr-x 1 thomas root      154 Mar 10 20:46 llm_consortium
+-rw-r--r-- 1 thomas root   214163 Jan  3 16:40 naming-things.png
+-rw-r--r-- 1 thomas thomas    971 Feb  1 23:00 pyproject.toml
+-rw-r--r-- 1 thomas thomas   5348 Feb 24 15:37 README.md
+-rw-r--r-- 1 thomas root       25 Jan  3 16:40 requirements.txt
+drwxr-xr-x 1 thomas root      110 Feb 24 14:24 tests
+-rw-r--r-- 1 thomas thomas    458 Mar 10 21:04 TODO.md
+-rw-r--r-- 1 thomas thomas  51827 Jan  8 19:01 uv.lock
+drwxr-xr-x 1 thomas thomas     86 Jan  8 19:01 .venv
+Exit Code: 0

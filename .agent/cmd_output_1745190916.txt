@@ -1,0 +1,51 @@
+Stdout/Stderr: 
+    if queries and not model_id:
+        # Use -q options to find model with shortest model_id
+        matches = []
+        for model_with_aliases in get_models_with_aliases():
+            if all(model_with_aliases.matches(q) for q in queries):
+                matches.append(model_with_aliases.model.model_id)
+        if not matches:
+            raise click.ClickException(
+                "No model found matching queries {}".format(", ".join(queries))
+            )
+        model_id = min(matches, key=len)
+
+    if schema_multi:
+        schema_input = schema_multi
+
+    schema = resolve_schema_input(db, schema_input, load_template)
+
+    if schema_multi:
+        # Convert that schema into multiple "items" of the same schema
+        schema = multi_schema(schema)
+
+    model_aliases = get_model_aliases()
+
+    def read_prompt():
+        nonlocal prompt, schema
+
+        # Is there extra prompt available on stdin?
+        stdin_prompt = None
+        if not sys.stdin.isatty():
+            stdin_prompt = sys.stdin.read()
+
+        if stdin_prompt:
+            bits = [stdin_prompt]
+            if prompt:
+                bits.append(prompt)
+            prompt = " ".join(bits)
+
+        if (
+            prompt is None
+            and not save
+            and sys.stdin.isatty()
+            and not attachments
+            and not attachment_types
+            and not schema
+            and not fragments
+        ):
+            # Hang waiting for input to stdin (unless --save)
+            prompt = sys.stdin.read()
+        return prompt
+Exit Code: 0

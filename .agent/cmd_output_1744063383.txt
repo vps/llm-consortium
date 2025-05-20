@@ -1,0 +1,22 @@
+Stdout/Stderr: ./llm_consortium/__init__.py:23:# response.response_json
+./llm_consortium/__init__.py:119:        value = lower_response.get(key.lower())
+./llm_consortium/__init__.py:129:        response.log_to_db(db)
+./llm_consortium/__init__.py:133:        if response.response_json:
+./llm_consortium/__init__.py:134:            finish_reason = _get_finish_reason(response.response_json)
+./llm_consortium/__init__.py:268:                    if hasattr(response, 'conversation_id') and response.conversation_id:
+./llm_consortium/__init__.py:269:                        self.conversation_ids[instance_key] = response.conversation_id
+./llm_consortium/__init__.py:560:            response.response_json = result
+./llm_consortium/__init__.py:773:                    click.echo(f"
+Model: {response['model']} (Instance {response.get('instance', 1)})")
+./llm_consortium/__init__.py:774:                    click.echo(f"Confidence: {response.get('confidence', 'N/A')}")
+./llm_consortium/__init__.py:775:                    click.echo(f"Response: {response.get('response', 'Error: ' + response.get('error', 'Unknown error'))}")
+./.venv/lib/python3.11/site-packages/six.py:474:Module_six_moves_urllib_response._moved_attributes = _urllib_response_moved_attributes
+./.venv/lib/python3.11/site-packages/httpcore/_api.py:19:    Sends an HTTP request, returning the response.
+./.venv/lib/python3.11/site-packages/httpcore/_api.py:69:    either use `content = response.read()`, or `for chunk in response.iter_content()`.
+./.venv/lib/python3.11/site-packages/httpcore/_models.py:368:    An HTTP response.
+./.venv/lib/python3.11/site-packages/httpcore/_models.py:384:            status: The HTTP status code of the response. For example `200`.
+./.venv/lib/python3.11/site-packages/httpcore/_models.py:407:                    "Attempted to access 'response.content' on a streaming response. "
+./.venv/lib/python3.11/site-packages/httpcore/_models.py:408:                    "Call 'response.read()' first."
+./.venv/lib/python3.11/site-packages/httpcore/_models.py:412:                    "Attempted to access 'response.content' on a streaming response. "
+./.venv/lib/python3.11/site-packages/httpcore/_models.py:413:                    "Call 'await response.aread()' first."
+Exit Code: 0

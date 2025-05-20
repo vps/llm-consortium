@@ -1,0 +1,43 @@
+total 92
+drwxr-xr-x 1 thomas thomas   382 Apr 21 16:19 .
+drwxr-xr-x 1 thomas root    1400 Apr 21 15:01 ..
+drwxr-xr-x 1 thomas thomas 15390 Apr 21 18:09 .agent
+drwxr-xr-x 1 thomas thomas    42 Apr 20 21:40 build
+-rw-r--r-- 1 thomas thomas   968 Apr 20 22:07 CHANGELOG.md
+-rw-r--r-- 1 thomas thomas  2754 Apr 20 22:07 CONTRIBUTING.md
+drwxr-xr-x 1 thomas thomas   122 Apr 20 22:07 examples
+drwxr-xr-x 1 thomas thomas   168 Apr 21 17:16 .git
+-rw-r--r-- 1 thomas thomas     7 Apr 20 22:07 .gitignore
+-rw-r--r-- 1 thomas thomas    35 Jan 13 12:26 .GITIGNORE
+drwxr-xr-x 1 thomas thomas   210 Apr 21 00:20 llm_consortium
+drwxr-xr-x 1 thomas thomas   160 Apr 21 00:29 llm_consortium.egg-info
+-rwxr-xr-x 1 thomas thomas  2405 Apr 21 17:20 monitor_issue.sh
+-rw-r--r-- 1 thomas thomas   971 Apr 20 22:07 pyproject.toml
+-rw-r--r-- 1 thomas thomas  5343 Apr 20 22:07 README.md
+-rw-r--r-- 1 thomas thomas    34 Apr 20 22:07 requirements.txt
+-rwxr-xr-x 1 thomas thomas   911 Apr 20 22:07 run_tests.sh
+drwxr-xr-x 1 thomas thomas   290 Apr 20 22:07 tests
+-rw-r--r-- 1 thomas thomas 51827 Apr 20 21:40 uv.lock
+drwxr-xr-x 1 thomas thomas    96 Apr 18 13:42 .venv
+Stdout/Stderr: total 92
+drwxr-xr-x 1 thomas thomas   382 Apr 21 16:19 .
+drwxr-xr-x 1 thomas root    1400 Apr 21 15:01 ..
+drwxr-xr-x 1 thomas thomas 15390 Apr 21 18:09 .agent
+drwxr-xr-x 1 thomas thomas    42 Apr 20 21:40 build
+-rw-r--r-- 1 thomas thomas   968 Apr 20 22:07 CHANGELOG.md
+-rw-r--r-- 1 thomas thomas  2754 Apr 20 22:07 CONTRIBUTING.md
+drwxr-xr-x 1 thomas thomas   122 Apr 20 22:07 examples
+drwxr-xr-x 1 thomas thomas   168 Apr 21 17:16 .git
+-rw-r--r-- 1 thomas thomas     7 Apr 20 22:07 .gitignore
+-rw-r--r-- 1 thomas thomas    35 Jan 13 12:26 .GITIGNORE
+drwxr-xr-x 1 thomas thomas   210 Apr 21 00:20 llm_consortium
+drwxr-xr-x 1 thomas thomas   160 Apr 21 00:29 llm_consortium.egg-info
+-rwxr-xr-x 1 thomas thomas  2405 Apr 21 17:20 monitor_issue.sh
+-rw-r--r-- 1 thomas thomas   971 Apr 20 22:07 pyproject.toml
+-rw-r--r-- 1 thomas thomas  5343 Apr 20 22:07 README.md
+-rw-r--r-- 1 thomas thomas    34 Apr 20 22:07 requirements.txt
+-rwxr-xr-x 1 thomas thomas   911 Apr 20 22:07 run_tests.sh
+drwxr-xr-x 1 thomas thomas   290 Apr 20 22:07 tests
+-rw-r--r-- 1 thomas thomas 51827 Apr 20 21:40 uv.lock
+drwxr-xr-x 1 thomas thomas    96 Apr 18 13:42 .venv
+Exit Code: 

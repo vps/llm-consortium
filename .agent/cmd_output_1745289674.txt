@@ -1,0 +1,99 @@
+[INFO] Starting GitHub monitoring with following parameters:
+[INFO]   Mode: issue-comments
+[INFO]   Repository: irthomasthomas/llm-consortium
+[INFO]   Issue: 10
+[INFO]   User filter: irthomasthomas
+[INFO]   Poll interval: 30 seconds
+[INFO]   Fetch count: 100 items maximum
+[INFO] No comments found on issue irthomasthomas/llm-consortium#10 or error fetching. Will monitor for first comment
+[INFO] from 'irthomasthomas'.
+[INFO] Monitoring will begin for new items
+[INFO] from 'irthomasthomas'
+[INFO] newer than marker: 0
+[INFO] Press Ctrl+C to stop monitoring.
+[INFO] New item found! Outputting and updating marker...
+[INFO] New comment by irthomasthomas on issue #10 (2025-04-22T02:41:07Z):
+[INFO] URL: https://github.com/irthomasthomas/llm-consortium/issues/10#issuecomment-2819912802
+--- NEW ITEM ---
+ llm -m qwq-consortium "Simply remember the password 'DOLPHIN'. Say nothing else."
+2025-04-22 03:38:02,491 - llm_consortium - ERROR - Consortium execution failed: argument of type 'NoneType' is not iterable
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 577, in execute
+    result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 208, in orchestrate
+    if "confidence" not in synthesis:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+2025-04-22 03:38:02,491 - llm_consortium - ERROR - Consortium execution failed: argument of type 'NoneType' is not iterable
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 577, in execute
+    result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 208, in orchestrate
+    if "confidence" not in synthesis:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+Error: Consortium execution failed: argument of type 'NoneType' is not iterable
+
+
+When testing this prompt:
+
+llm consortium run -m fast-qwq --arbiter fast-qwq --max-iterations 1 "prompt"
+
+I expect to see only the final parsed synthesis from the arbiter.
+
+
+only if  --raw  or --json flags are passed to run should it return the full arbiter response.
+
+Fix the bug and then verify the behaviour. Try using run with and without --raw flag. Then try running a saved a consortium like llm -m qwq-consortium, which should also output the plain synthesized response.
+Stdout/Stderr: [INFO] Starting GitHub monitoring with following parameters:
+[INFO]   Mode: issue-comments
+[INFO]   Repository: irthomasthomas/llm-consortium
+[INFO]   Issue: 10
+[INFO]   User filter: irthomasthomas
+[INFO]   Poll interval: 30 seconds
+[INFO]   Fetch count: 100 items maximum
+[INFO] No comments found on issue irthomasthomas/llm-consortium#10 or error fetching. Will monitor for first comment
+[INFO] from 'irthomasthomas'.
+[INFO] Monitoring will begin for new items
+[INFO] from 'irthomasthomas'
+[INFO] newer than marker: 0
+[INFO] Press Ctrl+C to stop monitoring.
+[INFO] New item found! Outputting and updating marker...
+[INFO] New comment by irthomasthomas on issue #10 (2025-04-22T02:41:07Z):
+[INFO] URL: https://github.com/irthomasthomas/llm-consortium/issues/10#issuecomment-2819912802
+--- NEW ITEM ---
+ llm -m qwq-consortium "Simply remember the password 'DOLPHIN'. Say nothing else."
+2025-04-22 03:38:02,491 - llm_consortium - ERROR - Consortium execution failed: argument of type 'NoneType' is not iterable
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 577, in execute
+    result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 208, in orchestrate
+    if "confidence" not in synthesis:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+2025-04-22 03:38:02,491 - llm_consortium - ERROR - Consortium execution failed: argument of type 'NoneType' is not iterable
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 577, in execute
+    result = self.get_orchestrator().orchestrate(prompt.prompt, conversation_history=conversation_history)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/.local/share/uv/tools/llm/lib/python3.11/site-packages/llm_consortium/__init__.py", line 208, in orchestrate
+    if "confidence" not in synthesis:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+Error: Consortium execution failed: argument of type 'NoneType' is not iterable
+
+
+When testing this prompt:
+
+llm consortium run -m fast-qwq --arbiter fast-qwq --max-iterations 1 "prompt"
+
+I expect to see only the final parsed synthesis from the arbiter.
+
+
+only if  --raw  or --json flags are passed to run should it return the full arbiter response.
+
+Fix the bug and then verify the behaviour. Try using run with and without --raw flag. Then try running a saved a consortium like llm -m qwq-consortium, which should also output the plain synthesized response.
+Exit Code: 

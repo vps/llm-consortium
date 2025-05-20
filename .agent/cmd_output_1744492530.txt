@@ -1,0 +1,778 @@
+Stdout/Stderr: import click
+import json
+import llm
+import uuid
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime, timezone
+import logging
+import sys 
+import re
+import os
+import pathlib
+import sqlite_utils
+from pydantic import BaseModel, Field
+import time
+import concurrent.futures
+import threading
+
+# --- Database Setup ---
+
+def user_dir() -> pathlib.Path:
+    path = pathlib.Path(click.get_app_dir("io.datasette.llm"))
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+def logs_db_path() -> pathlib.Path:
+    return user_dir() / "logs.db"
+
+# Flag to track if tables have been ensured
+_tables_ensured = False
+_db_lock = threading.Lock() # Lock for ensuring tables safely
+
+def ensure_consortium_tables(db: sqlite_utils.Database):
+    """Create consortium-specific tables and ensure core 'responses' table exists."""
+    global _tables_ensured
+    # Use a lock to prevent race conditions during table creation across threads
+    with _db_lock:
+        if _tables_ensured:
+            return
+
+        logger.debug("Ensuring database tables exist.")
+        
+        # Ensure core 'responses' table exists with columns needed for manual insert
+        db["responses"].create({
+            "id": str, # TEXT UUID PRIMARY KEY
+            "model": str,
+            "prompt": str,
+            "system": str, # Nullable
+            "response": str, # Nullable (e.g., if error occurred before response)
+            "conversation_id": str, # Nullable
+            "datetime_utc": str, # ISO 8601 TEXT
+            "duration_ms": int, # Nullable
+            "response_json": str, # Nullable JSON TEXT
+            # Add other columns if the core llm UI/library absolutely needs them,
+            # but keep it minimal for manual logging.
+            # "prompt_json": str, 
+            # "options_json": str,
+            # "input_tokens": int,
+            # "output_tokens": int, 
+        }, pk="id", if_not_exists=True)
+
+        # Consortium specific tables
+        db["consortium_runs"].create({
+            "run_id": str, # TEXT UUID
+            "start_timestamp": str, # ISO 8601 TEXT
+            "end_timestamp": str, # Nullable
+            "status": str, # 'running', 'completed', 'failed'
+            "original_prompt": str,
+            "consortium_config": str, # JSON TEXT
+            "final_synthesis": str, # Nullable
+            "iterations_performed": int, # Nullable
+            "final_confidence": float, # Nullable
+            "error_message": str, # Nullable
+        }, pk="run_id", if_not_exists=True)
+
+        db["consortium_iterations"].create({
+            "iteration_id": int, # INTEGER AUTOINCREMENT
+            "run_id": str, 
+            "iteration_number": int,
+            "arbiter_response_id": str, # TEXT UUID from responses table, Nullable
+            "arbiter_parsed_confidence": float, # Nullable
+            "arbiter_parsed_needs_iteration": int, # Boolean (0/1), Nullable
+        }, pk="iteration_id", foreign_keys=[
+            ("run_id", "consortium_runs", "run_id"),
+            ("arbiter_response_id", "responses", "id") 
+        ], if_not_exists=True)
+        db["consortium_iterations"].create_index(["run_id", "iteration_number"], unique=True, if_not_exists=True)
+
+        db["consortium_iteration_responses"].create({
+            "iteration_id": int,
+            "response_id": str, # TEXT UUID from responses table
+        }, pk=("iteration_id", "response_id"), foreign_keys=[
+            ("iteration_id", "consortium_iterations", "iteration_id"),
+            ("response_id", "responses", "id") 
+        ], if_not_exists=True)
+        
+        db["consortium_configs"].create({
+            "name": str, "config": str, "created_at": str
+        }, pk="name", defaults={"created_at": "CURRENT_TIMESTAMP"}, if_not_exists=True)
+
+        _tables_ensured = True
+        logger.debug("Database tables ensured.")
+
+
+class DatabaseConnection:
+    _thread_local = threading.local()
+
+    @classmethod
+    def get_connection(cls) -> sqlite_utils.Database:
+        if not hasattr(cls._thread_local, 'db'):
+            db_path = logs_db_path()
+            try:
+                cls._thread_local.db = sqlite_utils.Database(db_path)
+                ensure_consortium_tables(cls._thread_local.db) # Ensure tables on first connection
+            except Exception as e:
+                logger.error(f"Failed to connect to or setup database at {db_path}: {e}")
+                raise
+        return cls._thread_local.db
+
+# --- Logging Setup ---
+def setup_logging() -> None:
+    log_path = user_dir() / "consortium.log"
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setLevel(logging.ERROR)
+    console_handler.setFormatter(formatter)
+    try:
+        file_handler = logging.FileHandler(str(log_path), mode='w')
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(formatter)
+    except Exception as e:
+        print(f"Error setting up file logging: {e}", file=sys.stderr)
+        file_handler = None
+    root_logger = logging.getLogger()
+    if root_logger.hasHandlers(): 
+        root_logger.handlers.clear()
+        root_logger.setLevel(logging.DEBUG)
+        root_logger.addHandler(console_handler)
+    if file_handler:
+        root_logger.addHandler(file_handler)
+        logging.getLogger("llm_consortium").setLevel(logging.DEBUG)
+
+setup_logging()
+logger = logging.getLogger(__name__)
+logger.debug("llm_consortium module loaded, logging configured.")
+
+# --- Utility Functions ---
+
+def _read_prompt_file(filename: str) -> str:
+    try:
+        file_path = pathlib.Path(__file__).parent / filename
+        if not file_path.is_file():
+            logger.error(f"Prompt file not found: {file_path}")
+            return ""
+        with open(file_path, "r") as f: return f.read().strip()
+    except Exception as e:
+        logger.error(f"Error reading prompt file '{filename}': {e}")
+        return ""
+
+def read_stdin_if_not_tty() -> Optional[str]:
+    if not sys.stdin.isatty(): 
+        content = sys.stdin.read()
+        logger.debug(f"Read {len(content)} bytes from stdin.")
+        return content.strip()
+    logger.debug("Stdin is a TTY, not reading.")
+    return None
+
+DEFAULT_SYSTEM_PROMPT = _read_prompt_file("system_prompt.txt")
+ARBITER_PROMPT_TEMPLATE = _read_prompt_file("arbiter_prompt.xml")
+ITERATION_PROMPT_TEMPLATE = _read_prompt_file("iteration_prompt.txt")
+if not ARBITER_PROMPT_TEMPLATE: logger.error("CRITICAL: arbiter_prompt.xml is missing or empty!")
+if not ITERATION_PROMPT_TEMPLATE: logger.error("CRITICAL: iteration_prompt.txt is missing or empty!")
+
+
+def manual_log_response(
+    model_name: str, 
+    prompt_text: str, 
+    response_text: str, 
+    system_prompt: Optional[str] = None,
+    conversation_id: Optional[str] = None,
+    duration_ms: Optional[int] = None,
+    response_json: Optional[Any] = None # Accept dict or other json-serializable
+) -> Optional[str]:
+    """Manually insert a record into the 'responses' table and return its ID."""
+    try:
+        db = DatabaseConnection.get_connection()
+        response_id = str(uuid.uuid4())
+        record = {
+            "id": response_id,
+            "model": model_name,
+            "prompt": prompt_text,
+            "system": system_prompt,
+            "response": response_text,
+            "conversation_id": conversation_id,
+            "datetime_utc": datetime.now(timezone.utc).isoformat(),
+            "duration_ms": duration_ms,
+            # Ensure response_json is stored as a JSON string
+            "response_json": json.dumps(response_json) if response_json is not None else None, 
+        }
+        # Remove keys with None values to avoid inserting NULLs explicitly unless needed
+        record_to_insert = {k: v for k, v in record.items() if v is not None} 
+        
+        db["responses"].insert(record_to_insert, pk="id")
+        logger.debug(f"Manually logged response for '{model_name}'. Response ID: {response_id}")
+        return response_id
+    except Exception as e:
+        # Log the actual record attempted to be inserted for debugging
+        logger.exception(f"Error manually logging response for {model_name}. Record data (approx): {record_to_insert.keys()}. Error: {e}")
+        return None
+
+# --- Core Logic Classes ---
+
+class IterationResult(BaseModel):
+    model: str
+    instance: int
+    response_text: Optional[str] = None
+    confidence: Optional[float] = None
+    conversation_id: Optional[str] = None
+    response_id: Optional[str] = None 
+    prompt_used: Optional[str] = None 
+    duration_ms: Optional[int] = None
+    error: Optional[str] = None
+
+class ArbiterSynthesisResult(BaseModel):
+    synthesis: str = "No synthesis found."
+    confidence: float = 0.0
+    analysis: str = "No analysis found."
+    dissent: str = ""
+    needs_iteration: bool = True
+    refinement_areas: List[str] = Field(default_factory=list)
+    response_id: Optional[str] = None 
+    prompt_used: Optional[str] = None 
+    duration_ms: Optional[int] = None
+    response_json_raw: Optional[Any] = None # Store raw response JSON if available
+    error: Optional[str] = None 
+
+class ConsortiumConfig(BaseModel):
+    models: Dict[str, int] 
+    system_prompt: Optional[str] = None
+    confidence_threshold: float = 0.8
+    max_iterations: int = 3
+    minimum_iterations: int = 1
+    arbiter: Optional[str] = None
+
+    def to_json(self) -> str: return self.model_dump_json()
+    @classmethod
+    def from_json(cls, json_str: str): return cls.model_validate_json(json_str)
+
+class ConsortiumOrchestrator:
+    def __init__(self, config: ConsortiumConfig):
+        self.config = config
+        self.arbiter_model_name = config.arbiter or "claude-3.5-sonnet" 
+        self.conversation_ids: Dict[str, Optional[str]] = {}
+        self.db = DatabaseConnection.get_connection() 
+
+    def orchestrate(self, prompt: str) -> Dict[str, Any]:
+        run_id = str(uuid.uuid4())
+        start_time_iso = datetime.now(timezone.utc).isoformat()
+        start_time_perf = time.perf_counter()
+        logger.info(f"Starting consortium run ID: {run_id}")
+
+        self.db["consortium_runs"].insert({
+            "run_id": run_id, "start_timestamp": start_time_iso, "status": "running",
+            "original_prompt": prompt, "consortium_config": self.config.to_json(),
+        }, pk="run_id")
+
+        iteration_count = 0
+        final_synthesis_result = None
+        all_iteration_contexts = [] 
+        current_prompt_for_models = prompt 
+        if self.config.system_prompt: 
+            current_prompt_for_models = f"[SYSTEM INSTRUCTIONS]
+{self.config.system_prompt}
+[/SYSTEM INSTRUCTIONS]
+
+{prompt}"
+
+        try:
+            while True: 
+                iteration_count += 1
+                logger.debug(f"Starting Iteration {iteration_count} for Run ID: {run_id}")
+                prompt_this_iter = current_prompt_for_models 
+
+                model_responses: List[IterationResult] = self._get_model_responses(prompt_this_iter, run_id, iteration_count)
+                synthesis_result: ArbiterSynthesisResult = self._synthesize_responses(prompt, model_responses, all_iteration_contexts, run_id, iteration_count)
+                iteration_db_id = self._store_iteration_data(run_id, iteration_count, model_responses, synthesis_result)
+                
+                all_iteration_contexts.append({
+                    "iteration_number": iteration_count,
+                    "model_responses": [r.model_dump(exclude_none=True) for r in model_responses], 
+                    "synthesis": synthesis_result.model_dump(exclude_none=True)
+                })
+
+                met_min_iter = iteration_count >= self.config.minimum_iterations
+                met_confidence = synthesis_result.confidence >= self.config.confidence_threshold
+                arbiter_wants_stop = not synthesis_result.needs_iteration
+                
+                if met_min_iter and met_confidence and arbiter_wants_stop:
+                    logger.info(f"Run {run_id} completed: Met criteria at iteration {iteration_count}.")
+                    final_synthesis_result = synthesis_result
+                    break
+                
+                if iteration_count >= self.config.max_iterations:
+                    logger.info(f"Run {run_id} completed: Reached max iterations ({self.config.max_iterations}).")
+                    final_synthesis_result = synthesis_result
+                    break
+
+                logger.debug(f"Run {run_id} preparing for iteration {iteration_count + 1}.")
+                current_prompt_for_models = self._construct_iteration_prompt(prompt, synthesis_result) 
+
+        except Exception as e:
+            logger.exception(f"Error during orchestration for run {run_id}")
+            self.db["consortium_runs"].update(run_id, {"status": "failed", "error_message": str(e), "end_timestamp": datetime.now(timezone.utc).isoformat()}, alter=True) 
+            raise llm.ModelError(f"Consortium run {run_id} failed: {e}") from e
+
+        end_time_iso = datetime.now(timezone.utc).isoformat()
+        total_duration_ms = int((time.perf_counter() - start_time_perf) * 1000)
+        final_synth_text = final_synthesis_result.synthesis if final_synthesis_result else "N/A"
+        final_conf = final_synthesis_result.confidence if final_synthesis_result else None
+
+        self.db["consortium_runs"].update(run_id, {
+            "status": "completed", "end_timestamp": end_time_iso, "iterations_performed": iteration_count,
+            "final_synthesis": final_synth_text, "final_confidence": final_conf,
+        }, alter=True)
+        
+        logger.info(f"Consortium run {run_id} finished successfully in {total_duration_ms}ms.")
+
+        return {
+            "original_prompt": prompt,
+            "synthesis": final_synthesis_result.model_dump(exclude_none=True) if final_synthesis_result else {},
+            "iteration_history": all_iteration_contexts,
+            "metadata": {
+                "run_id": run_id, "models_used": self.config.models, "arbiter": self.arbiter_model_name,
+                "start_timestamp": start_time_iso, "end_timestamp": end_time_iso, "total_time_ms": total_duration_ms,
+                "iteration_count": iteration_count, "confidence_threshold": self.config.confidence_threshold,
+                "max_iterations": self.config.max_iterations, "min_iterations": self.config.minimum_iterations
+            }
+        }
+
+    def _store_iteration_data(self, run_id: str, iteration_number: int, model_responses: List[IterationResult], synthesis_result: ArbiterSynthesisResult) -> int:
+        logger.debug(f"Storing data for Run ID {run_id}, Iteration {iteration_number}")
+        iteration_insert_data = {
+            "run_id": run_id, "iteration_number": iteration_number, "arbiter_response_id": synthesis_result.response_id, 
+            "arbiter_parsed_confidence": synthesis_result.confidence, "arbiter_parsed_needs_iteration": 1 if synthesis_result.needs_iteration else 0,
+        }
+        iteration_insert_data = {k: v for k, v in iteration_insert_data.items() if v is not None}
+        try:
+             iteration_pk = self.db["consortium_iterations"].insert(iteration_insert_data, pk="iteration_id").last_pk
+        except Exception as e:
+            logger.error(f"Failed to insert iteration record for Run {run_id} Iter {iteration_number}: {e}")
+            return -1 
+
+        response_links = [{"iteration_id": iteration_pk, "response_id": resp.response_id} for resp in model_responses if resp.response_id]
+        if response_links:
+            try:
+                 self.db["consortium_iteration_responses"].insert_all(response_links, pk=("iteration_id", "response_id"), ignore=True) 
+                 logger.debug(f"Run {run_id} Iter {iteration_number}: Stored {len(response_links)} links for iter_id {iteration_pk}.")
+            except Exception as e:
+                logger.error(f"Failed to insert response links for Iter ID {iteration_pk}: {e}")
+        else: 
+            logger.warning(f"Run {run_id} Iter {iteration_number}: No valid response IDs found to link.")
+        return iteration_pk 
+
+    def _get_model_responses(self, prompt_for_models: str, run_id: str, iteration_number: int) -> List[IterationResult]:
+        results: List[IterationResult] = []
+        futures = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor: 
+            for model_name, count in self.config.models.items():
+                for i in range(count):
+                    instance_num = i + 1
+                    futures.append(executor.submit(self._get_single_model_response, model_name, prompt_for_models, instance_num, run_id, iteration_number))
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    results.append(future.result())
+                except Exception as exc:
+                    logger.error(f"Run {run_id} Iter {iteration_number}: Error collecting future: {exc}")
+                    results.append(IterationResult(model="Unknown", instance=0, error=str(exc)))
+        logger.debug(f"Run {run_id} Iter {iteration_number}: Collected {len(results)} model responses.")
+        return results
+
+    def _get_single_model_response(self, model_name: str, prompt: str, instance_num: int, run_id: str, iteration_number: int) -> IterationResult:
+        log_prefix = f"Model {model_name} Inst {instance_num} (Run {run_id} Iter {iteration_number})"
+        logger.debug(f"{log_prefix}: Getting response.")
+        attempts = 0
+        max_retries = 2
+        instance_key = f"{model_name}-{instance_num}"
+        start_time = time.perf_counter()
+        
+        while attempts <= max_retries:
+            duration_ms = int((time.perf_counter() - start_time) * 1000) # Capture duration inside loop
+            try:
+                conversation_id = self.conversation_ids.get(instance_key)
+                kwargs_for_prompt = {}
+                if conversation_id is not None: kwargs_for_prompt["conversation_id"] = conversation_id
+                    
+                model_obj = llm.get_model(model_name)
+                api_response = model_obj.prompt(prompt, **kwargs_for_prompt) 
+                duration_ms = int((time.perf_counter() - start_time) * 1000) # Update duration after call
+                
+                new_conv_id = getattr(api_response, 'conversation_id', None)
+                if new_conv_id and new_conv_id != conversation_id:
+                    self.conversation_ids[instance_key] = new_conv_id
+                    logger.debug(f"{log_prefix}: Updated conv ID to {new_conv_id}")
+
+                text = api_response.text()
+                raw_response_json = getattr(api_response, 'response_json', None) # Get raw JSON if possible
+
+                response_db_id = manual_log_response(
+                    model_name=f"{model_name}-inst{instance_num}", prompt_text=prompt, response_text=text,
+                    system_prompt=self.config.system_prompt if iteration_number == 1 else None, 
+                    conversation_id=new_conv_id, duration_ms=duration_ms, response_json=raw_response_json 
+                )
+                if not response_db_id: logger.error(f"{log_prefix}: Failed manual log insert.")
+
+                return IterationResult(
+                    model=model_name, instance=instance_num, response_text=text,
+                    confidence=self._extract_confidence(text), conversation_id=new_conv_id,
+                    response_id=response_db_id, prompt_used=prompt, duration_ms=duration_ms, error=None
+                )
+            except Exception as e:
+                attempts += 1
+                logger.error(f"{log_prefix}: Attempt {attempts} failed after {duration_ms}ms: {e}")
+                if "RateLimitError" in str(e) and attempts <= max_retries:
+                    wait_time = 1.5 ** attempts
+                    logger.warning(f"{log_prefix}: Rate limit. Retrying in {wait_time:.1f}s...")
+                    time.sleep(wait_time)
+                elif attempts > max_retries: 
+                    return IterationResult(model=model_name, instance=instance_num, error=f"Failed after {max_retries + 1} attempts: {e}", duration_ms=duration_ms, prompt_used=prompt)
+                elif attempts <= max_retries:
+                    logger.warning(f"{log_prefix}: Non-rate-limit error, retrying...")
+                    time.sleep(1) 
+                else:
+                    return IterationResult(model=model_name, instance=instance_num, error=str(e), duration_ms=duration_ms, prompt_used=prompt)
+        
+        logger.error(f"{log_prefix}: Exited retry loop unexpectedly.")
+        duration_ms = int((time.perf_counter() - start_time) * 1000)
+        return IterationResult(model=model_name, instance=instance_num, error="Exited retry loop unexpectedly.", duration_ms=duration_ms, prompt_used=prompt)
+
+
+    def _extract_confidence(self, text: str) -> Optional[float]:
+        if not text: return None
+        xml_match = re.search(r"<confidence>\s*(\d*\.?\d+)\s*</confidence>", text, re.IGNORECASE | re.DOTALL)
+        if xml_match:
+            try: 
+                value = float(xml_match.group(1).strip())
+                return value if 0 <= value <= 1 else None
+            except ValueError:
+                pass
+        text_match = re.search(r"confidence\s*[:=]?\s*(\d*\.?\d+)\s*%?", text, re.IGNORECASE)
+        if text_match:
+            try:
+                value = float(text_match.group(1).strip())
+                value = value / 100.0 if value > 1 and value <= 100 else value
+                return value if 0 <= value <= 1 else None
+            except ValueError:
+                pass
+        return None 
+
+    def _construct_iteration_prompt(self, original_prompt: str, last_synthesis: ArbiterSynthesisResult) -> str:
+        logger.debug("Constructing prompt for next model iteration.")
+        if not ITERATION_PROMPT_TEMPLATE: 
+            logger.error("Iteration prompt template missing!")
+            return f"Improve previous response to:
+{original_prompt}" 
+        user_instructions = self.config.system_prompt or ""
+        previous_synthesis_json = json.dumps(last_synthesis.model_dump(exclude_none=True), indent=2)
+        refinement_areas_str = "
+".join(f"- {area}" for area in last_synthesis.refinement_areas) or "No specific refinement areas."
+        try:
+            return ITERATION_PROMPT_TEMPLATE.format(original_prompt=original_prompt, previous_synthesis=previous_synthesis_json, user_instructions=user_instructions, refinement_areas=refinement_areas_str)
+        except Exception as e:
+            logger.error(f"Error formatting iteration prompt: {e}. Using fallback.")
+            return f"Refine response for:
+{original_prompt}
+Feedback:
+{previous_synthesis_json}"
+
+    def _format_history_for_arbiter(self, history: List[Dict[str, Any]]) -> str:
+        if not history: return "<no_previous_iterations />"
+        formatted_history = []
+        for iter_ctx in history:
+            iter_num = iter_ctx.get('iteration_number', 'N/A')
+            synth = iter_ctx.get('synthesis', {})
+            model_resps = iter_ctx.get('model_responses', [])
+            model_resp_str = "
+".join(f"<resp model=\"{r.get('model', '?')}\" instance=\"{r.get('instance', 1)}\">{r.get('response_text', r.get('error', 'Error'))}</resp>" for r in model_resps)
+            ref_areas_str = "
+".join(f"<area>{area}</area>" for area in synth.get('refinement_areas', [])) or "No refinement areas."
+            formatted_history.append(f"<iteration num=\"{iter_num}\">
+<model_responses>{model_resp_str}</model_responses>
+<arbiter_feedback><confidence>{synth.get('confidence', 'N/A')}</confidence><needs_iter>{synth.get('needs_iteration', 'N/A')}</needs_iter><refinement>{ref_areas_str}</refinement></arbiter_feedback>
+</iteration>")
+        return "
+".join(formatted_history)
+
+    def _format_responses_for_arbiter(self, responses: List[IterationResult]) -> str:
+        formatted = []
+        for r in responses:
+            response_content = r.response_text if r.response_text else f"Error: {r.error}"
+            formatted.append(f"<model_response>
+ <model>{r.model}</model>
+ <instance>{r.instance}</instance>
+ <confidence>{r.confidence if r.confidence is not None else 'N/A'}</confidence>
+ <response>{response_content}</response>
+</model_response>")
+        return "
+".join(formatted)
+
+    def _synthesize_responses(self, original_prompt: str, current_model_responses: List[IterationResult], iteration_history: List[Dict[str, Any]], run_id: str, iteration_number: int) -> ArbiterSynthesisResult:
+        log_prefix = f"Arbiter ({self.arbiter_model_name}) (Run {run_id} Iter {iteration_number})"
+        logger.debug(f"{log_prefix}: Synthesizing.")
+        start_time = time.perf_counter()
+        if not ARBITER_PROMPT_TEMPLATE:
+            logger.error("Arbiter prompt template missing!")
+            return ArbiterSynthesisResult(error="Arbiter template missing.", needs_iteration=False) 
+        arbiter_model = llm.get_model(self.arbiter_model_name)
+        formatted_history = self._format_history_for_arbiter(iteration_history)
+        formatted_responses = self._format_responses_for_arbiter(current_model_responses)
+        user_instructions = self.config.system_prompt or ""
+        try:
+            arbiter_prompt_text = ARBITER_PROMPT_TEMPLATE.format(original_prompt=original_prompt, formatted_responses=formatted_responses, formatted_history=formatted_history, user_instructions=user_instructions)
+            logger.debug(f"{log_prefix}: Arbiter prompt ready.")
+        except Exception as e:
+            error_msg = f"Arbiter prompt format error: {e}"
+            logger.error(error_msg)
+            return ArbiterSynthesisResult(error=error_msg, needs_iteration=False)
+
+        try:
+            logger.debug(f"{log_prefix}: Sending prompt to arbiter.")
+            api_response = arbiter_model.prompt(arbiter_prompt_text)
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            logger.debug(f"{log_prefix}: Received response in {duration_ms}ms.")
+            arbiter_response_text = api_response.text()
+            raw_response_json = getattr(api_response, 'response_json', None)
+            arbiter_response_db_id = manual_log_response(model_name=f"Arbiter-{self.arbiter_model_name}", prompt_text=arbiter_prompt_text, response_text=arbiter_response_text, duration_ms=duration_ms, response_json=raw_response_json)
+            if not arbiter_response_db_id: logger.error(f"{log_prefix}: Failed manual log insert for arbiter.")
+
+            parsed_result = self._parse_arbiter_response(arbiter_response_text)
+            parsed_result.response_id = arbiter_response_db_id
+            parsed_result.prompt_used = arbiter_prompt_text
+            parsed_result.duration_ms = duration_ms
+            parsed_result.response_json_raw = raw_response_json
+            logger.debug(f"{log_prefix}: Parsed arbiter response.")
+            return parsed_result
+        except Exception as e:
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            logger.exception(f"{log_prefix}: Error after {duration_ms}ms: {e}")
+            return ArbiterSynthesisResult(error=str(e), needs_iteration=False, duration_ms=duration_ms, prompt_used=arbiter_prompt_text) 
+
+    def _parse_arbiter_response(self, text: str) -> ArbiterSynthesisResult:
+        logger.debug("Parsing arbiter response text.")
+        result = ArbiterSynthesisResult() 
+        patterns = {"synthesis": r"<synthesis>([sS]*?)</synthesis>", "confidence": r"<confidence>\s*(\d*\.?\d+)\s*</confidence>", "analysis": r"<analysis>([sS]*?)</analysis>", "dissent": r"<dissent>([sS]*?)</dissent>", "needs_iteration": r"<needs_iteration>\s*(true|false)\s*</needs_iteration>", "refinement_areas": r"<refinement_areas>([sS]*?)</refinement_areas>"}
+        for key, pattern in patterns.items():
+            match = re.search(pattern, text, re.IGNORECASE | re.DOTALL)
+            if match:
+                content = match.group(1).strip()
+                try:
+                    if key == "confidence": result.confidence = float(content)
+                    elif key == "needs_iteration": result.needs_iteration = content.lower() == "true"
+                    elif key == "refinement_areas":
+                        area_matches = re.findall(r"<area>([^<]+)</area>", content, re.IGNORECASE | re.DOTALL)
+                        result.refinement_areas = [a.strip() for a in area_matches if a.strip()] or ([a.strip().lstrip('- ') for a in content.split("
+") if a.strip()] if content else [])
+                    else: setattr(result, key, content)
+                except Exception as e: logger.warning(f"Error parsing arbiter field '{key}': {e}")
+            elif key in ["synthesis", "confidence", "needs_iteration"]: logger.warning(f"Mandatory tag '{key}' missing in arbiter response.")
+            else: logger.debug(f"Optional tag '{key}' not found.")
+        return result
+
+# --- Saved Consortium Model ---
+
+class ConsortiumModel(llm.Model):
+    can_stream = False 
+    class Options(llm.Options):
+        confidence_threshold: Optional[float]=None
+        max_iterations: Optional[int]=None
+        minimum_iterations: Optional[int]=None
+        system_prompt: Optional[str]=None
+    def __init__(self, model_id: str, config: ConsortiumConfig): 
+        self.model_id = model_id
+        self.saved_config = config 
+    def __str__(self):
+        return f"Consortium Model: {self.model_id}"
+    def execute(self, prompt: llm.Prompt, stream, response: llm.Response, conversation):
+        run_id = str(uuid.uuid4())
+        start_time = time.perf_counter()
+        logger.info(f"Executing saved consortium '{self.model_id}' Run ID: {run_id}")
+        current_config = self.saved_config.model_copy(deep=True)
+        options_dict = prompt.options.model_dump(exclude_unset=True) if hasattr(prompt, 'options') and prompt.options else {}
+        current_config.confidence_threshold = options_dict.get('confidence_threshold', current_config.confidence_threshold)
+        current_config.max_iterations = options_dict.get('max_iterations', current_config.max_iterations)
+        current_config.minimum_iterations = options_dict.get('minimum_iterations', current_config.minimum_iterations)
+        current_config.system_prompt = options_dict.get('system_prompt', current_config.system_prompt)
+        if prompt.system: current_config.system_prompt = prompt.system
+        logger.debug(f"Effective config run {run_id}: {current_config.model_dump(exclude_none=True)}")
+        try:
+            orchestrator = ConsortiumOrchestrator(current_config)
+            result_payload = orchestrator.orchestrate(prompt.prompt, consortium_id=run_id) 
+            duration_ms = int((time.perf_counter() - start_time) * 1000)
+            final_synthesis_text = result_payload.get("synthesis", {}).get("synthesis", "N/A")
+            overall_response_id = manual_log_response(model_name=self.model_id, prompt_text=prompt.prompt, system_prompt=current_config.system_prompt, response_text=final_synthesis_text, duration_ms=duration_ms, response_json=result_payload)
+            logger.debug(f"Logged overall execution '{self.model_id}' resp ID {overall_response_id} (Run {run_id})")
+            # We don't populate the passed 'response' object's fields directly here, 
+            # manual_log_response handles the DB insert. The return value is what matters.
+            return final_synthesis_text
+        except Exception as e:
+            logger.exception(f"Consortium execute failed for '{self.model_id}' Run {run_id}")
+            raise llm.ModelError(f"Consortium failed: {e}")
+
+# --- Configuration Management ---
+
+def _get_consortium_configs() -> Dict[str, ConsortiumConfig]:
+    try:
+        db = DatabaseConnection.get_connection()
+        configs = {}
+        if "consortium_configs" in db.table_names():
+            for row in db["consortium_configs"].rows:
+                try: configs[row["name"]] = ConsortiumConfig.from_json(row["config"])
+                except Exception as e: logger.error(f"Error loading config '{row['name']}': {e}")
+        else: logger.warning("Table 'consortium_configs' not found.")
+        return configs
+    except Exception as e:
+        logger.error(f"Failed loading configs: {e}")
+        return {}
+
+def _save_consortium_config(name: str, config: ConsortiumConfig) -> None:
+    db = DatabaseConnection.get_connection()
+    db["consortium_configs"].insert({"name": name, "config": config.to_json()}, pk="name", replace=True)
+    logger.info(f"Saved consortium '{name}'.")
+
+# --- CLI Commands ---
+
+from click_default_group import DefaultGroup
+class DefaultToRunGroup(DefaultGroup):
+     def __init__(self, *args, **kwargs):
+        kwargs.setdefault('default_if_no_args', True)
+        kwargs.setdefault('default', 'run')
+        super().__init__(*args, **kwargs)
+
+@llm.hookimpl
+def register_commands(cli):
+    @cli.group(cls=DefaultToRunGroup, default='run', default_if_no_args=True)
+    def consortium(): """Manage and run LLM Consortiums."""
+    @consortium.command(name="run")
+    @click.argument("prompt", required=False)
+    @click.option("-m", "--model", "models", multiple=True, help="Model & count ('name:count').", default=["claude-3.5-sonnet:1"])
+    @click.option("--arbiter", help="Arbiter model.", default="claude-3.5-sonnet")
+    @click.option("--confidence-threshold", type=click.FloatRange(0, 1), default=0.8)
+    @click.option("--max-iterations", type=int, default=3)
+    @click.option("--min-iterations", type=int, default=1)
+    @click.option("--system", help="System prompt override.")
+    @click.option("--output", type=click.Path(dir_okay=False, writable=True), help="Save full JSON results.")
+    @click.option("--stdin/--no-stdin", default=True, help="Read extra input from stdin.")
+    @click.option("--raw", is_flag=True, help="Output detailed execution trace (JSON).")
+    def run_command(prompt, models, arbiter, confidence_threshold, max_iterations, min_iterations, system, output, stdin, raw):
+        """Run a prompt through a new consortium."""
+        model_dict = {}
+        for m_spec in models:
+            parts=m_spec.split(':',1)
+            name=parts[0]
+            count=1
+            if len(parts)==2: 
+                 try: 
+                     count=int(parts[1])
+                     assert count >= 1
+                 except (ValueError,AssertionError):
+                     raise click.ClickException(f"Invalid count:'{m_spec}'")
+            model_dict[name]=count
+        cli_prompt=prompt
+        final_prompt=None
+        if not cli_prompt and stdin:
+            final_prompt=read_stdin_if_not_tty()
+            assert final_prompt,"No prompt."
+        elif cli_prompt:
+            final_prompt=cli_prompt
+            final_prompt = f"{final_prompt}
+
+{stdin_content}" if stdin and (stdin_content := read_stdin_if_not_tty()) else final_prompt
+        else:
+            raise click.UsageError("No prompt.")
+        config = ConsortiumConfig(models=model_dict, arbiter=arbiter, system_prompt=system, confidence_threshold=confidence_threshold, max_iterations=max_iterations, minimum_iterations=min_iterations)
+        orchestrator = ConsortiumOrchestrator(config)
+        try:
+            result_payload = orchestrator.orchestrate(final_prompt) 
+            if output:
+                try:
+                    with open(output,'w') as f:
+                        json.dump(result_payload,f,indent=2)
+                        logger.info(f"Results saved: {output}")
+                except Exception as e:
+                    logger.error(f"Failed writing output: {e}")
+            final_synthesis = result_payload.get("synthesis", {}).get("synthesis", "No synthesis found.")
+            click.echo(final_synthesis)
+            if raw:
+                click.echo("
+--- Execution Trace ---
+" + json.dumps(result_payload, indent=2)) 
+        except Exception as e:
+            logger.exception("Run command failed.")
+            raise click.ClickException(f"Failed: {e}")
+
+    @consortium.command() 
+    @click.argument("name")
+    @click.option("-m","--model","models",multiple=True,required=True,help="Model&count('name:count').")
+    @click.option("--arbiter",required=True)
+    @click.option("--confidence-threshold",type=click.FloatRange(0,1),default=0.8)
+    @click.option("--max-iterations",type=int,default=3)
+    @click.option("--min-iterations",type=int,default=1)
+    @click.option("--system",help="System prompt.")
+    def save(name, models, arbiter, confidence_threshold, max_iterations, min_iterations, system):
+        """Save consortium settings."""
+        model_dict = {}
+        for m_spec in models: 
+            parts=m_spec.split(':',1)
+            name_part=parts[0]
+            count=1
+            if len(parts)==2: 
+                try:
+                    count=int(parts[1])
+                    assert count >= 1
+                except Exception: 
+                    raise click.ClickException(f"Invalid count: {m_spec}")
+            model_dict[name_part]=count
+        if not model_dict:
+            raise click.ClickException("No models.")
+        config = ConsortiumConfig(models=model_dict, arbiter=arbiter, system_prompt=system, confidence_threshold=confidence_threshold, max_iterations=max_iterations, minimum_iterations=min_iterations)
+        try:
+            _save_consortium_config(name, config)
+            click.echo(f"Consortium '{name}' saved.")
+        except Exception as e:
+            raise click.ClickException(f"Save failed: {e}")
+
+    @consortium.command("list")
+    def list_configs(): 
+        """List saved consortiums."""
+        configs = _get_consortium_configs()
+        if not configs:
+            click.echo("No saved consortiums.")
+            return
+        click.echo("Saved Consortiums:") 
+        for name, cfg in configs.items():
+            click.echo(f"- {name}: Arbiter={cfg.arbiter}, Models={cfg.models}, Conf={cfg.confidence_threshold:.2f}, Iter={cfg.minimum_iterations}-{cfg.max_iterations}")
+
+    @consortium.command()
+    @click.argument("name")
+    def remove(name):
+        """Remove a saved consortium."""
+        try:
+            db = DatabaseConnection.get_connection()
+            if "consortium_configs" not in db.table_names():
+                raise click.ClickException("Config table missing.")
+            count = db["consortium_configs"].delete_where("name = ?", [name])
+            if count > 0:
+                click.echo(f"Consortium '{name}' removed.")
+            else:
+                raise click.ClickException(f"Consortium '{name}' not found.")
+        except Exception as e:
+            logger.error(f"Failed remove '{name}': {e}")
+            raise click.ClickException(f"Remove failed: {e}")
+
+@llm.hookimpl
+def register_models(register):
+    """Register saved consortiums as callable models."""
+    logger.debug("Registering saved consortium models.")
+    configs = _get_consortium_configs()
+    for name, config in configs.items():
+        try: 
+            register(ConsortiumModel(name, config), aliases=(name,))
+            logger.debug(f"Registered: {name}")
+        except Exception as e:
+            logger.error(f"Failed register '{name}': {e}")
+
+# --- Plugin Metadata ---
+class LLMConsortiumPlugin:
+    __version__ = "0.6.0" # Manual logging implementation
+    logger.debug("llm_consortium module init complete.")
+    __all__ = [ 'ConsortiumOrchestrator', 'ConsortiumConfig', 'ConsortiumModel', 'register_commands', 'register_models' ]
+Exit Code: 0

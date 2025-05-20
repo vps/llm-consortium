@@ -1,0 +1,22 @@
+Stdout/Stderr:                 raise llm.ModelError(f"Failed to initialize consortium: {e}")
+        return self._orchestrator
+
+        # --- DEEPBLOOM DEBUG START ---
+        print(f"DEBUG Execute - Received conversation object: {repr(conversation)}")
+        has_messages_attr = hasattr(conversation, "messages")
+        print(f"DEBUG Execute - Has .messages attribute: {has_messages_attr}")
+        if has_messages_attr:
+            try:
+                messages_content = conversation.messages
+                print(f"DEBUG Execute - conversation.messages content (first 500 chars): {str(messages_content)[:500]}")
+                print(f"DEBUG Execute - conversation.messages length: {len(messages_content) if messages_content is not None else None}")
+            except Exception as e:
+                print(f"DEBUG Execute - Error accessing conversation.messages: {e}")
+        # --- DEEPBLOOM DEBUG END ---
+    def execute(self, prompt, stream, response, conversation):
+        """Execute the consortium synchronously"""
+        # Extract conversation history if provided
+        history = None
+        if conversation and hasattr(conversation, "messages") and conversation.messages:
+            history = [
+Exit Code: 0

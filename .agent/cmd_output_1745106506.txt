@@ -1,0 +1,64 @@
+Stdout/Stderr: -- Loading resources from /home/thomas/.sqliterc
+id|model|SUBSTR(prompt, 1, 300)
+01jjwzpe00k9wh7nfb4d7y5mtw|gbloom|<agent_log># 2025-01-31T00:55:53    conversation: 01jjwxpy8zt190w31zpwr7t3ph
+
+Model: **anthropic/claude-3-5-sonnet-latest**
+
+## Prompt:
+
+-p=total 1.8G
+-rw-r--r-- 1 thomas thomas 3.5M Jan 31 00:55 asciinema-50KPROMPTS-2025-01-30
+drwxr-xr-x 1 thomas thomas  246 Jan 31 00:52 .
+-rw-r--r-- 1 thomas thoma
+01jjx817j38x6vz8ta1za00yw4|bigdogs|<documents>
+<document index="1">
+<source>/home/thomas/Projects/fewshot.txt</source>
+<document_content>
+<documents>
+<document index="1">
+<source>pyproject.toml</source>
+<document_content>
+[project]
+name = "llm-gemini"
+version = "0.9"
+description = "LLM plugin to access Google's Gemini family of model
+01jjydptrxc1mw6rc4662h3156|gbloom|<documents>
+<document index="1">
+<source>llm_anthropic.py</source>
+<document_content>
+from anthropic import Anthropic, AsyncAnthropic
+import llm
+from pydantic import Field, field_validator, model_validator
+from typing import Optional, List
+
+
+@llm.hookimpl
+def register_models(register):
+    # https:/
+01jjyf3w8cr5tdyrsx1pb0kx4n|gbloom|<documents>
+<document index="1">
+<source>llm_anthropic.py</source>
+<document_content>
+from anthropic import Anthropic, AsyncAnthropic
+import llm
+from pydantic import Field, field_validator, model_validator
+from typing import Optional, List
+
+
+@llm.hookimpl
+def register_models(register):
+    # https:/
+01jk2a493k5thz8513e9525hdn|bigdogs|<documents>
+<document index="1">
+<source>/home/thomas/Projects/claude.sh/agent.sh</source>
+<document_content>
+#!/bin/zsh
+
+calculate_difficulty_score() {
+    local class="$1"
+    local score="$2"
+    local difficulty_score=0
+
+    if [[ "$class" == "simple" ]]; then
+        difficulty_score=$((score *
+Exit Code: 0

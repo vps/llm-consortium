@@ -1,0 +1,22 @@
+Stdout/Stderr: warning: No `requires-python` value found in the workspace. Defaulting to `>=3.11`.
+E
+======================================================================
+ERROR: test_llm_consortium (unittest.loader._FailedTest.test_llm_consortium)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_llm_consortium
+Traceback (most recent call last):
+  File "/home/thomas/.local/share/uv/python/cpython-3.11.7-linux-x86_64-gnu/lib/python3.11/unittest/loader.py", line 162, in loadTestsFromName
+    module = __import__(module_name)
+             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/tests/test_llm_consortium.py", line 3, in <module>
+    import llm_consortium.plugin
+  File "/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/plugin.py", line 9, in <module>
+    from . import ConsortiumOrchestrator, ConsortiumConfig, get_default_system_prompt
+ImportError: cannot import name 'ConsortiumOrchestrator' from 'llm_consortium' (/home/thomas/Projects/llm/plugins/Utilities/llm-consortium/llm_consortium/__init__.py)
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+Exit Code: 0

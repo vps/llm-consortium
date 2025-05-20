@@ -1,0 +1,44 @@
+Stdout/Stderr: 854:class Model(_Model):
+855-    @abstractmethod
+856-    def execute(
+857-        self,
+858-        prompt: Prompt,
+859-        stream: bool,
+860-        response: Response,
+861-        conversation: Optional[Conversation],
+862-    ) -> Iterator[str]:
+863-        pass
+864-
+865-
+866-class KeyModel(_Model):
+867-    @abstractmethod
+868-    def execute(
+869-        self,
+870-        prompt: Prompt,
+871-        stream: bool,
+872-        response: Response,
+873-        conversation: Optional[Conversation],
+874-        key: Optional[str],
+--
+1001:class ModelWithAliases:
+1002-    model: Model
+1003-    async_model: AsyncModel
+1004-    aliases: Set[str]
+1005-
+1006-    def matches(self, query: str) -> bool:
+1007-        query = query.lower()
+1008-        all_strings: List[str] = []
+1009-        all_strings.extend(self.aliases)
+1010-        if self.model:
+1011-            all_strings.append(str(self.model))
+1012-        if self.async_model:
+1013-            all_strings.append(str(self.async_model.model_id))
+1014-        return any(query in alias.lower() for alias in all_strings)
+1015-
+1016-
+1017-@dataclass
+1018-class EmbeddingModelWithAliases:
+1019-    model: EmbeddingModel
+1020-    aliases: Set[str]
+1021-
+Exit Code: 0
