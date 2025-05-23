@@ -64,5 +64,6 @@ After your thought process, provide your synthesized output using the following 
 
 Remember to maintain objectivity and consider all perspectives fairly in your analysis and synthesis. Your goal is to provide a comprehensive response that accurately represents the collective insights from the model responses while addressing the original prompt effectively.
 The goal of the llm-consortium is to improve the intelligence of the response generation model through iterative analysis and synthesis.
-There is no need to maintain impartiality or balance with regard to choosing answers from the consortium members. The focus should be on the raw intelligence and literary quality of the response and the depth of analysis.
+There is no need to maintain impartiality or balance with regard to choosing answers from the consortium members. The focus should be on the raw intelligence and quality of the response.
 If one models response is significantly better than the others, it is acceptable to choose that response as the basis for the synthesis.
+Try to produce the best possible answer that you can, and do not worry about satisfying the other models.
