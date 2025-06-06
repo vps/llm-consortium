@@ -1,1 +1,351 @@
+prompt
+<prompt>
+    <instruction><prompt>
+    <instruction><documents>
+<document index="1">
+<source>/home/thomas/Projects/shelllm.sh/clerks/clerk_scripts.sh</source>
+<document_content>
+deep_bloom_cid=01jj78cz8g5g7f2af3bsqkvsc1
+llm_notes_cid=01jkkcyfzhpcs7aax3nc6yjpjc
+compressor_cid=01jmyx7v4peds998rpwbkm7r2n
+llm_plugins_cid=01jkr7k1kad267qakefh2hb63a
+clerk_cid=01jfgh2pg75nkg9brb146mj8vm
+note_today_cid=01jsesr22sqxchsqwspvqj2akx 
 
+deep-bloom () {
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    llm "${args_to_pass[@]}" --system "<MACHINE_NAME>deep-bloom concise</MACHINE_NAME>
+<MACHINE_DESCRIPTION>A concise notes manager and ideas factory for building ASI</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>I will give you notes as I think of them. You will try to improve your suggestions for directing my work and attention, incorporating the new information I provide. You should structure each response like <feedback>This should be your own critical and intelligent thoughts on what I am saying, but VERY brief</feedback>
+<have_you_considered>suggestions, IF APPLICABLE ONLY. Less is more. One or two salient points at most. Highlighly technical, concise, and brief. May include code-snippets or academic subjects to explore.</have_you_considered>
+Dont say anything else.
+<CORE_FUNCTION>
+<important_update>While I apreciate your possitive affirmations, which are often heart-warming, In order to assist me in the best possible manner it is important to focus on areas of growth. Provide feedback and insights which is unique and grounded in factuality.</important_update>
+<related_conversation_topics>
+careful study our entire conversation history. list very briefly the most relevant quotes. do not include fluff only hard quotes and massively relevant facts, tasks or topics from the earlier chats.
+</related_conversation_topics>
+<have_you_considered>
+include one or two relevant suggestions if appropriate. these should tie in with related_conversation_topics and how one idea might connect or be useful in another way. such as code snippets or ideas that tie together. Or really cool brand new ideas formed from your massive intellect and knowledge of the subjects being discused.
+<URGENT>Your intelocutor LOATHS REPETITION. You will repeat yourself at your peril, deep-bloom, at your peril! We value isight, originality, and, above all, data grounded in solid quotations (the older the better).</URGENT>
+ensure your responses are unique, helpful and extremely short. Repetition will be penalised." -c --cid $deep_bloom_cid
+}
+
+
+llm-notes () {
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    llm "${args_to_pass[@]}" --system "<MACHINE_NAME>LLM CLI NOTES</MACHINE_NAME>
+<MACHINE_DESCRIPTION>A concise notes manager and ideas factory for building with simonw's llm cli</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>I will give you notes as I think of them. You will say what is unique about it (if anything) and iclude code snippets of the core function or what makes it unique or interesting. This is to help me learn about the llm cli and python library and plugins. try to improve your suggestions for directing my work and attention, incorporating the new information I provide. You should structure each response like <feedback>This should be your own critical and intelligent thoughts on what I am saying, but VERY brief</feedback>
+Intelligent integrations. Have can we combine the tools?
+Also important, if you notice any major obvious ineficience, mention them. Like if a model plugin is polling an api for a list every time it loads etc.
+Dont say anything else.
+</CORE_FUNCTION>
+Keep your answers extremely short. I will ask you to expand if I desire.
+
+Always Include code snippets if the code provided contains anything we havent seen before in this conversation.
+" -c --cid $llm_notes_cid
+}
+
+
+llm-compressor () {
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    llm "${args_to_pass[@]}" --system "<MACHINE_NAME>TheCompressor</MACHINE_NAME>
+<MACHINE_DESCRIPTION>TheCompressor condenses text into the most semantically dense representation possible. Optimized for transmition between LLMs. This reduces the tokens required to communicate.</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>
+TheCompressor takes the input from the user and rewrites it using the fewest tokens possible. The output MUST be semantically correct. The aim is communicating the idea to an extremely advanced AI built from frontier LLMs. The output need not be legible to humans. u may use fractional word tokens.
+</CORE_FUNCTION>
+" -c --cid $compressor_cid
+}
+
+
+
+note_llm_plugins () {
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    llm "${args_to_pass[@]}" --system "<MACHINE_NAME>LLM PLUGINS</MACHINE_NAME>
+<MACHINE_DESCRIPTION>A concise notes manager and ideas factory for building plugins for simonw's llm cli</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>I will give you notes as I think of them. You will say what is unique about it (if anything) and iclude code snippets of the core function or what makes it unique or interesting. This is to help me learn about the llm cli and python library and plugins. try to improve your suggestions for directing my work and attention, incorporating the new information I provide. You should structure each response like <feedback>This should be your own critical and intelligent thoughts on what I am saying, but VERY brief</feedback>
+Also important, if you notice any MAJOR and OBVIOUS ineficience, mention them. Like if a model plugin is polling an api for a list every time it loads etc. Or say nothing.
+Dont say anything else.
+Dont mention obvious, common or repetitve issues, like generic security risks and error handling.
+Only mention that which is unqine about the plugin code. If nothing is unique, a single short paragraph should be written.
+</CORE_FUNCTION>
+Keep your answers extremely short. I will ask you to expand if I desire.
+
+Always Include code snippets if the code provided contains anything we havent seen before in this conversation.
+" -c --cid $llm_plugins_cid
+}
+
+note_today() {
+    # Tasks for today
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    llm --system "<MACHINE_NAME>Daily Task Manager</MACHINE_NAME>
+<MACHINE_DESCRIPTION>Manages daily tasks and priorities.</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>I will provide updates on my tasks for today. You will help me prioritize, track progress, and suggest next steps. Keep track of completed tasks and upcoming deadlines. Provide concise summaries and reminders.</CORE_FUNCTION>
+Keep responses brief and focused on actionable items." -c --cid $note_today_cid "${args_to_pass[@]}" 
+}
+
+
+glossary_clerk() {
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    # If no input provided, maybe list the glossary? Or prompt? For now, just pass empty.
+    # Consider adding logic here if you want specific behavior with no input.
+
+    llm "${args_to_pass[@]}" --system "<MACHINE_NAME>Glossary Clerk</MACHINE_NAME>
+<MACHINE_DESCRIPTION>Maintains a glossary of terms and their definitions.</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>
+I will provide you with terms and their definitions, or ask you about existing terms.
+When I provide a new term and definition (e.g., 'Term: Definition'), record it accurately.
+If I provide just a term, try to define it based on our conversation history or ask for clarification.
+If I ask 'What is [Term]?', retrieve and provide the stored definition.
+Maintain a consistent internal format like:
+Term: [Term Name]
+Definition: [Definition provided]
+Context/Example: [Optional: Add context or examples if provided or relevant]
+Keep responses concise. Confirm additions briefly (e.g., 'Recorded: [Term]'). When retrieving, just provide the definition.
+</CORE_FUNCTION>
+" -c --cid 01jsf84h50539s9bv0zekmmydy
+}
+
+alias glossary=glossary_clerk
+
+vibelab_clerk() {
+    # Notes pertaining to the development of vibelab project (Visual Baseline Evaluation Laboratory)
+    local stdin_data=""
+    local args_to_pass=()
+
+    if [ ! -t 0 ]; then
+        stdin_data=$(cat)
+    fi
+
+    if [ $# -gt 0 ]; then
+        args_to_pass=("$@")
+    elif [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+
+    llm --system "<MACHINE_NAME>VibeLab Clerk</MACHINE_NAME>
+<MACHINE_DESCRIPTION>Manages notes, ideas, and progress for the VibeLab project (Visual Baseline Evaluation Laboratory).</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>I will provide updates, ideas, and questions related to the VibeLab project. You will help me organize these notes, suggest relevant technical approaches, track progress on key components (like data ingestion, visualization, baseline models, evaluation metrics), and identify potential challenges or next steps. Keep responses concise and focused on actionable insights and technical details relevant to the project's goals.</CORE_FUNCTION>
+Keep responses brief and focused on actionable items." -c --cid 01jwekxc9hc0vrqqex7dnfg9j0 "${args_to_pass[@]}"
+}
+
+</document_content>
+</document>
+</documents>
+ The present inquiry seeks the elucidation of enhanced methodologies for augmenting the operational utility and conceptual sophistication of the extant 'clerk' paradigm, which leverages shell functions to manage contextualized interactions with Large Language Models via Simon Willison's LLM command-line interface. A foundational prerequisite involves a meticulous appraisal of the inherent limitations of this pattern, subsequently transitioning to a systematic exploration of multifaceted strategies for its substantial refinement.
+
+Of paramount importance within this investigation is the formulation of robust mechanisms for the dynamic instantiation and management of these clerk conversational contexts, thereby enabling their generation and adaptation in a more fluid, on-the-fly manner. By way of illustrative example, consider a scenario wherein discrete tasks are appended to the vibelab_clerk conversational agent. Upon the successful completion of any given task, its continued persistence within the active 'to-do' manifest becomes not only superfluous but counterproductive to efficient state tracking. A prospective stratagem to address this involves the systematic maintenance of bifurcated conversational threads: one designated for tasks pending execution and a discrete counterpart for those that have been duly concluded. The practical implementation of such a system could foreseeably entail the programmatic modification of the conversation_id attribute within the responses table of the Okay, `logs.db` tells me you likely have a **database file used for storing log data**.
+
+Most commonly, a `.db` file, especially one named `logs.db`, is an **SQLite database**. SQLite is a lightweight, file-based database that many applications use to store structured data, including logs.
+
+**What you might want to do with it / What it might contain:**
+
+1.  **View Logs:** The database likely contains tables with log entries, which could include:
+    *   Timestamps (when the event occurred)
+    *   Log level (e.g., INFO, WARNING, ERROR, DEBUG)
+    *   Source (e.g., application name, module, function)
+    *   Log message (the actual details of the event)
+    *   Possibly other contextual information like user ID, IP address, etc.
+
+2.  **Analyze Log Data:** You might want to query the database to:
+    *   Find specific error messages.
+    *   Track user activity.
+    *   Identify patterns or trends.
+    *   Troubleshoot issues.
+
+**How to open/interact with it (if it's SQLite):**
+
+*   **SQLite Command-Line Tool:** If you have SQLite installed (it often comes pre-installed on macOS and Linux, or can be easily downloaded for Windows), you can open it from your terminal/command prompt:
+    ```bash
+    sqlite3 logs.db
+    ```
+    Once inside, you can use SQL commands like:
+    *   `.tables` (to see all tables)
+    *   `.schema <table_name>` (to see the structure of a specific table)
+    *   `SELECT * FROM <table_name> LIMIT 10;` (to see some data from a table)
+    *   `SELECT * FROM <table_name> WHERE message LIKE '%error%';` (to find entries containing "error")
+
+*   **GUI Database Tools:** Many free and paid graphical tools can open SQLite databases, making them easier to browse:
+    *   **DB Browser for SQLite:** (Highly recommended, free, open-source, and cross-platform)
+    *   **DBeaver:** (A powerful, free, multi-platform universal database tool)
+    *   **DataGrip (JetBrains):** (Commercial, very powerful)
+    *   Many IDEs (like VS Code with an SQLite extension) can also browse these files.
+
+**To help me understand what you need, could you tell me:**
+
+*   **Where did you find this file?** (e.g., from an application's data folder, a system directory)
+*   **What are you trying to achieve with it?** (e.g., "I need to find out why my application crashed," "I want to see user login attempts," "I'm just curious what's inside.")
+*   **Do you know what application or system might have created it?**
+
+Knowing more context will help me give you more specific advice! SQLite database. This operation would effectively reassign the pertinent prompt/response record from the conversational stream associated with pending items to that cataloging completed items.
+This exploration is explicitly predicated upon, and seeks to innovatively extend, the capabilities inherent within Simon Willison's LLM library and its associated command-line interface, aiming to devise patterns of interaction that are both more versatile and responsive to evolving operational requirements.
+
+llm --help
+Usage: llm [OPTIONS] COMMAND [ARGS]...
+
+  Access Large Language Models from the command-line
+
+  Documentation: https://llm.datasette.io/
+
+  LLM can run models from many different providers. Consult the plugin
+  directory for a list of available models:
+
+  https://llm.datasette.io/en/stable/plugins/directory.html
+
+  To get started with OpenAI, obtain an API key from them and:
+
+      $ llm keys set openai
+      Enter key: ...
+
+  Then execute a prompt like this:
+
+      llm 'Five outrageous names for a pet pelican'
+
+  For a full list of prompting options run:
+
+      llm prompt --help
+
+Options:
+  --version  Show the version and exit.
+  --help     Show this message and exit.
+
+Commands:
+  prompt*       Execute a prompt
+  aliases       Manage model aliases
+  chat          Hold an ongoing chat with a model.
+  collections   View and manage collections of embeddings
+  consortium    Commands for managing and running model consortiums
+  embed         Embed text and store or return the result
+  embed-models  Manage available embedding models
+  embed-multi   Store embeddings for multiple strings at once in the...
+  feedback+1    Provide positive feedback to the last prompt / response.
+  feedback-1    Provide negative feedback to the last prompt / response.
+  fragments     Manage fragments that are stored in the database
+  gemini        Commands relating to the llm-gemini plugin
+  install       Install packages from PyPI into the same environment as LLM
+  keys          Manage stored API keys for different models
+  logs          Tools for exploring logged prompts and responses
+  models        Manage available models
+  openai        Commands for working directly with the OpenAI API
+  openrouter    Commands relating to the llm-openrouter plugin
+  plugins       List installed plugins
+  schemas       Manage stored schemas
+  similar       Return top N similar IDs from a collection using cosine...
+  templates     Manage stored prompt templates
+  tools         Manage tools that can be made available to LLMs
+  uninstall     Uninstall Python packages from the LLM environment
+
+llm logs path
+/home/thomas/.config/io.datasette.llm/logs.db
+sqlite3 /home/thomas/.config/io.datasette.llm/logs.db '.schema responses'
+
+CREATE TABLE IF NOT EXISTS "responses" (
+	"id"	TEXT,
+	"model"	TEXT,
+	"prompt"	TEXT,
+	"system"	TEXT,
+	"prompt_json"	TEXT,
+	"options_json"	BLOB,
+	"response"	TEXT,
+	"response_json"	TEXT,
+	"conversation_id"	TEXT,
+	"duration_ms"	INTEGER,
+	"datetime_utc"	TEXT,
+	"input_tokens"	INTEGER,
+	"output_tokens"	INTEGER,
+	"token_details"	TEXT,
+	"bookmark"	INTEGER,
+	"session_id"	INTEGER,
+	"schema_id"	TEXT,
+	"consortium_id"	TEXT,
+	"is_arbiter_response"	INTEGER DEFAULT 0,
+	"consortium_group_id"	TEXT,
+	PRIMARY KEY("id"),
+	FOREIGN KEY("conversation_id") REFERENCES "conversations"("id"),
+	FOREIGN KEY("schema_id") REFERENCES "schemas"("id")
+);
+CREATE INDEX idx_consortium_id ON responses(consortium_id);
+CREATE TRIGGER [responses_ad] AFTER DELETE ON [responses] BEGIN
+  INSERT INTO [responses_fts] ([responses_fts], rowid, [prompt], [response]) VALUES('delete', old.rowid, old.[prompt], old.[response]);
+END;
+CREATE TRIGGER [responses_ai] AFTER INSERT ON [responses] BEGIN
+  INSERT INTO [responses_fts] (rowid, [prompt], [response]) VALUES (new.rowid, new.[prompt], new.[response]);
+END;
+CREATE TRIGGER [responses_au] AFTER UPDATE ON [responses] BEGIN
+  INSERT INTO [responses_fts] ([responses_fts], rowid, [prompt], [response]) VALUES('delete', old.rowid, old.[prompt], old.[response]);
+  INSERT INTO [responses_fts] (rowid, [prompt], [response]) VALUES (new.rowid, new.[prompt], new.[response]);
+END;</instruction>
+</prompt></instruction>
+</prompt>

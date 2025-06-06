@@ -1,0 +1,33 @@
+--- clerk_manager.sh.bak
++++ clerk_manager.sh
+@@ -44,11 +44,17 @@
+ }
+ 
+ _run_dynamic_clerk_interaction() {
+-    local cid="$1"
+-    local system_prompt="$2"
+-    shift 2
++    local alias_name="$1"
++    shift 1
++    
++    # Look up the actual values from the arrays
++    local cid="${DYNAMIC_CLERK_CIDS[$alias_name]}"
++    local system_prompt="${DYNAMIC_CLERK_SYSTEM_PROMPTS[$alias_name]}"
+ 
++    if [ -z "$cid" ] || [ -z "$system_prompt" ]; then
++        echo "Error: Dynamic clerk '$alias_name' not found or incomplete." >&2
++        return 1
++    fi
++    
+     local stdin_data=""
+     local args_to_pass=("$@")
+     if [ ! -t 0 ]; then stdin_data=$(cat); fi
+@@ -154,7 +160,7 @@
+     echo "DYNAMIC_CLERK_SYSTEM_PROMPTS[\"$dynamic_alias_name\"]='$escaped_system_prompt'" >> "$dynamic_config_path"
+ 
+     # Create function definition that calls _run_dynamic_clerk_interaction
+-    local function_definition="${dynamic_alias_name}() { _run_dynamic_clerk_interaction \"\$DYNAMIC_CLERK_CIDS[\\\"$dynamic_alias_name\\\"]\" \"\$DYNAMIC_CLERK_SYSTEM_PROMPTS[\\\"$dynamic_alias_name\\\"]\" \"\$@\"; }"
++    local function_definition="${dynamic_alias_name}() { _run_dynamic_clerk_interaction \"$dynamic_alias_name\" \"\$@\"; }"
+     echo "$function_definition" >> "$dynamic_config_path"
+     echo "" >> "$dynamic_config_path"
+ 

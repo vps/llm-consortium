@@ -19,3 +19,5 @@ Report format:
 4. Grade (A-F) with justification
 
 Note: Work exclusively in this directory.
+
+Put your final evaluation report inside <FINAL_ANSWER> tags.

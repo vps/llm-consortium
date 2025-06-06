@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# --- Configuration ---
+# Use unique CIDs for this evaluation to avoid conflicts
+vibelab_pending_cid="eval_test_pending_cid_$(date +%s)"
+vibelab_completed_cid="eval_test_completed_cid_$(date +%s)"
+
+# Use a local test database for this evaluation
+: "${LLM_LOGS_DB:=./evaluation_logs.db}"
+log_db_path="$LLM_LOGS_DB"
+
+# --- Dummy vibelab_clerk for testing ---
+vibelab_clerk() {
+    if [ -z "$1" ]; then
+        echo "Usage: vibelab_clerk \"<prompt>\""
+        return 1
+    fi
+    echo "VibeLab Clerk: Adding task - '$1'"
+    # Insert log entry directly into SQLite
+    sqlite3 "$log_db_path" \
+    "INSERT INTO responses (conversation_id, prompt, response, model, datetime_utc) VALUES ('$vibelab_pending_cid', '$1', 'Dummy LLM response', 'dummy_model', strftime('%Y-%m-%dT%H:%M:%fZ', 'now'));"
+    if [ $? -eq 0 ]; then
+        echo "Task logged to pending CID: $vibelab_pending_cid"
+    else
+        echo "ERROR: Failed to log task with sqlite3."
+    fi
+}
+
+# --- Core Task Management Functions ---
+vibelab_mark_last_complete() {
+    local pending_cid="${vibelab_pending_cid}"
+    local completed_cid="${vibelab_completed_cid}"
+
+    local response_row_id=$(sqlite3 "$log_db_path" \
+        "SELECT id FROM responses WHERE conversation_id = '$pending_cid' ORDER BY datetime_utc DESC LIMIT 1;")
+
+    if [ -z "$response_row_id" ]; then
+        echo "VibeLab: No pending tasks found in CID '$pending_cid' to mark complete."
+        return 1
+    fi
+
+    sqlite3 "$log_db_path" \
+        "UPDATE responses SET conversation_id = '$completed_cid' WHERE id = '$response_row_id';"
+
+    if [ $? -eq 0 ]; then
+        echo "VibeLab: Moved last pending task (ID: $response_row_id) from '$pending_cid' to '$completed_cid'."
+    else
+        echo "VibeLab: Failed to move task (ID: $response_row_id)."
+        return 1
+    fi
+}
+
+vibelab_mark_complete_by_keyword() {
+    local keyword="$1"
+    if [ -z "$keyword" ]; then
+        echo "Usage: vibelab_mark_complete_by_keyword \"<partial_prompt_text>\""
+        return 1
+    fi
+
+    local pending_cid="${vibelab_pending_cid}"
+    local completed_cid="${vibelab_completed_cid}"
+
+    local response_row_id=$(sqlite3 "$log_db_path" \
+        "SELECT id FROM responses WHERE conversation_id = '$pending_cid' AND prompt LIKE '%$keyword%' ORDER BY datetime_utc DESC LIMIT 1;")
+
+    if [ -z "$response_row_id" ]; then
+        echo "VibeLab: No pending task found in CID '$pending_cid' matching '$keyword'."
+        return 1
+    fi
+
+    sqlite3 "$log_db_path" \
+        "UPDATE responses SET conversation_id = '$completed_cid' WHERE id = '$response_row_id';"
+
+    if [ $? -eq 0 ]; then
+        echo "VibeLab: Moved task (ID: $response_row_id, matched by '$keyword') from '$pending_cid' to '$completed_cid'."
+    else
+        echo "VibeLab: Failed to move task (ID: $response_row_id, matched by '$keyword')."
+        return 1
+    fi
+}
+
+# Lists using direct SQL queries
+vibelab_list_pending() {
+    local pending_cid="${vibelab_pending_cid}"
+    echo "--- VibeLab Pending Tasks (CID: $pending_cid) ---"
+    sqlite3 "$log_db_path" "SELECT id, datetime_utc, substr(prompt,1,60) AS prompt_preview FROM responses WHERE conversation_id = '$pending_cid' ORDER BY datetime_utc DESC;"
+}
+
+vibelab_list_completed() {
+    local completed_cid="${vibelab_completed_cid}"
+    echo "--- VibeLab Completed Tasks (CID: $completed_cid) ---"
+    sqlite3 "$log_db_path" "SELECT id, datetime_utc, substr(prompt,1,60) AS prompt_preview FROM responses WHERE conversation_id = '$completed_cid' ORDER BY datetime_utc DESC;"
+}
+
+# New database initialization
+init_test_db() {
+    if [ ! -f "$log_db_path" ]; then
+        echo "Initializing new test logs database: $log_db_path"
+        sqlite3 "$log_db_path" "DROP TABLE IF EXISTS responses; CREATE TABLE responses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            conversation_id TEXT,
+            prompt TEXT,
+            response TEXT,
+            model TEXT,
+            options TEXT, -- Added to match llm schema more closely
+            system TEXT,  -- Added to match llm schema more closely
+            timestamp INTEGER, -- Added to match llm schema more closely
+            datetime_utc TEXT,
+            duration_ms INTEGER -- Added to match llm schema more closely
+        );"
+        if [ $? -eq 0 ]; then
+            echo "Database schema created."
+        else
+            echo "ERROR: Failed to create database schema."
+            return 1
+        fi
+    else
+        echo "Using existing test logs database: $log_db_path"
+    fi
+}
+
+# Initialize if LLM_LOGS_DB is set
+if [ -n "$LLM_LOGS_DB" ]; then
+    # Ensure the directory for the DB exists if it's nested
+    mkdir -p "$(dirname "$log_db_path")"
+    init_test_db
+fi

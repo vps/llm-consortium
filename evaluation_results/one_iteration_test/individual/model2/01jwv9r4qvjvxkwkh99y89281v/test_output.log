@@ -1,0 +1,43 @@
+Using test database: /tmp/tmp.P8Qg4KyK3c/test_logs.db
+Created test database schema.
+
+=== Testing VibeLab Task Management (Mock Implementation) ===
+
+1. Listing initial pending tasks (should be empty)
+--- VibeLab Pending Tasks (CID: test_pending_1749044604) ---
+
+2. Listing initial completed tasks (should be empty)
+--- VibeLab Completed Tasks (CID: test_completed_1749044604) ---
+
+3. Adding task 1: 'Investigate data ingestion methods'
+VibeLab Clerk: Added task - 'Investigate data ingestion methods' (ID: test_1749044604463944209) to test_pending_1749044604
+
+4. Adding task 2: 'Design UI mockups for dashboard'
+VibeLab Clerk: Added task - 'Design UI mockups for dashboard' (ID: test_1749044604630648515) to test_pending_1749044604
+
+5. Adding task 3: 'Setup CI/CD pipeline'
+VibeLab Clerk: Added task - 'Setup CI/CD pipeline' (ID: test_1749044604795480087) to test_pending_1749044604
+
+6. Listing pending tasks (should show 3 tasks, newest first)
+--- VibeLab Pending Tasks (CID: test_pending_1749044604) ---
+id|datetime_utc|prompt_preview
+test_1749044604463944209|2025-06-04 14:43:24|Investigate data ingestion methods
+test_1749044604630648515|2025-06-04 14:43:24|Design UI mockups for dashboard
+test_1749044604795480087|2025-06-04 14:43:24|Setup CI/CD pipeline
+
+7. Marking the last task ('Setup CI/CD pipeline') as complete
+VibeLab: Moved last pending task (ID: test_1749044604463944209) from test_pending_1749044604 to test_completed_1749044604.
+
+8. Listing pending tasks (should show 2 tasks)
+--- VibeLab Pending Tasks (CID: test_pending_1749044604) ---
+id|datetime_utc|prompt_preview
+test_1749044604630648515|2025-06-04 14:43:24|Design UI mockups for dashboard
+test_1749044604795480087|2025-06-04 14:43:24|Setup CI/CD pipeline
+
+9. Listing completed tasks (should show 1 task: 'Setup CI/CD pipeline')
+--- VibeLab Completed Tasks (CID: test_completed_1749044604) ---
+id|datetime_utc|prompt_preview
+test_1749044604463944209|2025-06-04 14:43:24|Investigate data ingestion methods
+
+10. Marking a task by keyword ('data ingestion')
+VibeLab: No pending task found matching 'data ingestion'.

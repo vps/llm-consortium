@@ -1,0 +1,299 @@
+#!/bin/bash
+
+# Source the main configurations
+CONFIG_FILE_PATH="${HOME}/.config/shelllm/clerk_configs.sh"
+if [ -f "$CONFIG_FILE_PATH" ]; then
+    source "$CONFIG_FILE_PATH"
+else
+    echo "Warning: Static clerk configuration file not found at $CONFIG_FILE_PATH" >&2
+fi
+
+# Source dynamic contexts if they exist
+DYNAMIC_CONFIG_PATH="${HOME}/.config/shelllm/clerk_dynamic_contexts.sh"
+if [ -f "$DYNAMIC_CONFIG_PATH" ]; then
+    source "$DYNAMIC_CONFIG_PATH"
+fi
+
+LLM_LOG_DB_PATH_CACHE=""
+get_llm_log_db_path() {
+    if [ -z "$LLM_LOG_DB_PATH_CACHE" ]; then
+        LLM_LOG_DB_PATH_CACHE_RAW=$(llm logs path 2>/dev/null)
+        if [ -z "$LLM_LOG_DB_PATH_CACHE_RAW" ] || [ ! -f "$LLM_LOG_DB_PATH_CACHE_RAW" ]; then
+            echo "Error: Could not retrieve LLM logs path or path is invalid. Is 'llm' installed and configured? ('llm logs path' failed or gave bad path)" >&2
+            return 1
+        fi
+        LLM_LOG_DB_PATH_CACHE="$LLM_LOG_DB_PATH_CACHE_RAW"
+    fi
+    echo "$LLM_LOG_DB_PATH_CACHE"
+    return 0
+}
+
+# Generic function to run a static clerk interaction based on base_cid_type and suffix
+_run_clerk_interaction() {
+    local clerk_type="$1"
+    local context_suffix="$2"
+    shift 2 
+
+    local base_cid_for_clerk="${CLERK_BASE_CIDS[$clerk_type]}"
+    if [ -z "$base_cid_for_clerk" ]; then
+        echo "Error: Base CID for clerk type '$clerk_type' not found in config." >&2
+        return 1
+    fi
+
+    local effective_cid="$base_cid_for_clerk" 
+    if [ -n "$context_suffix" ] && [ "$context_suffix" != "main" ]; then
+        effective_cid="${base_cid_for_clerk}_${context_suffix}"
+    fi
+
+    local system_prompt_key_specific="${clerk_type}_${context_suffix}"
+    local system_prompt_key_base="${clerk_type}"
+    local system_prompt_for_clerk="${CLERK_SYSTEM_PROMPTS[$system_prompt_key_specific]}"
+    
+    if [ -z "$system_prompt_for_clerk" ]; then
+        system_prompt_for_clerk="${CLERK_SYSTEM_PROMPTS[$system_prompt_key_base]}" 
+    fi
+
+    if [ -z "$system_prompt_for_clerk" ]; then
+        echo "Error: System prompt for clerk '$clerk_type' (context: '$context_suffix' or base) not found." >&2
+        return 1
+    fi
+
+    local stdin_data=""
+    local args_to_pass=("$@")
+
+    if [ ! -t 0 ]; then 
+        stdin_data=$(cat)
+    fi
+
+    if [ ${#args_to_pass[@]} -eq 0 ] && [ -n "$stdin_data" ]; then
+        args_to_pass=("$stdin_data")
+    fi
+    
+    llm "${args_to_pass[@]}" --system "$system_prompt_for_clerk" --cid "$effective_cid" -c
+}
+
+# Generic function to run a dynamically created clerk interaction
+_run_dynamic_clerk_interaction() {
+    local alias_name="$1"
+    shift 1
+    
+    # Look up the actual values from the arrays
+    local cid="${DYNAMIC_CLERK_CIDS[$alias_name]}"
+    local system_prompt="${DYNAMIC_CLERK_SYSTEM_PROMPTS[$alias_name]}"
+
+    if [ -z "$cid" ] || [ -z "$system_prompt" ]; then
+        echo "Error: Dynamic clerk '$alias_name' not found or incomplete." >&2
+        return 1
+    fi
+    
+    local stdin_data=""
+    local args_to_pass=("$@")
+    if [ ! -t 0 ]; then stdin_data=$(cat); fi
+    if [ ${#args_to_pass[@]} -eq 0 ] && [ -n "$stdin_data" ]; then args_to_pass=("$stdin_data"); fi
+
+    llm "${args_to_pass[@]}" --system "$system_prompt" --cid "$cid" -c
+}
+
+
+### --- Static Clerk Definitions (using _run_clerk_interaction) ---
+vibelab_clerk() {
+    _run_clerk_interaction "vibelab" "pending" "$@"
+}
+
+vibelab_add_task() {
+    if [ $# -eq 0 ] && [ -t 0 ]; then echo "Usage: vibelab_add_task <task description> OR echo <task description> | vibelab_add_task"; return 1; fi
+    _run_clerk_interaction "vibelab" "pending" "New Task: $*"
+    echo "Task added to VibeLab pending context."
+}
+
+vibelab_review_completed() {
+    _run_clerk_interaction "vibelab" "completed" "$@"
+}
+
+vibelab_complete_task() {
+    local task_id_or_keywords="$1"
+    if [ -z "$task_id_or_keywords" ]; then
+        echo "Usage: vibelab_complete_task <response_id_of_task | keywords_to_find_task>"
+        echo "Tip: Use 'llm logs -c ${CLERK_BASE_CIDS["vibelab"]}_pending -n 10' to find recent task IDs."
+        return 1
+    fi
+
+    local db_path=$(get_llm_log_db_path)
+    if [ $? -ne 0 ]; then return 1; fi 
+
+    local pending_cid="${CLERK_BASE_CIDS["vibelab"]}_pending"
+    local completed_cid="${CLERK_BASE_CIDS["vibelab"]}_completed"
+    local task_response_id=""
+
+    if [[ "$task_id_or_keywords" =~ ^[0-9a-zA-Z]{26}$ ]]; then
+        task_response_id_check=$(sqlite3 "$db_path" "SELECT id FROM responses WHERE id='$task_id_or_keywords' AND conversation_id='$pending_cid' LIMIT 1;")
+        if [ -n "$task_response_id_check" ]; then
+            task_response_id="$task_id_or_keywords"
+            echo "Processing task with ID: $task_response_id (direct match)."
+        else
+            echo "Info: Provided ID '$task_id_or_keywords' not found in VibeLab pending context or is not a direct ID. Attempting keyword search." >&2
+        fi
+    fi
+
+    if [ -z "$task_response_id" ]; then
+        echo "Searching for task by keywords: '$task_id_or_keywords' in '$pending_cid'"
+        local potential_tasks_query="SELECT id, prompt, datetime_utc FROM responses WHERE conversation_id='$pending_cid' AND (prompt LIKE '%${task_id_or_keywords}%' OR response LIKE '%${task_id_or_keywords}%') ORDER BY datetime_utc DESC;"
+        
+        if command -v fzf >/dev/null 2>&1; then
+            local fzf_selection
+            fzf_selection=$(sqlite3 "$db_path" "$potential_tasks_query" | \
+                                   awk -F'|' '{printf "%s\t%s\t%s\n", $1, $3, substr($2, 1, 100)}' | \
+                                   fzf --with-nth=1.. --print-query --header="Select task to complete (fuzzy search - type to filter):")
+            local fzf_exit_code=$?
+
+            if [ $fzf_exit_code -eq 0 ] && [ -n "$fzf_selection" ]; then # 0 is success
+                # Remove potential query line from fzf --print-query output
+                local selected_line=$(echo "$fzf_selection" | tail -n 1) 
+                task_response_id=$(echo "$selected_line" | awk -F'\t' '{print $1}')
+                echo "Selected task ID via fzf: $task_response_id"
+            elif [ $fzf_exit_code -eq 1 ]; then # 1 means no match
+                 echo "No task matching keywords found via fzf." >&2
+                 return 1
+            elif [ $fzf_exit_code -eq 130 ]; then # 130 means cancelled by user (Ctrl-C, Esc)
+                 echo "Task selection cancelled." >&2
+                 return 1
+            else # Other error
+                 echo "Fzf selection failed or no matches found (exit code: $fzf_exit_code)." >&2
+                 return 1
+            fi
+        else
+            echo "fzf not found. Falling back to selecting the most recent task matching keywords." >&2
+            task_response_id=$(sqlite3 "$db_path" "SELECT id FROM responses WHERE conversation_id='$pending_cid' AND (prompt LIKE '%$task_id_or_keywords%' OR response LIKE '%$task_id_or_keywords%') ORDER BY datetime_utc DESC LIMIT 1;")
+            if [ -z "$task_response_id" ]; then
+                echo "Error: Task not found with keywords '$task_id_or_keywords' in VibeLab pending context ($pending_cid)." >&2
+                return 1
+            fi
+            echo "Found task with ID: $task_response_id (most recent match)."
+        fi
+    fi
+
+    if [ -n "$task_response_id" ]; then
+        sqlite3 "$db_path" "BEGIN TRANSACTION; UPDATE responses SET conversation_id='${completed_cid}' WHERE id='${task_response_id}'; COMMIT;"
+        local update_status=$?
+
+        if [ "$update_status" -eq 0 ]; then
+            echo "Task (ID: $task_response_id) moved from VibeLab pending ($pending_cid) to completed ($completed_cid) context."
+            local task_prompt_content=$(sqlite3 "$db_path" "SELECT prompt FROM responses WHERE id='${task_response_id}' LIMIT 1;")
+            _run_clerk_interaction "vibelab" "completed" "System Note: Task (ID: $task_response_id, Original Prompt: \"$task_prompt_content\") has been marked as completed and moved to this context."
+        else
+            echo "Error ($update_status) moving task (ID: $task_response_id). Database update failed. Transaction rolled back implicitly by SQLite on error if not committed." >&2
+            return 1
+        fi
+    fi
+}
+
+deep-bloom() { _run_clerk_interaction "deep_bloom" "main" "$@"; }
+llm-notes() { _run_clerk_interaction "llm_notes" "main" "$@"; }
+llm-compressor() { _run_clerk_interaction "compressor" "main" "$@"; } # Assuming 'compressor' is defined in configs
+note_llm_plugins() { _run_clerk_interaction "llm_plugins" "main" "$@"; } # Assuming 'llm_plugins'
+note_today() { _run_clerk_interaction "note_today" "main" "$@"; } # Assuming 'note_today'
+glossary_clerk() { _run_clerk_interaction "glossary" "main" "$@"; } # Assuming 'glossary'
+alias glossary=glossary_clerk
+
+
+### --- Dynamic Clerk Management ---
+create_dynamic_clerk() {
+    local dynamic_alias_name="$1"
+    local system_prompt_content="$2"
+
+    if [ -z "$dynamic_alias_name" ] || [ -z "$system_prompt_content" ]; then
+        echo "Usage: create_dynamic_clerk <alias_name> <system_prompt_content_string_or_filepath>" >&2
+        return 1
+    fi
+    if [[ "$dynamic_alias_name" =~ [^a-zA-Z0-9_] ]]; then
+        echo "Error: Alias name can only contain alphanumeric characters and underscores." >&2
+        return 1
+    fi
+
+
+    local new_cid=""
+    if command -v uuidgen >/dev/null 2>&1; then
+        new_cid=$(uuidgen | tr -d '-' | cut -c1-26) # LLM CIDs are 26 chars
+    else
+        new_cid="dyn_$(date +%s%N | shasum | head -c22)" # Fallback, ensure some variability and length
+    fi
+
+    local effective_system_prompt=""
+    if [ -f "$system_prompt_content" ]; then
+        effective_system_prompt=$(cat "$system_prompt_content")
+    else
+        effective_system_prompt="$system_prompt_content"
+    fi
+
+    if [ -z "$effective_system_prompt" ]; then
+        echo "Error: System prompt content is empty after processing." >&2
+        return 1
+    fi
+
+    local dynamic_config_path="${HOME}/.config/shelllm/clerk_dynamic_contexts.sh"
+    mkdir -p "$(dirname "$dynamic_config_path")"
+    if [ ! -f "$dynamic_config_path" ]; then
+        echo "#!/bin/bash" > "$dynamic_config_path"
+        echo "declare -A DYNAMIC_CLERK_CIDS" >> "$dynamic_config_path"
+        echo "declare -A DYNAMIC_CLERK_SYSTEM_PROMPTS" >> "$dynamic_config_path"
+        echo "" >> "$dynamic_config_path"
+    fi
+
+    local escaped_system_prompt=$(printf '%s\n' "$effective_system_prompt" | sed "s/'/'\\\\''/g; \$!s/\$/\\\\n/") # Escape single quotes & newlines
+
+    echo "DYNAMIC_CLERK_CIDS[\"$dynamic_alias_name\"]=\"$new_cid\"" >> "$dynamic_config_path"
+    echo "DYNAMIC_CLERK_SYSTEM_PROMPTS[\"$dynamic_alias_name\"]='$escaped_system_prompt'" >> "$dynamic_config_path" # Use single quotes for content
+    local function_definition="${dynamic_alias_name}() { _run_dynamic_clerk_interaction \"$dynamic_alias_name\" \"\$@\"; }"
+    echo "$function_definition" >> "$dynamic_config_path"
+    echo "" >> "$dynamic_config_path"
+
+    eval "$function_definition" # Make available in current shell
+    DYNAMIC_CLERK_CIDS["$dynamic_alias_name"]="$new_cid" # Update in-memory array
+    DYNAMIC_CLERK_SYSTEM_PROMPTS["$dynamic_alias_name"]="$effective_system_prompt" # Update in-memory array (unescaped)
+
+
+    echo "Created dynamic clerk '$dynamic_alias_name' with CID '$new_cid'."
+    echo "It's now available in this shell session. Source '$DYNAMIC_CONFIG_PATH' in new shells."
+}
+
+list_dynamic_clerks() {
+    echo "--- Dynamic Clerks (from current session) ---"
+    if declare -p DYNAMIC_CLERK_CIDS &>/dev/null && [ ${#DYNAMIC_CLERK_CIDS[@]} -gt 0 ]; then
+        for alias_name in "${!DYNAMIC_CLERK_CIDS[@]}"; do
+            echo "  - $alias_name (CID: ${DYNAMIC_CLERK_CIDS[$alias_name]})"
+        done
+    else
+        echo "No dynamic clerks loaded in current session or defined."
+        echo "Ensure '$DYNAMIC_CONFIG_PATH' is sourced if clerks were defined previously."
+    fi
+    echo "---------------------------------------------"
+}
+
+delete_dynamic_clerk() {
+    local alias_to_delete="$1"
+    if [ -z "$alias_to_delete" ]; then
+        echo "Usage: delete_dynamic_clerk <alias_name>" >&2
+        return 1
+    fi
+
+    local dynamic_config_path="${HOME}/.config/shelllm/clerk_dynamic_contexts.sh"
+    if [ ! -f "$dynamic_config_path" ]; then
+        echo "No dynamic clerks file found at '$dynamic_config_path'." >&2
+        return 1
+    fi
+
+    # Use sed to remove the lines related to the alias by matching the alias name in key definitions
+    # This is safer than complex regex over potentially multi-line function definitions
+    # It will remove the CID, System Prompt, and the function definition line if unique
+    sed -i "/DYNAMIC_CLERK_CIDS\[\"${alias_to_delete}\"\]=/d" "$dynamic_config_path"
+    sed -i "/DYNAMIC_CLERK_SYSTEM_PROMPTS\[\"${alias_to_delete}\"\]=/d" "$dynamic_config_path"
+    sed -i "/^${alias_to_delete}() {/d" "$dynamic_config_path" # Remove the function definition line
+
+
+    unset -f "$alias_to_delete" &>/dev/null 
+    unset "DYNAMIC_CLERK_CIDS[$alias_to_delete]" &>/dev/null 
+    unset "DYNAMIC_CLERK_SYSTEM_PROMPTS[$alias_to_delete]" &>/dev/null
+
+    echo "Dynamic clerk '$alias_to_delete' definition removed from '$dynamic_config_path' and current session."
+    echo "Note: This does NOT delete the conversation history from llm's logs.db."
+}

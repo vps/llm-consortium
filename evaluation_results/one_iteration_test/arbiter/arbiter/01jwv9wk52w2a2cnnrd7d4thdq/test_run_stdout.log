@@ -1,0 +1,3 @@
+--- Test Environment Setup ---
+LLM_LOGS_PATH set to: /home/thomas/Projects/llm/plugins/Utilities/llm-consortium/evaluation_results/one_iteration_test/arbiter/arbiter/01jwv9wk52w2a2cnnrd7d4thdq/test_db.sqlite
+Test database schema created.

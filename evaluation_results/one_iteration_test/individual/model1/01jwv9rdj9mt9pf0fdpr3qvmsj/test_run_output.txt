@@ -1,0 +1,64 @@
+Mock environment setup complete.
+=== Testing Script 1: Dynamic Conversation Management ===
+
+--- Test 1.1: New conversation ---
+Created new conversation: mockeduuid1234567890abcdef
+
+--- Test 1.2: Fork conversation ---
+my_clerk called with STDIN: 'Compressed Input: Previous context: ' ARGS: ''
+
+--- Test 1.3: Archive tasks ---
+archive_completed_tasks called for clerk: test_clerk
+
+=== Testing Script 2: Task State Management ===
+
+--- Test 2.1: Active task tracking ---
+Mocked LLM Call with STDIN: 'Test task description' ARGS: '--system <MACHINE_NAME>VibeLab Active Tasks</MACHINE_NAME>
+<CORE_FUNCTION>Active task tracking for VibeLab project. When tasks are completed, use 'vibelab_complete' to archive them.</CORE_FUNCTION> -c --cid vibelab_active_cid_initial'
+
+--- Test 2.2: Task transition ---
+Mocked LLM Call with STDIN: 'COMPLETED: Complete authentication module' ARGS: '--system <MACHINE_NAME>VibeLab Active Tasks</MACHINE_NAME>
+<CORE_FUNCTION>Active task tracking for VibeLab project. When tasks are completed, use 'vibelab_complete' to archive them.</CORE_FUNCTION> -c --cid vibelab_active_cid_initial'
+Mocked LLM Call with STDIN: 'Wed  4 Jun 14:36:27 BST 2025: ARCHIVED - Complete authentication module' ARGS: '--system <MACHINE_NAME>VibeLab Completed Tasks</MACHINE_NAME>
+<CORE_FUNCTION>Archive of completed VibeLab tasks. Maintains completion history and lessons learned.</CORE_FUNCTION> -c --cid vibelab_complete_cid_initial'
+
+=== Testing Script 3: Meta-Clerk Factory ===
+
+--- Test 3.1: Generate new clerk ---
+Generated and loaded: security_clerk
+Dynamic clerks file created
+
+--- Test 3.2: Smart clerk selector ---
+Suggested clerk: mock_suggested_clerk
+mock_suggested_clerk received STDIN: 'Need help with database design' ARGS: ''
+
+=== Testing Script 4: Analytics ===
+
+--- Test 4.1: Conversation analytics ---
+total_exchanges  avg_input_tokens  avg_output_tokens  avg_duration_ms  first_interaction    last_interaction
+10               100               200                500              2023-01-01 00:00:00  2023-01-01 01:00:00
+
+--- Test 4.2: Extract insights ---
+Mocked Insight 1\nMocked Insight 2\nMocked Insight 3
+
+=== Testing Script 5: Advanced Integration ===
+
+--- Test 5.1: Clerk pipeline ---
+Processing with deep-bloom...
+Processing with llm-notes...
+Processing with vibelab_clerk...
+vibelab_clerk received STDIN: 'llm-notes received STDIN: 'deep-bloom received STDIN: 'Design a new feature' ARGS: ''' ARGS: ''' ARGS: ''
+
+--- Test 5.2: Cross-clerk sync ---
+my_clerk called with STDIN: 'Knowledge transfer: Compressed Input: ' ARGS: ''
+
+=== Testing Script 6: Database-Driven Enhancements ===
+
+--- Test 6.1: Resume clerk ---
+Resuming my_clerk with context:
+Last discussed: some_prompt... -> some_response...
+
+--- Test 6.2: Bookmark exchanges ---
+Bookmarked recent exchanges containing: important_keyword
+
+=== All tests completed ===

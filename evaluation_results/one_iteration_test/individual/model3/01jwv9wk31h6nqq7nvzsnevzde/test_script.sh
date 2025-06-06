@@ -1,0 +1,33 @@
+# Register vibelab clerk
+VIBELAB_CID=$(register_clerk "vibelab" \
+"<MACHINE_NAME>VibeLab Clerk</MACHINE_NAME>
+<MACHINE_DESCRIPTION>Manages notes, ideas, and progress for the VibeLab project</MACHINE_DESCRIPTION>
+<CORE_FUNCTION>Track tasks with !pending and !completed markers. Maintain separate threads for active and finished work.</CORE_FUNCTION>")
+
+# Create task management threads
+create_thread "vibelab" "pending"
+create_thread "vibelab" "completed"
+
+# Clerk function with task management
+vibelab() {
+    local args=("$@")
+    local task_marker=""
+    
+    # Detect task commands
+    for arg in "${args[@]}"; do
+        if [[ "$arg" =~ ^!(pending|completed) ]]; then
+            task_marker="${BASH_REMATCH[1]}"
+            break
+        fi
+    done
+    
+    # Execute with appropriate thread
+    if [[ "$task_marker" == "pending" ]]; then
+        clerk vibelab --thread pending "${args[@]}"
+    elif [[ "$task_marker" == "completed" ]]; then
+        local response_id=$(clerk vibelab --thread completed "${args[@]}" | jq -r '.id')
+        complete_task "$response_id" "vibelab"
+    else
+        clerk vibelab "${args[@]}"
+    fi
+}
