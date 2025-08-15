@@ -1,4 +1,3 @@
-.agent
-build/
-*.egg-info/
-__pycache__/
+.artefacts
+.artefacts/
+.artefacts/*
